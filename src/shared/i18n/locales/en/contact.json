@@ -1,0 +1,71 @@
+{
+  "hero": {
+    "badge": "💬 Get in Touch",
+    "title": "We'd Love to",
+    "titleHighlight": "Hear From You",
+    "subtitle": "Have a question, feedback, or just want to say hello? We're here to help!"
+  },
+  "form": {
+    "title": "Send Us a Message",
+    "name": "Full Name",
+    "namePlaceholder": "Enter your full name",
+    "email": "Email Address",
+    "emailPlaceholder": "Enter your email address",
+    "subject": "Subject",
+    "subjectPlaceholder": "What is this about?",
+    "message": "Message",
+    "messagePlaceholder": "Write your message here...",
+    "submit": "Send Message",
+    "sending": "Sending...",
+    "success": "Message sent successfully! We'll get back to you soon.",
+    "errors": {
+      "nameRequired": "Name is required",
+      "emailRequired": "Email is required",
+      "emailInvalid": "Please enter a valid email",
+      "subjectRequired": "Subject is required",
+      "messageRequired": "Message is required"
+    }
+  },
+  "info": {
+    "title": "Contact Information",
+    "subtitle": "Reach out to us through any of these channels",
+    "email": {
+      "label": "Email Us",
+      "value": "info@eduplatform.com",
+      "description": "We'll respond within 24 hours"
+    },
+    "phone": {
+      "label": "Call Us",
+      "value": "+20 123 456 7890",
+      "description": "Sun - Thu, 9AM - 5PM (EET)"
+    },
+    "location": {
+      "label": "Visit Us",
+      "value": "Cairo, Egypt",
+      "description": "Our main office location"
+    }
+  },
+  "faq": {
+    "badge": "❓ FAQ",
+    "title": "Frequently Asked",
+    "titleHighlight": "Questions",
+    "items": [
+      {
+        "question": "How do I enroll in a course?",
+        "answer": "Simply browse our courses page, select the course you're interested in, and click 'Enroll Now'. You'll be guided through the registration process."
+      },
+      {
+        "question": "Are certificates provided upon completion?",
+        "answer": "Yes! Upon successfully completing a course, you'll receive a verified digital certificate that you can share on your LinkedIn profile."
+      },
+      {
+        "question": "Can I access courses on mobile devices?",
+        "answer": "Absolutely! Our platform is fully responsive and works seamlessly on all devices — desktop, tablet, and mobile."
+      },
+      {
+        "question": "What payment methods do you accept?",
+        "answer": "We accept major credit cards, PayPal, and local payment methods. Payment plans are also available for select courses."
+      }
+    ]
+  }
+}

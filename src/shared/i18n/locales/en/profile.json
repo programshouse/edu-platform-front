@@ -1,0 +1,126 @@
+{
+  "hero": {
+    "memberSince": "Member since",
+    "editProfile": "Edit Profile",
+    "stats": {
+      "courses": "Courses",
+      "points": "Points",
+      "rank": "Rank"
+    }
+  },
+  "tabs": {
+    "personal": "Personal Info",
+    "courses": "My Courses",
+    "tests": "Tests",
+    "assignments": "Assignments",
+    "settings": "Settings"
+  },
+  "personal": {
+    "title": "Personal Information",
+    "firstName": "First Name",
+    "secondName": "Second Name",
+    "lastName": "Last Name",
+    "fullName": "Full Name",
+    "email": "Email Address",
+    "phone": "Mobile Number",
+    "parentPhone": "Parent's Phone",
+    "dateOfBirth": "Date of Birth",
+    "governorate": "Governorate",
+    "address": "Address",
+    "grade": "Grade",
+    "school": "School",
+    "section": "Section",
+    "registered": "Registration Date",
+    "bio": "Bio",
+    "noData": "No information available"
+  },
+  "courses": {
+    "title": "Enrolled Courses",
+    "progress": "Progress",
+    "status": {
+      "active": "Active",
+      "expired": "Expired"
+    },
+    "expires": "Expires",
+    "accessCourse": "Access Course",
+    "viewDetails": "View Details",
+    "noCourses": "No courses enrolled yet",
+    "noCoursesDesc": "Browse our catalog and enroll in your first course"
+  },
+  "tests": {
+    "title": "My Tests",
+    "course": "Course",
+    "grade": "Grade",
+    "status": {
+      "passed": "Passed",
+      "failed": "Failed",
+      "inProgress": "In Progress"
+    },
+    "attempts": "Attempts",
+    "viewDetails": "View Details",
+    "retry": "Retry",
+    "noTests": "No tests taken yet",
+    "noTestsDesc": "Complete your course lectures to unlock tests"
+  },
+  "assignments": {
+    "title": "My Assignments",
+    "course": "Course",
+    "deadline": "Deadline",
+    "status": {
+      "submitted": "Submitted",
+      "notSubmitted": "Not Submitted",
+      "graded": "Graded",
+      "late": "Late"
+    },
+    "grade": "Grade",
+    "feedback": "Instructor Feedback",
+    "uploadFile": "Upload File",
+    "viewSolution": "View Solution",
+    "noFeedback": "No feedback yet",
+    "noAssignments": "No assignments yet",
+    "noAssignmentsDesc": "Your assignments will appear here once unlocked"
+  },
+  "settings": {
+    "editTitle": "Edit Personal Data",
+    "firstName": "First Name",
+    "secondName": "Second Name",
+    "lastName": "Last Name",
+    "email": "Email Address",
+    "phone": "Phone Number",
+    "parentPhone": "Parent's Phone Number",
+    "dateOfBirth": "Date of Birth",
+    "governorate": "Governorate",
+    "address": "Address",
+    "grade": "Grade",
+    "school": "School",
+    "section": "Section",
+    "photo": "Profile Photo",
+    "changePhoto": "Change Photo",
+    "saveChanges": "Save Changes",
+    "passwordTitle": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm Password",
+    "updatePassword": "Update Password",
+    "passwordHint": "Password must be at least 8 characters"
+  },
+  "modal": {
+    "title": "Edit Profile",
+    "firstName": "First Name",
+    "secondName": "Second Name",
+    "lastName": "Last Name",
+    "email": "Email Address",
+    "phone": "Phone Number",
+    "parentPhone": "Parent's Phone Number",
+    "dateOfBirth": "Date of Birth",
+    "governorate": "Governorate",
+    "address": "Address",
+    "grade": "Grade",
+    "school": "School",
+    "section": "Section",
+    "photo": "Profile Photo",
+    "changePhoto": "Change Photo",
+    "save": "Save Changes",
+    "cancel": "Cancel"
+  }
+}

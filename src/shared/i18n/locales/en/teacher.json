@@ -1,0 +1,96 @@
+{
+  "dashboard": {
+    "title": "Teacher Dashboard",
+    "welcome": "Welcome back",
+    "subtitle": "Here's an overview of your performance and activities",
+    "today": "Today"
+  },
+  "sidebar": {
+    "main": "Main Menu",
+    "overview": "Overview",
+    "courses": "Manage Courses",
+    "students": "Students",
+    "assignments": "Assignments & Tests",
+    "earnings": "Earnings",
+    "notifications": "Notifications",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "stats": {
+    "title": "Key Statistics",
+    "registeredStudents": "Registered Students",
+    "activeSubscriptions": "Active Subscriptions",
+    "totalEarnings": "Total Earnings",
+    "totalCourses": "Total Courses",
+    "activeCourses": "Active",
+    "expiredCourses": "Expired",
+    "currency": "EGP",
+    "vsLastMonth": "vs last month"
+  },
+  "performance": {
+    "title": "Performance Indicators",
+    "newSubscriptions": "New Subscriptions",
+    "enrollmentRate": "Enrollment Rate",
+    "months": {
+      "jan": "Jan",
+      "feb": "Feb",
+      "mar": "Mar",
+      "apr": "Apr",
+      "may": "May",
+      "jun": "Jun",
+      "jul": "Jul",
+      "aug": "Aug",
+      "sep": "Sep",
+      "oct": "Oct",
+      "nov": "Nov",
+      "dec": "Dec"
+    },
+    "subscriptions": "Subscriptions",
+    "rate": "Rate %"
+  },
+  "courses": {
+    "title": "Course Status",
+    "manage": "Manage",
+    "viewAll": "View All",
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "expired": "Expired"
+    },
+    "columns": {
+      "course": "Course",
+      "students": "Students",
+      "earnings": "Earnings",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "empty": "No courses yet"
+  },
+  "activity": {
+    "title": "Latest Activity",
+    "latestSubscriptions": "Latest Subscriptions",
+    "latestStudents": "Latest Students Joining",
+    "latestPayments": "Latest Payments",
+    "viewAll": "View All",
+    "ago": "ago",
+    "minutesAgo": "min",
+    "hoursAgo": "h",
+    "daysAgo": "d",
+    "paid": "Paid",
+    "pending": "Pending",
+    "joinedCourse": "enrolled in",
+    "paid_label": "paid"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all as read",
+    "viewAll": "View All",
+    "empty": "No new notifications",
+    "types": {
+      "newSubscription": "New Subscription",
+      "assignmentCorrection": "Assignment Needs Correction",
+      "testReview": "Test Under Review",
+      "payment": "New Payment"
+    }
+  }
+}

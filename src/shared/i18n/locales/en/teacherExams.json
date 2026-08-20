@@ -1,0 +1,156 @@
+{
+  "pageTitle": "Manage Exams",
+  "pageSubtitle": "View and manage student exams and grades",
+  "examsList": "Exams list",
+  "loading": "Loading...",
+  "resultsCount": "{{count}} exams",
+
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "draft": "Draft",
+    "published": "Published"
+  },
+
+  "table": {
+    "title": "Exam Title",
+    "course": "Course",
+    "questions": "Questions",
+    "grade": "Total Grade",
+    "duration": "Duration",
+    "attempts": "Attempts",
+    "status": "Status",
+    "created": "Created At",
+    "mins": "min"
+  },
+
+  "actions": {
+    "createExam": "Create Exam",
+    "edit": "Edit",
+    "delete": "Delete",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "viewResults": "View Results",
+    "grading": "Grading",
+    "more": "More"
+  },
+
+  "filters": {
+    "sectionLabel": "Filter exams",
+    "searchPlaceholder": "Search exams...",
+    "clearSearch": "Clear search",
+    "allCourses": "All Courses",
+    "allStatuses": "All Statuses",
+    "reset": "Reset filters",
+    "dateFrom": "From date",
+    "dateTo": "To date"
+  },
+
+  "pagination": {
+    "showing": "Showing {{from}}–{{to}} of {{total}}",
+    "prev": "Previous",
+    "next": "Next",
+    "perPage": "Per page"
+  },
+
+  "empty": {
+    "noExams": "No exams yet",
+    "noExamsHint": "You haven't created any exams yet. Start by creating your first exam.",
+    "noResults": "No results found",
+    "noResultsHint": "Try adjusting your search filters or reset them."
+  },
+
+  "error": {
+    "title": "Something went wrong",
+    "generic": "Failed to load exams. Please try again.",
+    "retry": "Retry"
+  },
+
+  "deleteDialog": {
+    "title": "Delete Exam",
+    "description": "Are you sure you want to delete \"{{title}}\"? This action cannot be undone and will remove all student submissions.",
+    "confirm": "Delete Permanently",
+    "cancel": "Cancel",
+    "deleting": "Deleting..."
+  },
+
+  "notifications": {
+    "examCreated": "Exam created successfully",
+    "examUpdated": "Exam updated successfully",
+    "examDeleted": "Exam deleted successfully",
+    "statusUpdated": "Exam status updated",
+    "error": "Something went wrong, please try again"
+  },
+
+  "builder": {
+    "createTitle": "Create New Exam",
+    "editTitle": "Edit Exam",
+    "save": "Save Exam",
+    "cancel": "Cancel",
+    
+    "info": {
+      "title": "Exam Information",
+      "examTitle": "Exam Title",
+      "examTitlePlaceholder": "e.g. React Midterm Assessment",
+      "course": "Related Course",
+      "selectCourse": "Select a course...",
+      "duration": "Duration (Minutes)",
+      "attempts": "Attempts Allowed",
+      "passingGrade": "Passing Grade",
+      "passingGradePlaceholder": "Leave empty if not required"
+    },
+
+    "settings": {
+      "title": "Exam Settings",
+      "deliveryTitle": "Questions Delivery",
+      "questionOrder": "Question Order",
+      "orderFixed": "Fixed Order",
+      "orderRandom": "Random per student",
+      "shuffleAnswers": "Shuffle Answers",
+      "shuffleAnswersDesc": "Randomize options for multiple choice questions",
+      "timeTitle": "Availability & Time",
+      "timeBehavior": "Time Behavior",
+      "timeAttempt": "Start timer on attempt",
+      "timeScheduled": "Scheduled start time",
+      "gradingTitle": "Grading & Results",
+      "attemptsLogic": "Attempts Logic",
+      "logicHighest": "Highest score counts",
+      "logicLast": "Last attempt counts",
+      "resultVisibility": "Result Visibility",
+      "visImmediate": "Show immediately",
+      "visAfterSub": "Show correct answers after submission",
+      "visHide": "Hide until manual review",
+      "essayHandling": "Essay Grading Handling",
+      "essayWait": "Wait for manual grading",
+      "essayPublish": "Publish grade without essay"
+    },
+
+    "questions": {
+      "title": "Questions Builder",
+      "subtitle": "Add and manage questions for this exam",
+      "totalGrade": "Total Grade",
+      "addBtn": "Add Question",
+      "typeMcq": "Multiple Choice",
+      "typeTf": "True / False",
+      "typeEssay": "Essay",
+      "empty": "No questions added yet. Click 'Add Question' to start.",
+      "editing": "Editing Question",
+      "done": "Done Editing",
+      "questionText": "Question Text",
+      "textPlaceholder": "Type your question here...",
+      "points": "Points",
+      "pts": "pts",
+      "options": "Options",
+      "option": "Option",
+      "addOption": "Add Option",
+      "correctAnswer": "Correct Answer",
+      "true": "True",
+      "false": "False",
+      "emptyText": "Empty Question",
+      "questionNum": "Q{{num}}",
+      "essayNote": "Essay questions require manual grading by the instructor after submission.",
+      "optionsError": "Please provide at least two valid options.",
+      "correctAnswerError": "Please select the correct answer."
+    }
+  }
+}

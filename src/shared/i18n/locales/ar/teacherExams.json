@@ -1,0 +1,156 @@
+{
+  "pageTitle": "إدارة الاختبارات",
+  "pageSubtitle": "عرض وإدارة اختبارات الطلاب والدرجات",
+  "examsList": "قائمة الاختبارات",
+  "loading": "جاري التحميل...",
+  "resultsCount": "{{count}} اختبار",
+
+  "status": {
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "draft": "مسودة",
+    "published": "منشور"
+  },
+
+  "table": {
+    "title": "عنوان الاختبار",
+    "course": "الكورس",
+    "questions": "الأسئلة",
+    "grade": "الدرجة الكلية",
+    "duration": "المدة",
+    "attempts": "المحاولات",
+    "status": "الحالة",
+    "created": "تاريخ الإنشاء",
+    "mins": "دقيقة"
+  },
+
+  "actions": {
+    "createExam": "إنشاء اختبار",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "activate": "تفعيل",
+    "deactivate": "إيقاف",
+    "viewResults": "عرض النتائج",
+    "grading": "التصحيح",
+    "more": "المزيد"
+  },
+
+  "filters": {
+    "sectionLabel": "تصفية الاختبارات",
+    "searchPlaceholder": "ابحث عن اختبار...",
+    "clearSearch": "مسح البحث",
+    "allCourses": "كل الكورسات",
+    "allStatuses": "كل الحالات",
+    "reset": "إعادة ضبط",
+    "dateFrom": "من تاريخ",
+    "dateTo": "إلى تاريخ"
+  },
+
+  "pagination": {
+    "showing": "عرض {{from}}–{{to}} من {{total}}",
+    "prev": "السابق",
+    "next": "التالي",
+    "perPage": "لكل صفحة"
+  },
+
+  "empty": {
+    "noExams": "لا توجد اختبارات",
+    "noExamsHint": "لم تقم بإنشاء أي اختبارات بعد. ابدأ بإنشاء أول اختبار لك.",
+    "noResults": "لا توجد نتائج",
+    "noResultsHint": "حاول تعديل فلاتر البحث أو أعد ضبطها."
+  },
+
+  "error": {
+    "title": "حدث خطأ",
+    "generic": "تعذّر تحميل الاختبارات. يرجى المحاولة مجدداً.",
+    "retry": "إعادة المحاولة"
+  },
+
+  "deleteDialog": {
+    "title": "حذف الاختبار",
+    "description": "هل أنت متأكد من حذف الاختبار \"{{title}}\"؟ هذا الإجراء لا يمكن التراجع عنه وسيحذف جميع بيانات تسليمات الطلاب.",
+    "confirm": "حذف نهائياً",
+    "cancel": "إلغاء",
+    "deleting": "جاري الحذف..."
+  },
+
+  "notifications": {
+    "examCreated": "تم إنشاء الاختبار بنجاح",
+    "examUpdated": "تم تحديث الاختبار بنجاح",
+    "examDeleted": "تم حذف الاختبار بنجاح",
+    "statusUpdated": "تم تحديث حالة الاختبار",
+    "error": "حدث خطأ، يرجى المحاولة مجدداً"
+  },
+
+  "builder": {
+    "createTitle": "إنشاء اختبار جديد",
+    "editTitle": "تعديل الاختبار",
+    "save": "حفظ الاختبار",
+    "cancel": "إلغاء",
+    
+    "info": {
+      "title": "معلومات الاختبار",
+      "examTitle": "عنوان الاختبار",
+      "examTitlePlaceholder": "مثال: التقييم النصفي لدورة React",
+      "course": "الكورس المرتبط",
+      "selectCourse": "اختر كورس...",
+      "duration": "المدة (بالدقائق)",
+      "attempts": "المحاولات المسموحة",
+      "passingGrade": "درجة النجاح",
+      "passingGradePlaceholder": "اتركه فارغاً إن لم يكن مطلوباً"
+    },
+
+    "settings": {
+      "title": "إعدادات الاختبار",
+      "deliveryTitle": "طريقة عرض الأسئلة",
+      "questionOrder": "ترتيب الأسئلة",
+      "orderFixed": "ترتيب ثابت",
+      "orderRandom": "عشوائي لكل طالب",
+      "shuffleAnswers": "خلط الإجابات",
+      "shuffleAnswersDesc": "ترتيب عشوائي للخيارات في أسئلة الاختيار من متعدد",
+      "timeTitle": "الإتاحة والوقت",
+      "timeBehavior": "سلوك الوقت",
+      "timeAttempt": "بدء المؤقت عند الدخول",
+      "timeScheduled": "وقت بدء مجدول",
+      "gradingTitle": "الدرجات والنتائج",
+      "attemptsLogic": "منطق المحاولات",
+      "logicHighest": "احتساب أعلى درجة",
+      "logicLast": "احتساب المحاولة الأخيرة",
+      "resultVisibility": "رؤية النتائج",
+      "visImmediate": "عرض فوراً",
+      "visAfterSub": "عرض الإجابات الصحيحة بعد التسليم",
+      "visHide": "إخفاء حتى المراجعة اليدوية",
+      "essayHandling": "التعامل مع التصحيح المقالي",
+      "essayWait": "انتظار التصحيح اليدوي",
+      "essayPublish": "نشر الدرجة بدون المقالي"
+    },
+
+    "questions": {
+      "title": "منشئ الأسئلة",
+      "subtitle": "أضف وأدر الأسئلة لهذا الاختبار",
+      "totalGrade": "الدرجة الكلية",
+      "addBtn": "إضافة سؤال",
+      "typeMcq": "اختيار من متعدد",
+      "typeTf": "صح / خطأ",
+      "typeEssay": "مقال",
+      "empty": "لم تتم إضافة أي أسئلة بعد. انقر على 'إضافة سؤال' للبدء.",
+      "editing": "تعديل السؤال",
+      "done": "أضف السؤال",
+      "questionText": "نص السؤال",
+      "textPlaceholder": "اكتب سؤالك هنا...",
+      "points": "النقاط",
+      "pts": "نقطة",
+      "options": "الخيارات",
+      "option": "خيار",
+      "addOption": "إضافة خيار",
+      "correctAnswer": "الإجابة الصحيحة",
+      "true": "صح",
+      "false": "خطأ",
+      "emptyText": "سؤال فارغ",
+      "questionNum": "س{{num}}",
+      "essayNote": "الأسئلة المقالية تتطلب تصحيحاً يدوياً من قِبل المعلم بعد التسليم.",
+      "optionsError": "يرجى توفير خيارين صحيحين على الأقل.",
+      "correctAnswerError": "يرجى تحديد الإجابة الصحيحة."
+    }
+  }
+}

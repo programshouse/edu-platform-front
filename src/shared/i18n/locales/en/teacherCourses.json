@@ -1,0 +1,218 @@
+{
+  "pageTitle": "Manage Courses",
+  "pageSubtitle": "Create, manage, and track your educational courses",
+  "coursesList": "Courses list",
+  "loading": "Loading...",
+  "resultsCount": "{{count}} courses",
+
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "finished": "Finished"
+  },
+
+  "card": {
+    "free": "Free",
+    "days": "days",
+    "lectures": "lectures",
+    "students": "students"
+  },
+
+  "actions": {
+    "addCourse": "Add Course",
+    "edit": "Edit",
+    "delete": "Delete",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "toggleStatus": "Toggle Status",
+    "viewContent": "Manage Content",
+    "more": "More"
+  },
+
+  "filters": {
+    "sectionLabel": "Filter courses",
+    "searchPlaceholder": "Search courses...",
+    "clearSearch": "Clear search",
+    "allStatuses": "All Statuses",
+    "priceRange": "Price range",
+    "min": "Min",
+    "max": "Max",
+    "minPrice": "Minimum price",
+    "maxPrice": "Maximum price",
+    "dateFrom": "From date",
+    "dateTo": "To date",
+    "reset": "Reset filters"
+  },
+
+  "pagination": {
+    "showing": "Showing {{from}}–{{to}} of {{total}}",
+    "prev": "Previous",
+    "next": "Next",
+    "goTo": "Go to page {{page}}",
+    "perPage": "Per page"
+  },
+
+  "empty": {
+    "noCourses": "No courses yet",
+    "noCoursesHint": "Start by creating your first educational course",
+    "noResults": "No results found",
+    "noResultsHint": "Try adjusting your search filters or reset them"
+  },
+
+  "error": {
+    "title": "Something went wrong",
+    "generic": "Failed to load courses. Please try again.",
+    "retry": "Retry"
+  },
+
+  "form": {
+    "title": "Course Title",
+    "titlePlaceholder": "Enter course title",
+    "description": "Description",
+    "descriptionPlaceholder": "Enter a detailed description of the course",
+    "coverImage": "Cover Image",
+    "coverPreview": "Cover image preview",
+    "uploadCover": "Click to upload an image",
+    "uploadHint": "PNG, JPG, WEBP • Up to 5 MB",
+    "changeImage": "Change Image",
+    "removeCover": "Remove image",
+    "imageRequirements": "Supported formats: PNG, JPG, WEBP • Max size: 5 MB",
+    "price": "Price (EGP)",
+    "priceHint": "Enter 0 for a free course",
+    "durationDays": "Duration (days)",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "allowSeparateLectures": "Allow selling lectures separately",
+    "allowSeparateLecturesHint": "When enabled, students can purchase individual lectures without subscribing to the full course",
+    "submit": "Save",
+    "submitting": "Saving..."
+  },
+
+  "createDialog": {
+    "title": "Add New Course",
+    "description": "Fill in the details below to create a new educational course",
+    "submit": "Create Course"
+  },
+
+  "editDialog": {
+    "title": "Edit Course",
+    "description": "Update the course details",
+    "submit": "Save Changes"
+  },
+
+  "deleteDialog": {
+    "title": "Delete Course",
+    "description": "Are you sure you want to delete \"{{title}}\"? This action cannot be undone.",
+    "confirm": "Delete Permanently",
+    "cancel": "Cancel",
+    "deleting": "Deleting..."
+  },
+
+  "notifications": {
+    "courseCreated": "Course created successfully",
+    "courseUpdated": "Course updated successfully",
+    "courseDeleted": "Course deleted successfully",
+    "statusUpdated": "Course status updated",
+    "error": "Something went wrong, please try again"
+  },
+
+  "validation": {
+    "titleMin": "Title must be at least 3 characters",
+    "titleMax": "Title must not exceed 150 characters",
+    "descriptionMin": "Description must be at least 10 characters",
+    "descriptionMax": "Description must not exceed 2000 characters",
+    "imageSizeMax": "Image size must not exceed 5 MB",
+    "imageType": "Image must be a JPEG, PNG, or WEBP file",
+    "priceRequired": "Please enter a valid price",
+    "priceMin": "Price must be 0 or more",
+    "priceMax": "Price must not exceed 100,000",
+    "durationRequired": "Please enter a valid duration",
+    "durationInt": "Duration must be a whole number",
+    "durationMin": "Duration must be at least 1 day",
+    "durationMax": "Duration must not exceed 3650 days",
+    "startDateRequired": "Please select a start date",
+    "endDateRequired": "Please select an end date",
+    "endDateAfterStart": "End date must be after the start date"
+  },
+  "overview": {
+    "sectionTitle": "Course Overview",
+    "price": "Price",
+    "duration": "Duration (days)",
+    "students": "Enrolled Students",
+    "status": "Course Status",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "lectures": "Lectures",
+    "editCourse": "Edit Course",
+    "toggleStatus": "Toggle Status",
+    "confirmToggleTitle": "Change Course Status?",
+    "confirmToggleDescription": "You are about to change the course status to \"{{status}}\". Are you sure?",
+    "confirmToggleConfirm": "Confirm",
+    "confirmToggleCancel": "Cancel",
+    "loadingCourse": "Loading course...",
+    "notFound": "Course not found"
+  },
+  "tabs": {
+    "lectures": "Lectures",
+    "exams": "Exams",
+    "assignments": "Assignments"
+  },
+  "lectures": {
+    "title": "Lectures",
+    "add": "Add Lecture",
+    "name": "Title",
+    "type": "Type",
+    "duration": "Duration",
+    "status": "Status",
+    "actions": "Actions",
+    "types": {
+      "video": "Video",
+      "live": "Live"
+    },
+    "statuses": {
+      "visible": "Visible",
+      "hidden": "Hidden"
+    },
+    "addTitle": "Add New Lecture",
+    "editTitle": "Edit Lecture",
+    "formTitle": "Lecture Title",
+    "titlePlaceholder": "Enter title...",
+    "formDesc": "Description",
+    "descPlaceholder": "What is this lecture about?",
+    "formType": "Lecture Type",
+    "videoUrl": "Video URL or Upload",
+    "videoHint": "Or upload a file directly",
+    "liveDate": "Date",
+    "liveTime": "Time",
+    "access": "Access Type",
+    "accessFree": "Free Preview",
+    "accessPaid": "Paid (Enrolled only)",
+    "created": "Lecture created",
+    "updated": "Lecture updated"
+  },
+  "exams": {
+    "title": "Exams",
+    "add": "Create Exam",
+    "name": "Title",
+    "questions": "Questions",
+    "duration": "Duration",
+    "grade": "Total Grade",
+    "builderNotice": "Exam builder page coming soon"
+  },
+  "assignments": {
+    "title": "Assignments",
+    "add": "Add Assignment",
+    "name": "Title",
+    "dueDate": "Due Date",
+    "submissions": "Submissions",
+    "addTitle": "Add New Assignment",
+    "editTitle": "Edit Assignment",
+    "formTitle": "Assignment Title",
+    "titlePlaceholder": "Enter title...",
+    "formDesc": "Instructions / Description",
+    "descPlaceholder": "What should students do?",
+    "dueDateLabel": "Due Date",
+    "created": "Assignment created",
+    "updated": "Assignment updated"
+  }
+}

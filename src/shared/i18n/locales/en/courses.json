@@ -1,0 +1,551 @@
+{
+  "hero": {
+    "badge": "📚 Course Catalog",
+    "title": "Explore Our",
+    "titleHighlight": "Training Courses",
+    "subtitle": "Browse our comprehensive collection of courses designed to help you master the latest technologies and advance your career"
+  },
+  "search": {
+    "placeholder": "Search for a course...",
+    "noResults": "No courses found matching your search",
+    "noResultsDesc": "Try adjusting your search or filter criteria"
+  },
+  "filters": {
+    "all": "All Courses",
+    "webDev": "Web Development",
+    "design": "UI/UX Design",
+    "dataScience": "Data Science",
+    "mobile": "Mobile Apps"
+  },
+  "card": {
+    "students": "students",
+    "lessons": "lessons",
+    "hours": "hours",
+    "enrollNow": "Enroll Now",
+    "level": {
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced"
+    }
+  },
+  "details": {
+    "breadcrumb": {
+      "home": "Home",
+      "courses": "Courses"
+    },
+    "labels": {
+      "price": "Price",
+      "availabilityPeriod": "Availability Period",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "numberOfLectures": "Number of Lectures",
+      "purchaseSeparately": "Purchase Lectures Separately",
+      "available": "Available",
+      "notAvailable": "Not Available",
+      "lecturesUnit": "lectures",
+      "subscribe": "Subscribe Now",
+      "payNow": "Pay Now",
+      "aboutCourse": "About This Course",
+      "courseLectures": "Course Lectures",
+      "testsAndAssignments": "Tests & Assignments",
+      "lecture": "Lecture",
+      "free": "Free",
+      "locked": "Locked",
+      "quiz": "Quiz",
+      "assignment": "Assignment",
+      "duration": "Duration",
+      "yes": "Yes",
+      "no": "No",
+      "months": "Months",
+      "students": "Students Enrolled",
+      "level": "Level",
+      "lectureDetails": "Lecture Details",
+      "viewLecture": "View Lecture",
+      "backToCourse": "Back to Course",
+      "previousLecture": "Previous Lecture",
+      "nextLecture": "Next Lecture",
+      "previewAvailable": "Preview Available",
+      "contentLocked": "Content Locked",
+      "purchaseLecture": "Purchase This Lecture",
+      "subscribeToCourse": "Subscribe to Course",
+      "lectureNumber": "Lecture",
+      "courseLecturesList": "Course Lectures",
+      "status": "Status",
+      "comingSoon": "Coming Soon",
+      "screenshotBlocked": "Screenshots are not allowed for this content",
+      "contentProtected": "Content is protected"
+    },
+    "asks": {
+      "title": "Lecture Q&A",
+      "subtitle": "Key questions asked during this lecture"
+    }
+  },
+  "test": {
+    "title": "Test: {{name}}",
+    "duration": "Duration",
+    "timeRemaining": "Time Remaining: {{time}}",
+    "totalScore": "Total Score",
+    "attempts": "Attempts Allowed",
+    "questionOf": "Question {{current}} of {{total}}",
+    "submit": "Submit Test",
+    "next": "Next",
+    "previous": "Previous",
+    "result": "Test Result",
+    "passed": "Passed",
+    "failed": "Failed",
+    "viewCorrection": "View Correction",
+    "backToCourse": "Back to Course",
+    "timeUp": "Time's Up!",
+    "scoreMsg": "You scored {{score}} out of {{total}}",
+    "startTest": "Start Test"
+  },
+  "assignment": {
+    "title": "Assignment: {{name}}",
+    "deadline": "Submission Deadline",
+    "upload": "Upload File",
+    "status": "Status",
+    "submitted": "Submitted",
+    "notSubmitted": "Not Submitted",
+    "grade": "Grade",
+    "comment": "Teacher's Comment",
+    "submitAssignment": "Submit Assignment",
+    "dragDrop": "Drag and drop your file here, or click to browse",
+    "fileSelected": "File selected: {{file}}"
+  },
+  "items": [
+    {
+      "title": "Professional Web Development",
+      "description": "Learn to build modern, responsive web applications using React, Node.js, and cutting-edge frameworks",
+      "detailedDescription": "This comprehensive web development course takes you from foundational concepts to advanced techniques used by industry professionals. You'll learn to build full-stack web applications using React for the frontend, Node.js and Express for the backend, and MongoDB for data persistence. The curriculum covers responsive design principles, state management with Redux, RESTful API development, authentication & authorization, deployment strategies, and performance optimization. Each module includes hands-on projects that mirror real-world scenarios, ensuring you graduate with a portfolio-ready skill set.",
+      "students": 1250,
+      "lessons": 48,
+      "hours": 36,
+      "level": "intermediate",
+      "price": 299,
+      "category": "webDev",
+      "image": "https://images.unsplash.com/photo-1627398242454-45a1465c2479?w=600&h=340&fit=crop",
+      "bannerImage": "https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?w=1400&h=500&fit=crop",
+      "startDate": "2026-04-01",
+      "endDate": "2026-07-30",
+      "availabilityPeriod": 4,
+      "purchaseSeparately": true,
+      "lectures": [
+        {
+          "title": "Introduction to Web Development",
+          "duration": "45 min",
+          "isFree": true
+        },
+        {
+          "title": "HTML5 Semantic Structure",
+          "duration": "50 min",
+          "isFree": true
+        },
+        {
+          "title": "CSS3 Flexbox & Grid",
+          "duration": "55 min",
+          "isFree": false
+        },
+        {
+          "title": "JavaScript Fundamentals",
+          "duration": "60 min",
+          "isFree": false
+        },
+        {
+          "title": "DOM Manipulation & Events",
+          "duration": "50 min",
+          "isFree": false
+        },
+        {
+          "title": "Introduction to React",
+          "duration": "65 min",
+          "isFree": false
+        },
+        {
+          "title": "React Hooks Deep Dive",
+          "duration": "55 min",
+          "isFree": false
+        },
+        {
+          "title": "State Management with Redux",
+          "duration": "60 min",
+          "isFree": false
+        },
+        {
+          "title": "Node.js & Express Backend",
+          "duration": "70 min",
+          "isFree": false
+        },
+        {
+          "title": "MongoDB & Mongoose",
+          "duration": "55 min",
+          "isFree": false
+        },
+        {
+          "title": "RESTful API Design",
+          "duration": "50 min",
+          "isFree": false
+        },
+        {
+          "title": "Deployment & DevOps",
+          "duration": "45 min",
+          "isFree": false
+        }
+      ],
+      "testsAndAssignments": [
+        { "title": "HTML & CSS Practical Test", "type": "quiz" },
+        { "title": "Build a Landing Page", "type": "assignment" },
+        { "title": "JavaScript Fundamentals Quiz", "type": "quiz" },
+        { "title": "Build a Full-Stack CRUD App", "type": "assignment" }
+      ]
+    },
+    {
+      "title": "UI/UX Design Mastery",
+      "description": "Master user experience design principles and create stunning interfaces with Figma & Adobe XD",
+      "detailedDescription": "Dive deep into the world of user interface and user experience design. This course covers everything from design thinking methodology and user research to prototyping and handoff. You'll master industry-standard tools like Figma and Adobe XD, learn to create design systems, build interactive prototypes, and conduct usability testing. The course also covers accessibility standards, motion design principles, and how to effectively collaborate with development teams. By the end, you'll have a professional portfolio showcasing your design expertise.",
+      "students": 890,
+      "lessons": 35,
+      "hours": 28,
+      "level": "beginner",
+      "price": 199,
+      "category": "design",
+      "image": "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=600&h=340&fit=crop",
+      "bannerImage": "https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=1400&h=500&fit=crop",
+      "startDate": "2026-03-15",
+      "endDate": "2026-06-15",
+      "availabilityPeriod": 3,
+      "purchaseSeparately": true,
+      "lectures": [
+        {
+          "title": "Introduction to UX Design",
+          "duration": "40 min",
+          "isFree": true
+        },
+        {
+          "title": "Design Thinking Process",
+          "duration": "50 min",
+          "isFree": true
+        },
+        {
+          "title": "User Research Methods",
+          "duration": "45 min",
+          "isFree": false
+        },
+        {
+          "title": "Wireframing Fundamentals",
+          "duration": "55 min",
+          "isFree": false
+        },
+        { "title": "Figma Basics", "duration": "60 min", "isFree": false },
+        {
+          "title": "Color Theory & Typography",
+          "duration": "50 min",
+          "isFree": false
+        },
+        {
+          "title": "Advanced Prototyping",
+          "duration": "55 min",
+          "isFree": false
+        },
+        { "title": "Design Systems", "duration": "65 min", "isFree": false },
+        { "title": "Usability Testing", "duration": "45 min", "isFree": false },
+        { "title": "Portfolio Building", "duration": "40 min", "isFree": false }
+      ],
+      "testsAndAssignments": [
+        { "title": "UX Principles Quiz", "type": "quiz" },
+        { "title": "Design a Mobile App UI", "type": "assignment" },
+        { "title": "Usability Testing Report", "type": "assignment" }
+      ]
+    },
+    {
+      "title": "Data Analysis with Python",
+      "description": "Discover the power of data analysis with Python, Pandas, and advanced visualization techniques",
+      "detailedDescription": "Unlock the power of data with this hands-on Python data analysis course. Starting from Python basics, you'll progress to mastering Pandas for data manipulation, NumPy for numerical computing, and Matplotlib/Seaborn for stunning visualizations. The course covers data cleaning, exploratory data analysis, statistical modeling, and machine learning fundamentals. Real-world datasets from finance, healthcare, and e-commerce are used throughout, giving you practical experience that translates directly to industry demands.",
+      "students": 1450,
+      "lessons": 52,
+      "hours": 40,
+      "level": "intermediate",
+      "price": 349,
+      "category": "dataScience",
+      "image": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=340&fit=crop",
+      "bannerImage": "https://images.unsplash.com/photo-1509228468518-180dd4864904?w=1400&h=500&fit=crop",
+      "startDate": "2026-04-10",
+      "endDate": "2026-08-10",
+      "availabilityPeriod": 4,
+      "purchaseSeparately": false,
+      "lectures": [
+        {
+          "title": "Python Setup & Basics",
+          "duration": "50 min",
+          "isFree": true
+        },
+        {
+          "title": "Data Structures in Python",
+          "duration": "55 min",
+          "isFree": true
+        },
+        {
+          "title": "Introduction to Pandas",
+          "duration": "60 min",
+          "isFree": false
+        },
+        {
+          "title": "Data Cleaning Techniques",
+          "duration": "65 min",
+          "isFree": false
+        },
+        {
+          "title": "NumPy for Numerical Computing",
+          "duration": "55 min",
+          "isFree": false
+        },
+        {
+          "title": "Data Visualization with Matplotlib",
+          "duration": "50 min",
+          "isFree": false
+        },
+        {
+          "title": "Statistical Analysis",
+          "duration": "60 min",
+          "isFree": false
+        },
+        {
+          "title": "Seaborn Advanced Charts",
+          "duration": "45 min",
+          "isFree": false
+        },
+        {
+          "title": "Machine Learning Basics",
+          "duration": "70 min",
+          "isFree": false
+        },
+        {
+          "title": "Capstone: Real-World Dataset",
+          "duration": "90 min",
+          "isFree": false
+        }
+      ],
+      "testsAndAssignments": [
+        { "title": "Python Basics Quiz", "type": "quiz" },
+        { "title": "Data Cleaning Challenge", "type": "assignment" },
+        { "title": "Visualization Project", "type": "assignment" },
+        { "title": "Final Data Analysis Report", "type": "assignment" }
+      ]
+    },
+    {
+      "title": "Mobile App Development",
+      "description": "Build cross-platform iOS & Android applications with React Native from scratch",
+      "detailedDescription": "Master cross-platform mobile app development with React Native. This advanced course guides you through building production-ready iOS and Android applications from a single codebase. You'll learn native component architecture, navigation patterns, state management, API integration, push notifications, offline storage, and app store deployment. Advanced topics include performance profiling, native module bridging, and animation APIs. The course culminates in a complete app project ready for submission to both app stores.",
+      "students": 680,
+      "lessons": 42,
+      "hours": 32,
+      "level": "advanced",
+      "price": 399,
+      "category": "mobile",
+      "image": "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=340&fit=crop",
+      "bannerImage": "https://images.unsplash.com/photo-1601972599720-36938d4ecd31?w=1400&h=500&fit=crop",
+      "startDate": "2026-05-01",
+      "endDate": "2026-08-30",
+      "availabilityPeriod": 4,
+      "purchaseSeparately": true,
+      "lectures": [
+        {
+          "title": "React Native Setup & Intro",
+          "duration": "50 min",
+          "isFree": true
+        },
+        { "title": "Core Components", "duration": "55 min", "isFree": true },
+        {
+          "title": "Navigation with React Navigation",
+          "duration": "60 min",
+          "isFree": false
+        },
+        {
+          "title": "State Management Patterns",
+          "duration": "55 min",
+          "isFree": false
+        },
+        {
+          "title": "API Integration & Networking",
+          "duration": "65 min",
+          "isFree": false
+        },
+        {
+          "title": "Local Storage & SQLite",
+          "duration": "50 min",
+          "isFree": false
+        },
+        {
+          "title": "Push Notifications",
+          "duration": "45 min",
+          "isFree": false
+        },
+        {
+          "title": "Animations & Gestures",
+          "duration": "55 min",
+          "isFree": false
+        },
+        {
+          "title": "Performance Optimization",
+          "duration": "60 min",
+          "isFree": false
+        },
+        {
+          "title": "App Store Deployment",
+          "duration": "50 min",
+          "isFree": false
+        }
+      ],
+      "testsAndAssignments": [
+        { "title": "React Native Fundamentals Quiz", "type": "quiz" },
+        { "title": "Build a To-Do App", "type": "assignment" },
+        { "title": "Navigation & State Quiz", "type": "quiz" },
+        { "title": "Build a Social Media App", "type": "assignment" }
+      ]
+    },
+    {
+      "title": "Full-Stack JavaScript",
+      "description": "Become a full-stack developer mastering both frontend and backend with JavaScript ecosystem",
+      "detailedDescription": "This all-encompassing course transforms you into a complete JavaScript full-stack developer. Master modern frontend with React and Next.js, build robust backends with Node.js, Express, and GraphQL, and manage databases with PostgreSQL and MongoDB. The curriculum includes TypeScript, testing with Jest, CI/CD pipelines, Docker containerization, and cloud deployment on AWS. Each section builds upon the previous, creating a cohesive learning journey that mirrors the actual workflow of a professional full-stack engineer.",
+      "students": 920,
+      "lessons": 60,
+      "hours": 45,
+      "level": "intermediate",
+      "price": 449,
+      "category": "webDev",
+      "image": "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&h=340&fit=crop",
+      "bannerImage": "https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=1400&h=500&fit=crop",
+      "startDate": "2026-03-20",
+      "endDate": "2026-07-20",
+      "availabilityPeriod": 4,
+      "purchaseSeparately": true,
+      "lectures": [
+        {
+          "title": "Modern JavaScript ES6+",
+          "duration": "55 min",
+          "isFree": true
+        },
+        {
+          "title": "TypeScript Fundamentals",
+          "duration": "60 min",
+          "isFree": true
+        },
+        { "title": "React & Next.js", "duration": "70 min", "isFree": false },
+        {
+          "title": "Server-Side Rendering",
+          "duration": "55 min",
+          "isFree": false
+        },
+        {
+          "title": "Node.js Advanced Patterns",
+          "duration": "65 min",
+          "isFree": false
+        },
+        {
+          "title": "GraphQL API Development",
+          "duration": "60 min",
+          "isFree": false
+        },
+        {
+          "title": "Database Design (PostgreSQL)",
+          "duration": "55 min",
+          "isFree": false
+        },
+        {
+          "title": "Testing with Jest & Cypress",
+          "duration": "50 min",
+          "isFree": false
+        },
+        {
+          "title": "Docker & Containerization",
+          "duration": "45 min",
+          "isFree": false
+        },
+        {
+          "title": "AWS Deployment & CI/CD",
+          "duration": "60 min",
+          "isFree": false
+        }
+      ],
+      "testsAndAssignments": [
+        { "title": "JavaScript & TypeScript Quiz", "type": "quiz" },
+        { "title": "Build a Blog with Next.js", "type": "assignment" },
+        { "title": "GraphQL API Project", "type": "assignment" },
+        { "title": "Full-Stack Capstone Project", "type": "assignment" }
+      ]
+    },
+    {
+      "title": "Advanced Data Visualization",
+      "description": "Create compelling data stories with D3.js, Chart.js, and modern visualization libraries",
+      "detailedDescription": "Elevate your data storytelling skills with this advanced visualization course. You'll master D3.js for custom, interactive visualizations, Chart.js for rapid charting, and modern libraries like Observable Plot and Recharts. The course covers information design principles, accessibility in data viz, responsive charts, real-time data dashboards, geographic visualizations with maps, and animation techniques. You'll work with real datasets to create publication-quality visualizations and interactive dashboards that communicate insights effectively.",
+      "students": 540,
+      "lessons": 30,
+      "hours": 24,
+      "level": "advanced",
+      "price": 279,
+      "category": "dataScience",
+      "image": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=340&fit=crop",
+      "bannerImage": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1400&h=500&fit=crop",
+      "startDate": "2026-04-15",
+      "endDate": "2026-07-15",
+      "availabilityPeriod": 3,
+      "purchaseSeparately": false,
+      "lectures": [
+        {
+          "title": "Information Design Principles",
+          "duration": "45 min",
+          "isFree": true
+        },
+        {
+          "title": "Chart.js Quick Start",
+          "duration": "50 min",
+          "isFree": true
+        },
+        {
+          "title": "D3.js Fundamentals",
+          "duration": "65 min",
+          "isFree": false
+        },
+        {
+          "title": "SVG & Canvas Rendering",
+          "duration": "55 min",
+          "isFree": false
+        },
+        {
+          "title": "Interactive Charts",
+          "duration": "60 min",
+          "isFree": false
+        },
+        {
+          "title": "Geographic Visualizations",
+          "duration": "50 min",
+          "isFree": false
+        },
+        {
+          "title": "Real-Time Dashboards",
+          "duration": "55 min",
+          "isFree": false
+        },
+        {
+          "title": "Accessible Data Viz",
+          "duration": "40 min",
+          "isFree": false
+        },
+        {
+          "title": "Animation & Transitions",
+          "duration": "50 min",
+          "isFree": false
+        },
+        {
+          "title": "Capstone Dashboard Project",
+          "duration": "75 min",
+          "isFree": false
+        }
+      ],
+      "testsAndAssignments": [
+        { "title": "Visualization Principles Quiz", "type": "quiz" },
+        { "title": "Build an Interactive Dashboard", "type": "assignment" },
+        { "title": "D3.js Project", "type": "assignment" }
+      ]
+    }
+  ]
+}

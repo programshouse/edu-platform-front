@@ -1,0 +1,96 @@
+{
+  "dashboard": {
+    "title": "لوحة تحكم المعلم",
+    "welcome": "مرحباً بك",
+    "subtitle": "إليك نظرة عامة على أدائك وأنشطتك",
+    "today": "اليوم"
+  },
+  "sidebar": {
+    "main": "القائمة الرئيسية",
+    "overview": "نظرة عامة",
+    "courses": "إدارة الكورسات",
+    "students": "الطلاب",
+    "assignments": "الواجبات والاختبارات",
+    "earnings": "الإيرادات",
+    "notifications": "الإشعارات",
+    "settings": "الإعدادات",
+    "logout": "تسجيل الخروج"
+  },
+  "stats": {
+    "title": "الإحصائيات الرئيسية",
+    "registeredStudents": "الطلاب المسجلون",
+    "activeSubscriptions": "الاشتراكات النشطة",
+    "totalEarnings": "إجمالي الإيرادات",
+    "totalCourses": "إجمالي الكورسات",
+    "activeCourses": "نشط",
+    "expiredCourses": "منتهي",
+    "currency": "ج.م",
+    "vsLastMonth": "مقارنة بالشهر الماضي"
+  },
+  "performance": {
+    "title": "مؤشرات الأداء",
+    "newSubscriptions": "الاشتراكات الجديدة",
+    "enrollmentRate": "معدل التسجيل",
+    "months": {
+      "jan": "يناير",
+      "feb": "فبراير",
+      "mar": "مارس",
+      "apr": "أبريل",
+      "may": "مايو",
+      "jun": "يونيو",
+      "jul": "يوليو",
+      "aug": "أغسطس",
+      "sep": "سبتمبر",
+      "oct": "أكتوبر",
+      "nov": "نوفمبر",
+      "dec": "ديسمبر"
+    },
+    "subscriptions": "اشتراكات",
+    "rate": "معدل %"
+  },
+  "courses": {
+    "title": "حالة الكورسات",
+    "manage": "إدارة",
+    "viewAll": "عرض الكل",
+    "status": {
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "expired": "منتهي"
+    },
+    "columns": {
+      "course": "الكورس",
+      "students": "الطلاب",
+      "earnings": "الإيرادات",
+      "status": "الحالة",
+      "actions": "الإجراءات"
+    },
+    "empty": "لا توجد كورسات بعد"
+  },
+  "activity": {
+    "title": "آخر النشاطات",
+    "latestSubscriptions": "آخر الاشتراكات",
+    "latestStudents": "آخر الطلاب المنضمين",
+    "latestPayments": "آخر المدفوعات",
+    "viewAll": "عرض الكل",
+    "ago": "منذ",
+    "minutesAgo": "دقيقة",
+    "hoursAgo": "ساعة",
+    "daysAgo": "يوم",
+    "paid": "مدفوع",
+    "pending": "معلق",
+    "joinedCourse": "سجّل في",
+    "paid_label": "دفع"
+  },
+  "notifications": {
+    "title": "الإشعارات",
+    "markAllRead": "تحديد الكل كمقروء",
+    "viewAll": "عرض الكل",
+    "empty": "لا توجد إشعارات جديدة",
+    "types": {
+      "newSubscription": "اشتراك جديد",
+      "assignmentCorrection": "واجب يحتاج تصحيح",
+      "testReview": "اختبار تحت المراجعة",
+      "payment": "دفعة جديدة"
+    }
+  }
+}

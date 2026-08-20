@@ -1,0 +1,126 @@
+{
+  "hero": {
+    "memberSince": "عضو منذ",
+    "editProfile": "تعديل الملف الشخصي",
+    "stats": {
+      "courses": "الدورات",
+      "points": "النقاط",
+      "rank": "التصنيف"
+    }
+  },
+  "tabs": {
+    "personal": "البيانات الشخصية",
+    "courses": "دوراتي",
+    "tests": "الاختبارات",
+    "assignments": "الواجبات",
+    "settings": "الإعدادات"
+  },
+  "personal": {
+    "title": "البيانات الشخصية",
+    "firstName": "الاسم الأول",
+    "secondName": "اسم الأب",
+    "lastName": "الاسم الأخير",
+    "fullName": "الاسم الكامل",
+    "email": "البريد الإلكتروني",
+    "phone": "رقم الجوال",
+    "parentPhone": "هاتف ولي الأمر",
+    "dateOfBirth": "تاريخ الميلاد",
+    "governorate": "المحافظة",
+    "address": "العنوان",
+    "grade": "الصف الدراسي",
+    "school": "المدرسة",
+    "section": "الشعبة",
+    "registered": "تاريخ التسجيل",
+    "bio": "نبذة",
+    "noData": "لا توجد بيانات متاحة"
+  },
+  "courses": {
+    "title": "الدورات المشترك بها",
+    "progress": "التقدم",
+    "status": {
+      "active": "نشط",
+      "expired": "منتهي"
+    },
+    "expires": "ينتهي في",
+    "accessCourse": "الدخول للدورة",
+    "viewDetails": "عرض التفاصيل",
+    "noCourses": "لم تشترك في دورات بعد",
+    "noCoursesDesc": "تصفّح الكتالوج وسجّل في أول دورة لك"
+  },
+  "tests": {
+    "title": "اختباراتي",
+    "course": "الدورة",
+    "grade": "الدرجة",
+    "status": {
+      "passed": "ناجح",
+      "failed": "راسب",
+      "inProgress": "جارٍ"
+    },
+    "attempts": "المحاولات",
+    "viewDetails": "عرض التفاصيل",
+    "retry": "إعادة المحاولة",
+    "noTests": "لم تُجرِ اختبارات بعد",
+    "noTestsDesc": "أكمل محاضرات دوراتك لتفتح الاختبارات"
+  },
+  "assignments": {
+    "title": "واجباتي",
+    "course": "الدورة",
+    "deadline": "الموعد النهائي",
+    "status": {
+      "submitted": "تم التسليم",
+      "notSubmitted": "لم يُسلَّم",
+      "graded": "تم التقييم",
+      "late": "متأخر"
+    },
+    "grade": "الدرجة",
+    "feedback": "تعليق المدرب",
+    "uploadFile": "رفع ملف",
+    "viewSolution": "عرض الحل",
+    "noFeedback": "لا يوجد تعليق بعد",
+    "noAssignments": "لا واجبات بعد",
+    "noAssignmentsDesc": "ستظهر واجباتك هنا بعد الإتاحة"
+  },
+  "settings": {
+    "editTitle": "تعديل البيانات الشخصية",
+    "firstName": "الاسم الأول",
+    "secondName": "اسم الأب",
+    "lastName": "الاسم الأخير",
+    "email": "البريد الإلكتروني",
+    "phone": "رقم الهاتف",
+    "parentPhone": "هاتف ولي الأمر",
+    "dateOfBirth": "تاريخ الميلاد",
+    "governorate": "المحافظة",
+    "address": "العنوان",
+    "grade": "الصف الدراسي",
+    "school": "المدرسة",
+    "section": "الشعبة",
+    "photo": "صورة الملف الشخصي",
+    "changePhoto": "تغيير الصورة",
+    "saveChanges": "حفظ التغييرات",
+    "passwordTitle": "تغيير كلمة المرور",
+    "currentPassword": "كلمة المرور الحالية",
+    "newPassword": "كلمة المرور الجديدة",
+    "confirmPassword": "تأكيد كلمة المرور",
+    "updatePassword": "تحديث كلمة المرور",
+    "passwordHint": "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل"
+  },
+  "modal": {
+    "title": "تعديل الملف الشخصي",
+    "firstName": "الاسم الأول",
+    "secondName": "اسم الأب",
+    "lastName": "الاسم الأخير",
+    "email": "البريد الإلكتروني",
+    "phone": "رقم الهاتف",
+    "parentPhone": "هاتف ولي الأمر",
+    "dateOfBirth": "تاريخ الميلاد",
+    "governorate": "المحافظة",
+    "address": "العنوان",
+    "grade": "الصف الدراسي",
+    "school": "المدرسة",
+    "section": "الشعبة",
+    "photo": "صورة الملف الشخصي",
+    "changePhoto": "تغيير الصورة",
+    "save": "حفظ التغييرات",
+    "cancel": "إلغاء"
+  }
+}

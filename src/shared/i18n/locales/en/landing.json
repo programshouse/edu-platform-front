@@ -1,0 +1,120 @@
+{
+  "hero": {
+    "badge": "🎓 #1 Learning Platform",
+    "title": "Elevate Your Career",
+    "titleHighlight": "With the Best Courses",
+    "subtitle": "Discover hundreds of carefully designed courses to develop your skills and achieve your career goals with top specialized instructors",
+    "cta": "Start Learning Journey",
+    "secondaryCta": "Browse Courses",
+    "trustedBy": "Trusted by thousands of students"
+  },
+  "about": {
+    "badge": "Meet the Instructor",
+    "title": "Years of Experience",
+    "titleHighlight": "in Digital Education",
+    "description": "A specialized instructor in IT and programming with over 10 years of teaching and training experience. Holding internationally accredited certifications and passionate about helping students achieve their career goals.",
+    "experience": "Years Experience",
+    "certificates": "Certified Awards",
+    "projects": "Successful Projects"
+  },
+  "stats": {
+    "students": "Enrolled Students",
+    "courses": "Training Courses",
+    "hours": "Content Hours",
+    "successRate": "Success Rate"
+  },
+  "courses": {
+    "badge": "Featured Courses",
+    "title": "Choose the Path",
+    "titleHighlight": "That Suits You",
+    "subtitle": "A diverse collection of training courses in the latest technical fields",
+    "viewAll": "View All Courses",
+    "students": "students",
+    "lessons": "lessons",
+    "hours": "hours",
+    "level": {
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced"
+    },
+    "items": [
+      {
+        "title": "Professional Web Development",
+        "description": "Learn to build modern web apps with React & Node.js",
+        "students": 1250,
+        "lessons": 48,
+        "hours": 36,
+        "level": "intermediate",
+        "price": 299
+      },
+      {
+        "title": "UI/UX Design Mastery",
+        "description": "Master user experience design with Figma & Adobe XD",
+        "students": 890,
+        "lessons": 35,
+        "hours": 28,
+        "level": "beginner",
+        "price": 199
+      },
+      {
+        "title": "Data Analysis with Python",
+        "description": "Discover the power of data analysis with Python & Pandas",
+        "students": 1450,
+        "lessons": 52,
+        "hours": 40,
+        "level": "intermediate",
+        "price": 349
+      },
+      {
+        "title": "Mobile App Development",
+        "description": "Build iOS & Android apps with React Native",
+        "students": 680,
+        "lessons": 42,
+        "hours": 32,
+        "level": "advanced",
+        "price": 399
+      }
+    ]
+  },
+  "testimonials": {
+    "badge": "Student Reviews",
+    "title": "What Our",
+    "titleHighlight": "Students Say",
+    "subtitle": "Real reviews from students who achieved their career goals through our courses",
+    "items": [
+      {
+        "name": "Ahmed Mohamed",
+        "role": "Frontend Developer",
+        "content": "The courses here completely changed my career path. The content is practical, up-to-date, and the support is excellent. Highly recommended for anyone looking to grow in programming.",
+        "rating": 5
+      },
+      {
+        "name": "Fatima Ali",
+        "role": "UI/UX Designer",
+        "content": "The best Arabic educational platform I've used. Clear, organized explanations with real practical projects that help you understand concepts deeply.",
+        "rating": 5
+      },
+      {
+        "name": "Omar Hassan",
+        "role": "Data Analyst",
+        "content": "Thanks to the data analysis course, I got my first job in the data field. The curriculum is comprehensive and the practical exercises are excellent.",
+        "rating": 5
+      }
+    ]
+  },
+  "cta": {
+    "title": "Ready to Start",
+    "titleHighlight": "Your Learning Journey?",
+    "subtitle": "Join thousands of students who transformed their careers with our educational platform",
+    "button": "Start Free Now",
+    "noCreditCard": "No credit card required"
+  },
+  "introVideo": {
+    "badge": "🎬 Introduction Video",
+    "title": "Watch",
+    "titleHighlight": "Before You Start",
+    "subtitle": "Get to know the platform and our learning approach through this short introductory video",
+    "duration": "3:45",
+    "caption": "Watch the intro video to discover the learning experience with us"
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "hero": {
+    "badge": "🏫 About Us",
+    "title": "Empowering Learners",
+    "titleHighlight": "Through Quality Education",
+    "subtitle": "We're on a mission to make world-class education accessible to everyone, everywhere"
+  },
+  "mission": {
+    "title": "Our Mission",
+    "description": "To provide high-quality, accessible, and practical training courses that empower individuals to achieve their career goals and stay ahead in the ever-evolving tech landscape."
+  },
+  "vision": {
+    "title": "Our Vision",
+    "description": "To become the leading Arabic-language educational platform, bridging the gap between traditional education and industry demands through innovative learning experiences."
+  },
+  "goals": {
+    "title": "Our Goals",
+    "description": "To equip 50,000+ learners with in-demand tech skills by 2030, building a generation of confident professionals ready to lead in the digital economy."
+  },
+  "approach": {
+    "title": "Our Approach",
+    "description": "Combining hands-on projects, mentorship-driven learning, and industry-aligned curricula to deliver an education that translates directly into career success."
+  },
+  "values": {
+    "badge": "What We Stand For",
+    "title": "Our Core",
+    "titleHighlight": "Values",
+    "items": [
+      {
+        "title": "Quality First",
+        "description": "Every course is meticulously crafted with up-to-date content, practical exercises, and real-world projects."
+      },
+      {
+        "title": "Innovation",
+        "description": "We continuously adopt the latest teaching methodologies and technologies to enhance the learning experience."
+      },
+      {
+        "title": "Accessibility",
+        "description": "Education should be available to everyone. We offer flexible learning paths and affordable pricing."
+      },
+      {
+        "title": "Community",
+        "description": "We foster a supportive community where learners can collaborate, share knowledge, and grow together."
+      },
+      {
+        "title": "Continuous Growth",
+        "description": "We believe in lifelong learning and constantly evolve our programs to keep pace with industry trends and demands."
+      }
+    ]
+  },
+  "stats": {
+    "students": "Happy Students",
+    "courses": "Expert Courses",
+    "hours": "Learning Hours",
+    "satisfaction": "Satisfaction Rate"
+  },
+  "instructor": {
+    "badge": "Meet the Instructor",
+    "title": "Learn From",
+    "titleHighlight": "The Best",
+    "description": "Our lead instructor brings over 10 years of industry experience in software development, IT training, and digital education. With internationally recognized certifications and a passion for teaching, every course is designed to deliver practical, career-ready skills.",
+    "experience": "Years Experience",
+    "certificates": "Certifications",
+    "graduates": "Graduates"
+  },
+  "cta": {
+    "title": "Ready to Start",
+    "titleHighlight": "Your Journey?",
+    "subtitle": "Join our community of learners and take the first step towards transforming your career",
+    "button": "Browse Courses"
+  }
+}

@@ -1,0 +1,218 @@
+{
+  "pageTitle": "إدارة الكورسات",
+  "pageSubtitle": "إنشاء وإدارة ومتابعة كورساتك التعليمية",
+  "coursesList": "قائمة الكورسات",
+  "loading": "جاري التحميل...",
+  "resultsCount": "{{count}} كورس",
+
+  "status": {
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "finished": "منتهي"
+  },
+
+  "card": {
+    "free": "مجاني",
+    "days": "يوم",
+    "lectures": "محاضرة",
+    "students": "طالب"
+  },
+
+  "actions": {
+    "addCourse": "إضافة كورس",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "activate": "تفعيل",
+    "deactivate": "إيقاف",
+    "toggleStatus": "تبديل الحالة",
+    "viewContent": "إدارة المحتوى",
+    "more": "المزيد"
+  },
+
+  "filters": {
+    "sectionLabel": "فلترة الكورسات",
+    "searchPlaceholder": "ابحث عن كورس...",
+    "clearSearch": "مسح البحث",
+    "allStatuses": "كل الحالات",
+    "priceRange": "نطاق السعر",
+    "min": "الحد الأدنى",
+    "max": "الحد الأقصى",
+    "minPrice": "السعر الأدنى",
+    "maxPrice": "السعر الأقصى",
+    "dateFrom": "من تاريخ",
+    "dateTo": "إلى تاريخ",
+    "reset": "إعادة ضبط"
+  },
+
+  "pagination": {
+    "showing": "عرض {{from}}–{{to}} من {{total}}",
+    "prev": "السابق",
+    "next": "التالي",
+    "goTo": "انتقل إلى صفحة {{page}}",
+    "perPage": "لكل صفحة"
+  },
+
+  "empty": {
+    "noCourses": "لا توجد كورسات بعد",
+    "noCoursesHint": "ابدأ بإنشاء أول كورس تعليمي لك",
+    "noResults": "لا توجد نتائج",
+    "noResultsHint": "حاول تعديل فلاتر البحث أو أعد ضبطها"
+  },
+
+  "error": {
+    "title": "حدث خطأ",
+    "generic": "تعذّر تحميل الكورسات. يرجى المحاولة مجدداً.",
+    "retry": "إعادة المحاولة"
+  },
+
+  "form": {
+    "title": "عنوان الكورس",
+    "titlePlaceholder": "أدخل عنوان الكورس",
+    "description": "الوصف",
+    "descriptionPlaceholder": "أدخل وصفاً تفصيلياً للكورس",
+    "coverImage": "صورة الغلاف",
+    "coverPreview": "معاينة صورة الغلاف",
+    "uploadCover": "اضغط لرفع صورة",
+    "uploadHint": "PNG, JPG, WEBP • حتى 5 MB",
+    "changeImage": "تغيير الصورة",
+    "removeCover": "إزالة الصورة",
+    "imageRequirements": "الصيغ المدعومة: PNG, JPG, WEBP • الحد الأقصى: 5 MB",
+    "price": "السعر (ج.م)",
+    "priceHint": "أدخل 0 لكورس مجاني",
+    "durationDays": "المدة (بالأيام)",
+    "startDate": "تاريخ البداية",
+    "endDate": "تاريخ النهاية",
+    "allowSeparateLectures": "السماح ببيع المحاضرات منفردةً",
+    "allowSeparateLecturesHint": "عند التفعيل يمكن للطلاب شراء محاضرات منفردة دون الاشتراك في الكورس الكامل",
+    "submit": "حفظ",
+    "submitting": "جاري الحفظ..."
+  },
+
+  "createDialog": {
+    "title": "إضافة كورس جديد",
+    "description": "أملأ البيانات التالية لإنشاء كورس تعليمي جديد",
+    "submit": "إنشاء الكورس"
+  },
+
+  "editDialog": {
+    "title": "تعديل الكورس",
+    "description": "قم بتحديث بيانات الكورس",
+    "submit": "حفظ التعديلات"
+  },
+
+  "deleteDialog": {
+    "title": "حذف الكورس",
+    "description": "هل أنت متأكد من حذف الكورس \"{{title}}\"؟ هذا الإجراء لا يمكن التراجع عنه.",
+    "confirm": "حذف نهائياً",
+    "cancel": "إلغاء",
+    "deleting": "جاري الحذف..."
+  },
+
+  "notifications": {
+    "courseCreated": "تم إنشاء الكورس بنجاح",
+    "courseUpdated": "تم تحديث الكورس بنجاح",
+    "courseDeleted": "تم حذف الكورس بنجاح",
+    "statusUpdated": "تم تحديث حالة الكورس",
+    "error": "حدث خطأ، يرجى المحاولة مجدداً"
+  },
+
+  "validation": {
+    "titleMin": "العنوان يجب أن يحتوي على 3 أحرف على الأقل",
+    "titleMax": "العنوان يجب ألا يتجاوز 150 حرفاً",
+    "descriptionMin": "الوصف يجب أن يحتوي على 10 أحرف على الأقل",
+    "descriptionMax": "الوصف يجب ألا يتجاوز 2000 حرف",
+    "imageSizeMax": "حجم الصورة يجب ألا يتجاوز 5 ميجابايت",
+    "imageType": "يجب أن تكون الصورة بصيغة JPEG أو PNG أو WEBP",
+    "priceRequired": "يرجى إدخال سعر صحيح",
+    "priceMin": "السعر يجب أن يكون 0 أو أكثر",
+    "priceMax": "السعر يجب ألا يتجاوز 100,000",
+    "durationRequired": "يرجى إدخال مدة صحيحة",
+    "durationInt": "المدة يجب أن تكون عدداً صحيحاً",
+    "durationMin": "المدة يجب أن تكون يوم واحد على الأقل",
+    "durationMax": "المدة يجب ألا تتجاوز 3650 يوماً",
+    "startDateRequired": "يرجى اختيار تاريخ البداية",
+    "endDateRequired": "يرجى اختيار تاريخ النهاية",
+    "endDateAfterStart": "تاريخ النهاية يجب أن يكون بعد تاريخ البداية"
+  },
+  "overview": {
+    "sectionTitle": "نظرة عامة على الكورس",
+    "price": "السعر",
+    "duration": "المدة (بالأيام)",
+    "students": "الطلاب المسجلين",
+    "status": "حالة الكورس",
+    "startDate": "تاريخ البداية",
+    "endDate": "تاريخ النهاية",
+    "lectures": "محاضرات",
+    "editCourse": "تعديل الكورس",
+    "toggleStatus": "تبديل الحالة",
+    "confirmToggleTitle": "تغيير حالة الكورس؟",
+    "confirmToggleDescription": "أنت على وشك تغيير حالة الكورس إلى \"{{status}}\". هل أنت متأكد؟",
+    "confirmToggleConfirm": "تأكيد",
+    "confirmToggleCancel": "إلغاء",
+    "loadingCourse": "جاري تحميل الكورس...",
+    "notFound": "الكورس غير موجود"
+  },
+  "tabs": {
+    "lectures": "المحاضرات",
+    "exams": "الاختبارات",
+    "assignments": "الواجبات"
+  },
+  "lectures": {
+    "title": "المحاضرات",
+    "add": "إضافة محاضرة",
+    "name": "العنوان",
+    "type": "النوع",
+    "duration": "المدة",
+    "status": "الحالة",
+    "actions": "إجراءات",
+    "types": {
+      "video": "فيديو",
+      "live": "مباشر"
+    },
+    "statuses": {
+      "visible": "مرئي",
+      "hidden": "مخفي"
+    },
+    "addTitle": "إضافة محاضرة جديدة",
+    "editTitle": "تعديل المحاضرة",
+    "formTitle": "عنوان المحاضرة",
+    "titlePlaceholder": "أدخل العنوان...",
+    "formDesc": "الوصف",
+    "descPlaceholder": "عن ماذا تتحدث هذه المحاضرة؟",
+    "formType": "نوع المحاضرة",
+    "videoUrl": "رابط الفيديو أو تحميل من الجهاز",
+    "videoHint": "أو قم بتحميل ملف مباشر",
+    "liveDate": "التاريخ",
+    "liveTime": "الوقت",
+    "access": "نوع الوصول",
+    "accessFree": "معاينة مجانية",
+    "accessPaid": "مدفوع (للمشتركين فقط)",
+    "created": "تم إنشاء المحاضرة",
+    "updated": "تم تحديث المحاضرة"
+  },
+  "exams": {
+    "title": "الاختبارات",
+    "add": "إنشاء اختبار",
+    "name": "العنوان",
+    "questions": "الأسئلة",
+    "duration": "المدة",
+    "grade": "الدرجة الكلية",
+    "builderNotice": "صفحة منشئ الاختبارات ستتوفر قريباً"
+  },
+  "assignments": {
+    "title": "الواجبات",
+    "add": "إضافة واجب",
+    "name": "العنوان",
+    "dueDate": "تاريخ التسليم",
+    "submissions": "التسليمات",
+    "addTitle": "إضافة واجب جديد",
+    "editTitle": "تعديل الواجب",
+    "formTitle": "عنوان الواجب",
+    "titlePlaceholder": "أدخل العنوان...",
+    "formDesc": "التعليمات / الوصف",
+    "descPlaceholder": "ماذا يجب على الطلاب فعله؟",
+    "dueDateLabel": "تاريخ التسليم",
+    "created": "تم إنشاء الواجب",
+    "updated": "تم تحديث الواجب"
+  }
+}

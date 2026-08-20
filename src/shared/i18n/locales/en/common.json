@@ -1,0 +1,48 @@
+{
+  "nav": {
+    "home": "Home",
+    "courses": "Courses",
+    "about": "About",
+    "contact": "Contact",
+    "login": "Login",
+    "register": "Sign Up",
+    "dashboard": "Dashboard",
+    "logout": "Logout",
+    "profile": "My Profile"
+  },
+  "footer": {
+    "description": "An integrated educational platform offering the best training courses with specialized instructors",
+    "quickLinks": "Quick Links",
+    "support": "Support",
+    "faq": "FAQ",
+    "helpCenter": "Help Center",
+    "privacy": "Privacy Policy",
+    "terms": "Terms & Conditions",
+    "contactUs": "Contact Us",
+    "followUs": "Follow Us",
+    "copyright": "All rights reserved",
+    "madeWith": "Made with ❤️ for education"
+  },
+  "buttons": {
+    "startNow": "Start Now",
+    "learnMore": "Learn More",
+    "enrollNow": "Enroll Now",
+    "viewAll": "View All",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save"
+  },
+  "language": {
+    "ar": "العربية",
+    "en": "English"
+  },
+  "errors": {
+    "notFound": "Page Not Found",
+    "notFoundDesc": "Sorry, the page you are looking for does not exist",
+    "unauthorized": "Unauthorized",
+    "unauthorizedDesc": "You do not have permission to access this page",
+    "goHome": "Go Home"
+  }
+}
