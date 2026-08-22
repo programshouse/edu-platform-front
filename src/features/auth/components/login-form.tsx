@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff, LogIn, Loader2, GraduationCapIcon, BookOpenIcon, FlaskConicalIcon } from "lucide-react";
 import { useAuthStore } from "@/shared/stores/auth-store";
 import type { User } from "@/shared/stores/auth-store";
+import { authApi } from "@/features/auth/api/auth-api";
 
 // ─── Types ───
 
@@ -69,10 +70,31 @@ export function LoginForm() {
 
   const onSubmit = async (data: LoginFormValues) => {
     setIsSubmitting(true);
-    console.log("Login data:", data);
-    // TODO: Replace with real API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    setIsSubmitting(false);
+    try {
+      const response = await authApi.login({
+        email: data.email,
+        password: data.password,
+        remember_me: data.rememberMe ? 1 : 0,
+      });
+
+      const user = response.data;
+      login(
+        {
+          id: String(user.id),
+          name: user.full_name,
+          email: user.email,
+          role: user.role ?? "student",
+        },
+        response.token,
+        response.refresh_token ?? "",
+      );
+
+      navigate("/profile");
+    } catch (error) {
+      console.error("Login failed", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleDevLogin = async (entry: (typeof DEV_USERS)[0]) => {
