@@ -1,8 +1,12 @@
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
+import { authApi } from "@/features/auth/api/auth-api";
+import { useAuthStore } from "@/shared/stores/auth-store";
+import { useNavigate } from "react-router-dom";
 import {
   Mail,
   Lock,
@@ -24,43 +28,26 @@ import {
 
 // ─── Constants ───
 
-const GOVERNORATE_KEYS = [
-  "cairo",
-  "giza",
-  "alexandria",
-  "dakahlia",
-  "sharqia",
-  "monufia",
-  "qalyubia",
-  "beheira",
-  "gharbia",
-  "kafr_el_sheikh",
-  "damietta",
-  "port_said",
-  "ismailia",
-  "suez",
-  "north_sinai",
-  "south_sinai",
-  "beni_suef",
-  "fayoum",
-  "minya",
-  "asyut",
-  "sohag",
-  "qena",
-  "luxor",
-  "aswan",
-  "red_sea",
-  "new_valley",
-  "matrouh",
+type LookupOption = {
+  id: string | number;
+  value: string;
+  label?: string;
+  name?: string;
+  name_ar?: string;
+  name_en?: string;
+};
+
+const FALLBACK_GOVERNORATES = [
+  "cairo", "giza", "alexandria", "dakahlia", "sharqia", "monufia",
+  "qalyubia", "beheira", "gharbia", "kafr_el_sheikh", "damietta",
+  "port_said", "ismailia", "suez", "north_sinai", "south_sinai",
+  "beni_suef", "fayoum", "minya", "asyut", "sohag", "qena", "luxor",
+  "aswan", "red_sea", "new_valley", "matrouh",
 ] as const;
 
-const GRADE_KEYS = [
-  "grade_1_prep",
-  "grade_2_prep",
-  "grade_3_prep",
-  "grade_1_sec",
-  "grade_2_sec",
-  "grade_3_sec",
+const FALLBACK_GRADES = [
+  "grade_1_prep", "grade_2_prep", "grade_3_prep",
+  "grade_1_sec", "grade_2_sec", "grade_3_sec",
 ] as const;
 
 // ─── Types ───
@@ -184,13 +171,104 @@ function StepIndicator({
 
 // ─── Component ───
 
+function normalizeLookupResponse(response: any): LookupOption[] {
+  // API response is: { message, data: [{ id, name_ar, name_en }] }
+  let list: any[] = [];
+
+  if (Array.isArray(response)) {
+    list = response;
+  } else if (Array.isArray(response?.data)) {
+    list = response.data;
+  } else if (Array.isArray(response?.data?.data)) {
+    list = response.data.data;
+  } else if (Array.isArray(response?.items)) {
+    list = response.items;
+  }
+
+  return list.map((item: any, index: number) => {
+    if (typeof item === "string" || typeof item === "number") {
+      return {
+        id: item,
+        value: String(item),
+        label: String(item),
+      };
+    }
+
+    const id = item?.id ?? index;
+
+    return {
+      ...item,
+      id,
+      value: String(id),
+      label: String(
+        item?.name_en ??
+          item?.name_ar ??
+          item?.name ??
+          item?.label ??
+          item?.title ??
+          id,
+      ),
+      name_ar: item?.name_ar,
+      name_en: item?.name_en,
+    };
+  });
+}
+
+function getOptionLabel(
+  option: LookupOption,
+  t: any,
+  namespace: "grades" | "governorates",
+  language: string,
+) {
+  const apiLabel =
+    language.startsWith("ar")
+      ? option.name_ar ?? option.name_en
+      : option.name_en ?? option.name_ar;
+
+  const translated = t(`${namespace}.${option.value}`, { defaultValue: "" });
+
+  return translated || apiLabel || option.label || option.name || option.value;
+}
+
 export function SignupForm() {
-  const { t } = useTranslation("auth");
+  const { t, i18n } = useTranslation("auth");
   const [currentStep, setCurrentStep] = useState(1);
   const [direction, setDirection] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [governorates, setGovernorates] = useState<LookupOption[]>([]);
+  const [grades, setGrades] = useState<LookupOption[]>([]);
+  const [lookupsLoading, setLookupsLoading] = useState(true);
+  const navigate = useNavigate();
+  const login = useAuthStore((state) => state.login);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadLookups = async () => {
+      setLookupsLoading(true);
+      try {
+        const [gradesResponse, governoratesResponse] = await Promise.all([
+          authApi.grades(),
+          authApi.governorates(),
+        ]);
+
+        if (!mounted) return;
+
+        setGrades(normalizeLookupResponse(gradesResponse));
+        setGovernorates(normalizeLookupResponse(governoratesResponse));
+      } catch (error) {
+        console.error("Failed to load registration lookups", error);
+        toast.error(t("errors.lookupLoadFailed", { defaultValue: "Unable to load grades and governorates. Please try again." }));
+      } finally {
+        if (mounted) setLookupsLoading(false);
+      }
+    };
+
+    loadLookups();
+    return () => { mounted = false; };
+  }, [t]);
 
   const {
     register,
@@ -242,12 +320,81 @@ export function SignupForm() {
   };
 
   const onSubmit = async (data: SignupFormValues) => {
-    if (!data.acceptTerms) return;
+    if (!data.acceptTerms) {
+      await trigger("acceptTerms");
+      return;
+    }
+
     setIsSubmitting(true);
-    console.log("Signup data:", data);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    setIsSubmitting(false);
+
+    try {
+      const formData = new FormData();
+      const fullName = [data.firstName, data.secondName, data.lastName]
+        .filter(Boolean)
+        .join(" ");
+
+      // Backend register API expects these exact field names.
+      formData.append("full_name", fullName);
+      formData.append("email", data.email.trim());
+      formData.append("password", data.password);
+      formData.append("password_confirmation", data.confirmPassword);
+      formData.append("phone", data.phone.trim());
+      formData.append("parent_phone", data.parentPhone.trim());
+      formData.append("dob", data.dateOfBirth);
+      formData.append("governorate_id", data.governorate);
+      formData.append("address", data.address.trim());
+      formData.append("grade_id", data.grade);
+      formData.append("school", data.school.trim());
+      formData.append(
+        "department_name",
+        data.section === "arabic" ? "عربي" : "لغات",
+      );
+
+      const response = await authApi.register(formData);
+
+      const accessToken = response?.token ?? response?.access_token;
+      const refreshToken = response?.refresh_token ?? response?.refreshToken ?? "";
+      const user = response?.user ?? response?.data?.user ?? response?.data;
+
+      if (accessToken && user?.id) {
+        login(
+          {
+            id: String(user.id),
+            name: user.full_name ?? user.name ?? fullName,
+            email: user.email ?? data.email,
+            role: user.role ?? "student",
+          },
+          accessToken,
+          refreshToken,
+        );
+        toast.success(response?.message || t("signup.success", { defaultValue: "Account created successfully." }));
+        navigate("/profile", { replace: true });
+      } else {
+        toast.success(
+          response?.message ||
+            t("signup.success", { defaultValue: "Account created successfully. Please login." }),
+        );
+        navigate("/login", { replace: true });
+      }
+    } catch (error: any) {
+      console.error("Registration failed", error);
+
+      const apiMessage =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        error?.response?.data?.errors;
+
+      if (typeof apiMessage === "object" && apiMessage !== null) {
+        const messages = Object.values(apiMessage).flatMap((value: any) =>
+          Array.isArray(value) ? value : [value],
+        );
+        toast.error(String(messages[0] || "Registration failed."));
+      } else {
+        toast.error(String(apiMessage || t("errors.registerFailed", { defaultValue: "Registration failed. Please check your data and try again." })));
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const inputBaseClass =
@@ -484,9 +631,18 @@ export function SignupForm() {
                         <option value="" disabled>
                           {t("signup.governoratePlaceholder")}
                         </option>
-                        {GOVERNORATE_KEYS.map((key) => (
-                          <option key={key} value={key}>
-                            {t(`governorates.${key}`)}
+                        {lookupsLoading ? (
+                          <option value="" disabled>
+                            {t("signup.loadingOptions", { defaultValue: "Loading..." })}
+                          </option>
+                        ) : (governorates.length ? governorates : FALLBACK_GOVERNORATES.map((key) => ({ id: key, value: key }))).map((option) => (
+                          <option key={String(option.id)} value={String(option.id)}>
+                            {getOptionLabel(
+                              option,
+                              t,
+                              "governorates",
+                              i18n.language,
+                            )}
                           </option>
                         ))}
                       </select>
@@ -556,9 +712,18 @@ export function SignupForm() {
                       <option value="" disabled>
                         {t("signup.gradePlaceholder")}
                       </option>
-                      {GRADE_KEYS.map((key) => (
-                        <option key={key} value={key}>
-                          {t(`grades.${key}`)}
+                      {lookupsLoading ? (
+                        <option value="" disabled>
+                          {t("signup.loadingOptions", { defaultValue: "Loading..." })}
+                        </option>
+                      ) : (grades.length ? grades : FALLBACK_GRADES.map((key) => ({ id: key, value: key }))).map((option) => (
+                        <option key={String(option.id)} value={String(option.id)}>
+                          {getOptionLabel(
+                            option,
+                            t,
+                            "grades",
+                            i18n.language,
+                          )}
                         </option>
                       ))}
                     </select>

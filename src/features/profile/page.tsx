@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   User,
@@ -10,6 +11,7 @@ import {
   GraduationCap,
   School,
   BookOpen,
+  Loader2,
 } from "lucide-react";
 import { ProfileHero } from "./components/profile-hero";
 import { ProfileTabs, type ProfileTab } from "./components/profile-tabs";
@@ -18,216 +20,63 @@ import { TestsTab } from "./components/tests-tab";
 import { AssignmentsTab } from "./components/assignments-tab";
 import { SettingsTab } from "./components/settings-tab";
 import { Footer } from "@/features/landing/components/footer";
+import { authApi } from "@/features/auth/api/auth-api";
 
-// ─── Mock Student (same fields as signup form) ───────────────────────────────
+// ─── Type Definitions ────────────────────────────────────────────────────────
 
-const mockStudent = {
-  firstName: "Ahmed",
-  secondName: "Mohamed",
-  lastName: "Hassan",
-  dateOfBirth: "2005-06-15",
-  phone: "+20 100 123 4567",
-  parentPhone: "+20 111 987 6543",
-  governorate: "cairo",
-  address: "12 Tahrir Square, Downtown",
-  grade: "grade_2_sec",
-  school: "Nasr City Secondary School",
-  section: "arabic" as const,
-  email: "ahmed.hassan@example.com",
-  registeredAt: "January 10, 2025",
+export interface StudentProfile {
+  firstName: string;
+  secondName: string;
+  lastName: string;
+  dateOfBirth: string;
+  phone: string;
+  parentPhone: string;
+  governorate: string;
+  address: string;
+  grade: string;
+  school: string;
+  section: "arabic" | "english" | "languages";
+  email: string;
+  registeredAt: string;
+  courses?: any[];
+  tests?: any[];
+  assignments?: any[];
   stats: {
-    courses: 4,
-    points: 3280,
-    rank: 12,
-  },
-};
-
-// ─── Mock Courses ────────────────────────────────────────────────────────────
-
-const mockCourses = [
-  {
-    id: 0,
-    title: "Professional Web Development",
-    description:
-      "Learn to build modern, responsive web applications using React, Node.js, and cutting-edge frameworks",
-    image:
-      "https://images.unsplash.com/photo-1627398242454-45a1465c2479?w=600&h=340&fit=crop",
-    progress: 72,
-    status: "active" as const,
-    expiresAt: "July 30, 2026",
-  },
-  {
-    id: 1,
-    title: "UI/UX Design Mastery",
-    description:
-      "Master user experience design principles and create stunning interfaces with Figma & Adobe XD",
-    image:
-      "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=600&h=340&fit=crop",
-    progress: 45,
-    status: "active" as const,
-    expiresAt: "June 15, 2026",
-  },
-  {
-    id: 2,
-    title: "Data Analysis with Python",
-    description:
-      "Discover the power of data analysis with Python, Pandas, and advanced visualization techniques",
-    image:
-      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=340&fit=crop",
-    progress: 100,
-    status: "expired" as const,
-    expiresAt: "December 10, 2025",
-  },
-  {
-    id: 3,
-    title: "Mobile App Development",
-    description:
-      "Build cross-platform iOS & Android applications with React Native from scratch",
-    image:
-      "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=340&fit=crop",
-    progress: 18,
-    status: "active" as const,
-    expiresAt: "August 30, 2026",
-  },
-];
-
-// ─── Mock Tests ──────────────────────────────────────────────────────────────
-
-const mockTests = [
-  {
-    id: 0,
-    title: "HTML & CSS Practical Test",
-    courseName: "Professional Web Development",
-    courseId: 0,
-    lectureIndex: 0,
-    grade: 88,
-    totalScore: 100,
-    status: "passed" as const,
-    attempts: 1,
-    maxAttempts: 2,
-  },
-  {
-    id: 1,
-    title: "JavaScript Fundamentals Quiz",
-    courseName: "Professional Web Development",
-    courseId: 0,
-    lectureIndex: 3,
-    grade: 55,
-    totalScore: 100,
-    status: "failed" as const,
-    attempts: 1,
-    maxAttempts: 2,
-  },
-  {
-    id: 2,
-    title: "UX Principles Quiz",
-    courseName: "UI/UX Design Mastery",
-    courseId: 1,
-    lectureIndex: 0,
-    grade: null,
-    totalScore: 100,
-    status: "inProgress" as const,
-    attempts: 0,
-    maxAttempts: 3,
-  },
-  {
-    id: 3,
-    title: "Python Basics Quiz",
-    courseName: "Data Analysis with Python",
-    courseId: 2,
-    lectureIndex: 0,
-    grade: 92,
-    totalScore: 100,
-    status: "passed" as const,
-    attempts: 2,
-    maxAttempts: 3,
-  },
-];
-
-// ─── Mock Assignments ────────────────────────────────────────────────────────
-
-const mockAssignments = [
-  {
-    id: 0,
-    title: "Build a Landing Page",
-    courseName: "Professional Web Development",
-    courseId: 0,
-    lectureIndex: 0,
-    deadline: "May 15, 2026",
-    status: "graded" as const,
-    grade: 95,
-    totalGrade: 100,
-    feedback:
-      "Excellent work! The layout is clean and responsive. Minor issue with the mobile menu animation — consider using a smoother transition.",
-  },
-  {
-    id: 1,
-    title: "Build a Full-Stack CRUD App",
-    courseName: "Professional Web Development",
-    courseId: 0,
-    lectureIndex: 8,
-    deadline: "June 20, 2026",
-    status: "submitted" as const,
-    grade: null,
-    totalGrade: 100,
-    feedback: null,
-  },
-  {
-    id: 2,
-    title: "Design a Mobile App UI",
-    courseName: "UI/UX Design Mastery",
-    courseId: 1,
-    lectureIndex: 5,
-    deadline: "April 28, 2026",
-    status: "notSubmitted" as const,
-    grade: null,
-    totalGrade: 100,
-    feedback: null,
-  },
-  {
-    id: 3,
-    title: "Data Cleaning Challenge",
-    courseName: "Data Analysis with Python",
-    courseId: 2,
-    lectureIndex: 3,
-    deadline: "November 5, 2025",
-    status: "late" as const,
-    grade: 60,
-    totalGrade: 100,
-    feedback:
-      "Submitted 3 days late. The analysis was mostly correct but lacked proper documentation.",
-  },
-];
+    courses: number;
+    points: number;
+    rank: number;
+  };
+}
 
 // ─── Personal Info Tab ───────────────────────────────────────────────────────
 
-function PersonalTab() {
+function PersonalTab({ student }: { student: StudentProfile }) {
   const { t } = useTranslation("profile");
   const { t: tAuth } = useTranslation("auth");
 
-  const fullName = `${mockStudent.firstName} ${mockStudent.secondName} ${mockStudent.lastName}`;
+  const fullName = `${student.firstName || ""} ${student.secondName || ""} ${student.lastName || ""}`.trim();
 
   const groups = [
     {
       color: "blue",
       fields: [
         { icon: User, label: t("personal.fullName"), value: fullName },
-        { icon: Mail, label: t("personal.email"), value: mockStudent.email },
+        { icon: Mail, label: t("personal.email"), value: student.email },
         {
           icon: CalendarDays,
           label: t("personal.dateOfBirth"),
-          value: mockStudent.dateOfBirth,
+          value: student.dateOfBirth,
         },
       ],
     },
     {
       color: "violet",
       fields: [
-        { icon: Phone, label: t("personal.phone"), value: mockStudent.phone },
+        { icon: Phone, label: t("personal.phone"), value: student.phone },
         {
           icon: Phone,
           label: t("personal.parentPhone"),
-          value: mockStudent.parentPhone,
+          value: student.parentPhone,
         },
       ],
     },
@@ -237,12 +86,12 @@ function PersonalTab() {
         {
           icon: MapPin,
           label: t("personal.governorate"),
-          value: tAuth(`governorates.${mockStudent.governorate}`),
+          value: tAuth(`governorates.${student.governorate}`, { defaultValue: student.governorate }),
         },
         {
           icon: MapPin,
           label: t("personal.address"),
-          value: mockStudent.address,
+          value: student.address,
         },
       ],
     },
@@ -252,19 +101,19 @@ function PersonalTab() {
         {
           icon: GraduationCap,
           label: t("personal.grade"),
-          value: tAuth(`grades.${mockStudent.grade}`),
+          value: tAuth(`grades.${student.grade}`, { defaultValue: student.grade }),
         },
         {
           icon: School,
           label: t("personal.school"),
-          value: mockStudent.school,
+          value: student.school,
         },
         {
           icon: BookOpen,
           label: t("personal.section"),
-          value: tAuth(
-            `signup.section${mockStudent.section.charAt(0).toUpperCase() + mockStudent.section.slice(1)}`,
-          ),
+          value: student.section
+            ? tAuth(`signup.section${student.section.charAt(0).toUpperCase() + student.section.slice(1)}`, { defaultValue: student.section })
+            : "",
         },
       ],
     },
@@ -274,7 +123,7 @@ function PersonalTab() {
         {
           icon: CalendarDays,
           label: t("personal.registered"),
-          value: mockStudent.registeredAt,
+          value: student.registeredAt,
         },
       ],
     },
@@ -293,7 +142,7 @@ function PersonalTab() {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35 }}
-      className=" space-y-4 grid gap-x-4 grid-cols-1 md:grid-cols-2"
+      className="space-y-4 grid gap-x-4 grid-cols-1 md:grid-cols-2"
     >
       {groups.map(({ color, fields }) => {
         const { bg, icon: iconCls } = colorMap[color];
@@ -312,7 +161,7 @@ function PersonalTab() {
                 <div className="min-w-0">
                   <p className="text-xs text-gray-400">{label}</p>
                   <p className="text-sm font-semibold text-gray-900 mt-0.5 truncate">
-                    {value}
+                    {value || "—"}
                   </p>
                 </div>
               </div>
@@ -337,9 +186,56 @@ const tabContentVariants = {
 export function ProfilePage() {
   const [activeTab, setActiveTab] = useState<ProfileTab>("personal");
 
+  // Fetch student profile using TanStack Query
+  const { data: response, isLoading, isError, refetch } = useQuery({
+    queryKey: ["studentProfile"],
+    queryFn: authApi.profile,
+  });
+
+  // Extract student data from backend response wrapper if necessary (e.g., response.data or response)
+  const rawStudent = response?.data || response;
+  const student: StudentProfile | undefined = rawStudent
+    ? {
+        ...rawStudent,
+        section: rawStudent.section ?? "arabic",
+        registeredAt: rawStudent.registeredAt ?? rawStudent.registered_at ?? "",
+        courses: rawStudent.courses ?? [],
+        tests: rawStudent.tests ?? [],
+        assignments: rawStudent.assignments ?? [],
+        stats: {
+          courses: rawStudent.stats?.courses ?? rawStudent.courses?.length ?? 0,
+          points: rawStudent.stats?.points ?? 0,
+          rank: rawStudent.stats?.rank ?? 0,
+        },
+      }
+    : undefined;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-[70vh] flex flex-col items-center justify-center gap-3">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <p className="text-sm text-gray-500">Loading profile data...</p>
+      </div>
+    );
+  }
+
+  if (isError || !student) {
+    return (
+      <div className="min-h-[70vh] flex flex-col items-center justify-center gap-3">
+        <p className="text-sm text-red-500">Failed to load profile details.</p>
+        <button
+          onClick={() => refetch()}
+          className="px-4 py-2 text-xs font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition"
+        >
+          Try Again
+        </button>
+      </div>
+    );
+  }
+
   return (
     <>
-      <ProfileHero student={mockStudent} />
+      <ProfileHero student={student} />
       <ProfileTabs active={activeTab} onChange={setActiveTab} />
 
       <section className="py-8 bg-gray-50/60 min-h-[60vh]">
@@ -352,14 +248,14 @@ export function ProfilePage() {
               animate="visible"
               exit="exit"
             >
-              {activeTab === "personal" && <PersonalTab />}
-              {activeTab === "courses" && <CoursesTab courses={mockCourses} />}
-              {activeTab === "tests" && <TestsTab tests={mockTests} />}
+              {activeTab === "personal" && <PersonalTab student={student} />}
+              {activeTab === "courses" && <CoursesTab courses={student?.courses || []} />}
+              {activeTab === "tests" && <TestsTab tests={student?.tests || []} />}
               {activeTab === "assignments" && (
-                <AssignmentsTab assignments={mockAssignments} />
+                <AssignmentsTab assignments={student?.assignments || []} />
               )}
               {activeTab === "settings" && (
-                <SettingsTab student={mockStudent} />
+                <SettingsTab student={student} onProfileUpdated={refetch} />
               )}
             </motion.div>
           </AnimatePresence>

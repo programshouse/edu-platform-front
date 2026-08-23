@@ -13,6 +13,8 @@ import {
 import { useState } from "react";
 import { cn } from "@/shared/lib/utils";
 import { useAuthStore } from "@/shared/stores/auth-store";
+import { authApi } from "@/features/auth/api/auth-api";
+import { toast } from "sonner";
 
 export function PublicLayout() {
   const { t, i18n } = useTranslation("common");
@@ -39,10 +41,20 @@ export function PublicLayout() {
     i18n.changeLanguage(newLang);
   };
 
-  const handleLogout = () => {
-    logout();
-    setIsMobileMenuOpen(false);
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      if (isLoggedIn) {
+        await authApi.logout();
+      }
+    } catch (error) {
+      // The local session must still be cleared if the server request fails.
+      console.error("Logout request failed", error);
+    } finally {
+      logout();
+      setIsMobileMenuOpen(false);
+      toast.success(t("nav.logout"));
+      navigate("/login", { replace: true });
+    }
   };
 
   return (

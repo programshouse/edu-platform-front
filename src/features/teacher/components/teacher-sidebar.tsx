@@ -24,6 +24,7 @@ import {
   SidebarRail,
 } from "@/shared/components/ui/sidebar";
 import { useAuthStore } from "@/shared/stores/auth-store";
+import { authApi } from "@/features/auth/api/auth-api";
 
 export function TeacherSidebar() {
   const { t, i18n } = useTranslation("teacher");
@@ -37,9 +38,15 @@ export function TeacherSidebar() {
     i18n.changeLanguage(newLang);
   };
 
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      await authApi.logout();
+    } catch (error) {
+      console.error("Logout request failed", error);
+    } finally {
+      logout();
+      navigate("/login", { replace: true });
+    }
   };
 
   const navItems = [

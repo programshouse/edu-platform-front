@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Eye, EyeOff, ChevronDown } from "lucide-react";
+import { X, Eye, EyeOff, ChevronDown, Loader2 } from "lucide-react";
 
 // ─── Shared Constants (same as signup form) ────────────────────────────────
 
@@ -31,7 +31,7 @@ interface StudentData {
   address: string;
   grade: string;
   school: string;
-  section: "arabic" | "languages";
+  section: "arabic" | "english" | "languages";
   email: string;
 }
 
@@ -268,10 +268,13 @@ interface PasswordFormProps {
     update: string;
     hint: string;
   };
+  onSubmit?: (data: { current: string; new: string; confirm: string }) => Promise<unknown> | unknown;
 }
 
-export function PasswordForm({ labels }: PasswordFormProps) {
+export function PasswordForm({ labels, onSubmit }: PasswordFormProps) {
   const [show, setShow] = useState({ current: false, new: false, confirm: false });
+  const [values, setValues] = useState({ current: "", new: "", confirm: "" });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fields: { key: keyof typeof show; label: string }[] = [
     { key: "current", label: labels.current },
@@ -279,14 +282,31 @@ export function PasswordForm({ labels }: PasswordFormProps) {
     { key: "confirm", label: labels.confirm },
   ];
 
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!onSubmit) return;
+
+    setIsSubmitting(true);
+    try {
+      await onSubmit(values);
+      setValues({ current: "", new: "", confirm: "" });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
-    <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+    <form className="space-y-4" onSubmit={handleSubmit}>
       {fields.map(({ key, label }) => (
         <div key={key}>
           <label className="block text-sm font-medium text-gray-700 mb-1.5">{label}</label>
           <div className="relative">
             <input
               type={show[key] ? "text" : "password"}
+              value={values[key]}
+              onChange={(e) => setValues((prev) => ({ ...prev, [key]: e.target.value }))}
+              required
+              minLength={key === "current" ? undefined : 8}
               className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition pe-10"
             />
             <button
@@ -302,10 +322,12 @@ export function PasswordForm({ labels }: PasswordFormProps) {
       <p className="text-xs text-gray-400">{labels.hint}</p>
       <button
         type="submit"
-        className="w-full py-2.5 rounded-xl bg-linear-to-r from-indigo-600 to-blue-600 text-sm font-semibold text-white shadow-md shadow-blue-200 hover:shadow-blue-300 hover:-translate-y-0.5 transition-all duration-200"
+        disabled={isSubmitting}
+        className="w-full py-2.5 rounded-xl bg-linear-to-r from-indigo-600 to-blue-600 text-sm font-semibold text-white shadow-md shadow-blue-200 hover:shadow-blue-300 hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50"
       >
-        {labels.update}
+        {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : labels.update}
       </button>
     </form>
   );
 }
+

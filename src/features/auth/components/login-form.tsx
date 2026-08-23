@@ -6,7 +6,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff, LogIn, Loader2, GraduationCapIcon, BookOpenIcon, FlaskConicalIcon } from "lucide-react";
 import { useAuthStore } from "@/shared/stores/auth-store";
 import type { User } from "@/shared/stores/auth-store";
-import { authApi } from "@/features/auth/api/auth-api";
+import { authApi, type AuthResponse } from "@/features/auth/api/auth-api";
+import { toast } from "sonner";
 
 // ─── Types ───
 
@@ -70,28 +71,66 @@ export function LoginForm() {
 
   const onSubmit = async (data: LoginFormValues) => {
     setIsSubmitting(true);
+
     try {
-      const response = await authApi.login({
-        email: data.email,
+      const response: AuthResponse = await authApi.login({
+        email: data.email.trim(),
         password: data.password,
         remember_me: data.rememberMe ? 1 : 0,
       });
 
-      const user = response.data;
+      const user = response.user ?? response.data?.user ?? response.data;
+      const accessToken =
+        response.access_token ??
+        response.token ??
+        response.data?.access_token ??
+        response.data?.token;
+      const refreshToken =
+        response.refresh_token ??
+        response.refreshToken ??
+        response.data?.refresh_token ??
+        response.data?.refreshToken ??
+        "";
+
+      if (!user || !accessToken) {
+        throw new Error("Invalid login response from server");
+      }
+
       login(
         {
           id: String(user.id),
-          name: user.full_name,
-          email: user.email,
+          name:
+            user.full_name ??
+            user.name ??
+            [user.first_name, user.second_name, user.last_name]
+              .filter(Boolean)
+              .join(" "),
+          email: user.email ?? data.email,
           role: user.role ?? "student",
+          avatar: user.avatar ?? user.profile_image ?? undefined,
         },
-        response.token,
-        response.refresh_token ?? "",
+        accessToken,
+        refreshToken,
       );
 
-      navigate("/profile");
-    } catch (error) {
-      console.error("Login failed", error);
+      toast.success(response.message ?? "Login successful");
+
+      const role = user.role ?? "student";
+      navigate(
+        role === "teacher"
+          ? "/teacher"
+          : role === "admin"
+            ? "/"
+            : "/profile",
+        { replace: true },
+      );
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.message ??
+        error?.response?.data?.errors?.email?.[0] ??
+        error?.message ??
+        "Login failed";
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
