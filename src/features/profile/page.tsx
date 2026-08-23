@@ -21,6 +21,8 @@ import { AssignmentsTab } from "./components/assignments-tab";
 import { SettingsTab } from "./components/settings-tab";
 import { Footer } from "@/features/landing/components/footer";
 import { authApi } from "@/features/auth/api/auth-api";
+import { instructorAuthApi } from "@/features/auth/api/instructor-auth-api";
+import { useAuthStore } from "@/shared/stores/auth-store";
 
 // ─── Type Definitions ────────────────────────────────────────────────────────
 
@@ -186,10 +188,10 @@ const tabContentVariants = {
 export function ProfilePage() {
   const [activeTab, setActiveTab] = useState<ProfileTab>("personal");
 
-  // Fetch student profile using TanStack Query
+  const role = useAuthStore((state) => state.user?.role);
   const { data: response, isLoading, isError, refetch } = useQuery({
-    queryKey: ["studentProfile"],
-    queryFn: authApi.profile,
+    queryKey: [role === "teacher" ? "instructorProfile" : "studentProfile"],
+    queryFn: role === "teacher" ? instructorAuthApi.profile : authApi.profile,
   });
 
   // Extract student data from backend response wrapper if necessary (e.g., response.data or response)

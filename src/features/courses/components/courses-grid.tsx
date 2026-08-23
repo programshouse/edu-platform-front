@@ -2,6 +2,8 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { coursesApi } from "@/features/courses/api/courses-api";
 import {
   BookOpen,
   Users,
@@ -52,15 +54,15 @@ const courseColors = [
 ];
 
 type CourseItem = {
-  title: string;
-  description: string;
-  students: number;
-  lessons: number;
-  hours: number;
-  level: string;
-  price: number;
-  category: string;
-  image: string;
+  title?: string;
+  description?: string;
+  students?: number;
+  lessons?: number;
+  hours?: number;
+  level?: string;
+  price?: number;
+  category?: string;
+  image?: string;
 };
 
 const filterKeys = [
@@ -79,16 +81,26 @@ export function CoursesGrid() {
   const [activeFilter, setActiveFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const courses = t("items", { returnObjects: true }) as CourseItem[];
+  const { data: apiCourses } = useQuery({
+    queryKey: ["allCourses"],
+    queryFn: coursesApi.all,
+  });
+
+  const courses = (
+    Array.isArray(apiCourses?.data) ? apiCourses.data :
+    Array.isArray(apiCourses) ? apiCourses :
+    t("items", { returnObjects: true })
+  ) as CourseItem[];
 
   const filteredCourses = useMemo(() => {
+    if (!Array.isArray(courses)) return [];
     return courses.filter((course) => {
       const matchesFilter =
-        activeFilter === "all" || course.category === activeFilter;
+        activeFilter === "all" || course?.category === activeFilter;
       const matchesSearch =
         !searchQuery ||
-        course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        course.description.toLowerCase().includes(searchQuery.toLowerCase());
+        (course?.title ?? "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (course?.description ?? "").toLowerCase().includes(searchQuery.toLowerCase());
       return matchesFilter && matchesSearch;
     });
   }, [courses, activeFilter, searchQuery]);
@@ -145,7 +157,7 @@ export function CoursesGrid() {
 
                 return (
                   <motion.div
-                    key={course.title}
+                    key={course.title || index}
                     layout
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -154,39 +166,43 @@ export function CoursesGrid() {
                     className="group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl hover:shadow-blue-100/40 hover:-translate-y-1 transition-all duration-300"
                   >
                     {/* Card Cover Image */}
-                    <div className="relative h-48 overflow-hidden">
-                      <img
-                        src={course.image}
-                        alt={course.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
+                    <div className="relative h-48 overflow-hidden bg-gray-100">
+                      {course.image && (
+                        <img
+                          src={course.image}
+                          alt={course.title || "Course"}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      )}
                       <div className="absolute inset-0 bg-linear-to-t from-black/30 to-transparent" />
-                      <span
-                        className={`absolute top-3 inset-s-3 inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${color.tag} backdrop-blur-sm`}
-                      >
-                        {t(`card.level.${course.level}`)}
-                      </span>
+                      {course.level && (
+                        <span
+                          className={`absolute top-3 inset-s-3 inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${color.tag} backdrop-blur-sm`}
+                        >
+                          {t(`card.level.${course.level}`)}
+                        </span>
+                      )}
                     </div>
 
                     {/* Card Body */}
                     <div className="p-5">
                       <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
-                        {course.title}
+                        {course.title ?? ""}
                       </h3>
                       <p className="text-sm text-gray-500 mb-4 line-clamp-2">
-                        {course.description}
+                        {course.description ?? ""}
                       </p>
 
                       {/* Meta */}
                       <div className="flex items-center gap-3 text-xs text-gray-400 mb-4">
                         <span className="flex items-center gap-1">
                           <Users className="w-3.5 h-3.5" />
-                          {course.students.toLocaleString()}{" "}
+                          {(course.students ?? 0).toLocaleString()}{" "}
                           {t("card.students")}
                         </span>
                         <span className="flex items-center gap-1">
                           <BookOpen className="w-3.5 h-3.5" />
-                          {course.lessons} {t("card.lessons")}
+                          {course.lessons ?? 0} {t("card.lessons")}
                         </span>
                       </div>
 
@@ -194,10 +210,10 @@ export function CoursesGrid() {
                       <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                         <div className="flex items-center gap-1 text-sm text-gray-400">
                           <Clock className="w-3.5 h-3.5" />
-                          {course.hours} {t("card.hours")}
+                          {course.hours ?? 0} {t("card.hours")}
                         </div>
                         <span className="text-lg font-extrabold text-blue-600">
-                          ${course.price}
+                          ${course.price ?? 0}
                         </span>
                       </div>
 

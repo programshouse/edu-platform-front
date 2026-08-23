@@ -225,7 +225,20 @@ export function ProfileHero({ student }: ProfileHeroProps) {
       <EditProfileModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        student={student}
+        student={{
+          firstName: student.firstName ?? "",
+          secondName: student.secondName ?? "",
+          lastName: student.lastName ?? "",
+          dateOfBirth: student.dateOfBirth ?? "",
+          phone: student.phone ?? "",
+          parentPhone: student.parentPhone ?? "",
+          governorate: student.governorate ?? "",
+          address: student.address ?? "",
+          grade: student.grade ?? "",
+          school: student.school ?? "",
+          section: student.section ?? "arabic",
+          email: student.email ?? "",
+        }}
       />
     </>
   );

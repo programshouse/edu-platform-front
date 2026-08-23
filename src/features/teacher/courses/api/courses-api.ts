@@ -35,7 +35,7 @@ import {
 const USE_MOCK = import.meta.env.VITE_USE_MOCK === "true";
 
 // ─── Base URL ───
-const BASE = "/teacher/courses";
+const BASE = "/instructor/courses";
 
 // ────────────────────────────────────────────────────
 // Fetch Courses (paginated + filtered)
@@ -86,7 +86,7 @@ export async function createCourse(payload: CreateCoursePayload): Promise<Course
 
   try {
     const formData = buildFormData(payload);
-    const { data } = await axiosInstance.post<{ data: Course }>(BASE, formData, {
+    const { data } = await axiosInstance.post<{ data: Course }>("/store-course", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
     return data.data;
@@ -103,7 +103,7 @@ export async function updateCourse({ id, ...payload }: UpdateCoursePayload): Pro
 
   try {
     const formData = buildFormData(payload as CreateCoursePayload);
-    const { data } = await axiosInstance.put<{ data: Course }>(`${BASE}/${id}`, formData, {
+    const { data } = await axiosInstance.post<{ data: Course }>(`/update-course/${id}`, formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
     return data.data;
@@ -119,7 +119,7 @@ export async function deleteCourse(id: string): Promise<void> {
   if (USE_MOCK) return deleteCourseMock(id);
 
   try {
-    await axiosInstance.delete(`${BASE}/${id}`);
+    await axiosInstance.delete(`/courses/${id}/delete-course`);
   } catch (err) {
     throw parseApiError(err);
   }

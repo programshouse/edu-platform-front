@@ -7,6 +7,7 @@ import { Mail, Lock, Eye, EyeOff, LogIn, Loader2, GraduationCapIcon, BookOpenIco
 import { useAuthStore } from "@/shared/stores/auth-store";
 import type { User } from "@/shared/stores/auth-store";
 import { authApi, type AuthResponse } from "@/features/auth/api/auth-api";
+import { instructorAuthApi } from "@/features/auth/api/instructor-auth-api";
 import { toast } from "sonner";
 
 // ─── Types ───
@@ -73,11 +74,20 @@ export function LoginForm() {
     setIsSubmitting(true);
 
     try {
-      const response: AuthResponse = await authApi.login({
-        email: data.email.trim(),
-        password: data.password,
-        remember_me: data.rememberMe ? 1 : 0,
-      });
+      let response: AuthResponse;
+      try {
+        response = await authApi.login({
+          email: data.email.trim(),
+          password: data.password,
+          remember_me: data.rememberMe ? 1 : 0,
+        });
+      } catch (studentError) {
+        // Instructor accounts use separate endpoints
+        response = await instructorAuthApi.login({
+          email: data.email.trim(),
+          password: data.password,
+        });
+      }
 
       const user = response.user ?? response.data?.user ?? response.data;
       const accessToken =
@@ -115,15 +125,7 @@ export function LoginForm() {
 
       toast.success(response.message ?? "Login successful");
 
-      const role = user.role ?? "student";
-      navigate(
-        role === "teacher"
-          ? "/teacher"
-          : role === "admin"
-            ? "/"
-            : "/profile",
-        { replace: true },
-      );
+      navigate("/", { replace: true });
     } catch (error: any) {
       const message =
         error?.response?.data?.message ??
