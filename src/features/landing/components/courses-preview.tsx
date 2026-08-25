@@ -123,7 +123,7 @@ export function CoursesPreview() {
                   <div className="flex items-center gap-3 text-xs text-gray-400 mb-4">
                     <span className="flex items-center gap-1">
                       <Users className="w-3.5 h-3.5" />
-                      {course.students.toLocaleString()} {t("courses.students")}
+                      {(course.students ?? 0).toLocaleString()} {t("courses.students")}
                     </span>
                     <span className="flex items-center gap-1">
                       <BookOpen className="w-3.5 h-3.5" />
