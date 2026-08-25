@@ -24,7 +24,6 @@ import type {
 
 const BASE = "/instructor/courses";
 
-const getLang = () => localStorage.getItem("i18nextLng")?.startsWith("ar") ? "ar" : "en";
 
 
 // ─────────────────────────────────────────────
@@ -36,7 +35,6 @@ export async function fetchCourses(
 ): Promise<PaginatedResponse<Course>> {
   try {
     const { data } = await axiosInstance.get<any>(BASE, {
-      headers: { lang: getLang() },
       params: {
         page: params.page,
         pageSize: params.pageSize,
@@ -96,7 +94,6 @@ export async function fetchCourse(
     const { data } =
       await axiosInstance.get<{ data: Course }>(
         `/courses/${id}`,
-        { headers: { lang: getLang() } }
       );
 
     return data.data;
@@ -127,7 +124,6 @@ export async function createCourse(
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            lang: getLang(),
           },
         }
       );

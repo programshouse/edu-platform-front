@@ -1,38 +1,16 @@
 import { axiosInstance } from "@/shared/api/axios-instance";
 
 
-const getLanguage = () => {
-
-  const lang =
-    localStorage.getItem("i18nextLng") || "ar";
-
-  return lang.startsWith("ar")
-    ? "ar"
-    : "en";
-
-};
 
 
 
 export const coursesApi = {
 
 
-  // Instructor courses
+  // Student/public courses
   all: async () => {
-
-    const { data } =
-      await axiosInstance.get(
-        "/instructor/courses",
-        {
-          headers:{
-            lang: getLanguage(),
-          },
-        }
-      );
-
-
+    const { data } = await axiosInstance.get("/get-all-courses");
     return data;
-
   },
 
 
@@ -43,11 +21,6 @@ export const coursesApi = {
     const { data } =
       await axiosInstance.get(
         "/get-all-courses",
-        {
-          headers:{
-            lang: getLanguage(),
-          },
-        }
       );
 
 
@@ -63,11 +36,6 @@ export const coursesApi = {
     const { data } =
       await axiosInstance.get(
         "/student/get-courses",
-        {
-          headers:{
-            lang: getLanguage(),
-          },
-        }
       );
 
 
@@ -85,11 +53,6 @@ export const coursesApi = {
     const { data } =
       await axiosInstance.get(
         `/courses/${id}/details`,
-        {
-          headers:{
-            lang: getLanguage(),
-          },
-        }
       );
 
 
@@ -107,11 +70,6 @@ export const coursesApi = {
       await axiosInstance.post(
         `/courses/${id}/subscribe-to-course`,
         {},
-        {
-          headers:{
-            lang: getLanguage(),
-          },
-        }
       );
 
 

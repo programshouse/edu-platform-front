@@ -8,6 +8,7 @@ import type {
 import { APP_CONFIG } from "@/shared/config/constants";
 import { useAuthStore } from "@/shared/stores/auth-store";
 import type { ApiErrorResponse } from "./types";
+import { getAppLanguage } from "@/shared/i18n/language";
 
 
 const axiosInstance: AxiosInstance = axios.create({
@@ -33,31 +34,16 @@ axiosInstance.interceptors.request.use(
     }
 
 
-    // ─── Language handling ───
-    // Get current i18next language
-    const currentLang =
-      localStorage.getItem("i18nextLng") ||
-      localStorage.getItem("edu-platform-lang") ||
-      "ar";
+    // Global backend language
+    // Every API receives the same lang key automatically
+    const lang = getAppLanguage();
 
-
-    const lang =
-      currentLang.startsWith("ar")
-        ? "ar"
-        : "en";
-
-
-    // Send language as query param
     config.params = {
       ...(config.params || {}),
       lang,
     };
 
-
-    // Also send language as header
-    // (support both backend implementations)
     config.headers.lang = lang;
-
 
     return config;
   },
