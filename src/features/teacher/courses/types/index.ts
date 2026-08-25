@@ -7,6 +7,8 @@ export interface Course {
   title: string;
   description: string;
   coverImage: string | null;
+  categoryId?: number;
+  category?: { id:number; name:string };
   price: number;
   durationDays: number;
   startDate: string;
@@ -54,6 +56,7 @@ export type UpdateCourseFormData = Partial<CreateCourseFormData>;
 export interface CreateCoursePayload {
   title: string;
   description: string;
+  categoryId: number;
   coverImage?: File;
   price: number;
   durationDays: number;

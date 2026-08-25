@@ -40,11 +40,21 @@ export type AuthResponse = {
   [key: string]: any;
 };
 
+
 export const authApi = {
-  login: async (payload: LoginPayload): Promise<AuthResponse> => {
-    const { data } = await axiosInstance.post("/login", payload);
+
+  login: async (
+    payload: LoginPayload
+  ): Promise<AuthResponse> => {
+
+    const { data } = await axiosInstance.post(
+      "/login",
+      payload
+    );
+
     return data;
   },
+
 
   register: async (
     payload: FormData | RegisterPayload,
@@ -52,85 +62,157 @@ export const authApi = {
 
     let body = payload;
 
-    // If normal object is passed, convert it
+
     if (!(payload instanceof FormData)) {
+
       const form = new FormData();
 
-      Object.entries(payload).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          form.append(key, String(value));
+      Object.entries(payload).forEach(
+        ([key, value]) => {
+
+          if (
+            value !== undefined &&
+            value !== null
+          ) {
+            form.append(
+              key,
+              String(value)
+            );
+          }
+
         }
-      });
+      );
 
       body = form;
     }
 
-    const { data } = await axiosInstance.post("/register", body, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+
+    const { data } = await axiosInstance.post(
+      "/register",
+      body,
+      {
+        headers: {
+          "Content-Type":
+            "multipart/form-data",
+        },
+      }
+    );
+
 
     return data;
   },
 
 
+  /**
+   * Refresh access token
+   * used by axios interceptor
+   */
+  refresh: async (
+    refresh_token: string
+  ): Promise<AuthResponse> => {
+
+    const { data } =
+      await axiosInstance.post(
+        "/auth/refresh",
+        {
+          refresh_token,
+        }
+      );
+
+    return data;
+  },
+
+
+  /**
+   * Universal logout
+   * works for student/instructor
+   */
   logout: async () => {
-    const { data } = await axiosInstance.post("/student/logout");
+
+    const { data } =
+      await axiosInstance.post(
+        "/logout"
+      );
+
     return data;
   },
 
 
+  /**
+   * Current logged user profile
+   */
   profile: async () => {
-    const { data } = await axiosInstance.get("/student/profile");
-    return data;
-  },
 
-
-  updateProfile: async (payload: FormData) => {
-    const { data } = await axiosInstance.post(
-      "/student/update-profile",
-      payload,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      },
-    );
+    const { data } =
+      await axiosInstance.get(
+        "/profile"
+      );
 
     return data;
   },
 
 
-  changePassword: async (payload: FormData) => {
-    const { data } = await axiosInstance.post(
-      "/student/change-password",
-      payload,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      },
-    );
+  updateProfile: async (
+    payload: FormData
+  ) => {
+
+    const { data } =
+      await axiosInstance.post(
+        "/update-profile",
+        payload,
+        {
+          headers: {
+            "Content-Type":
+              "multipart/form-data",
+          },
+        }
+      );
+
+
+    return data;
+  },
+
+
+  changePassword: async (
+    payload: FormData
+  ) => {
+
+    const { data } =
+      await axiosInstance.post(
+        "/change-password",
+        payload,
+        {
+          headers: {
+            "Content-Type":
+              "multipart/form-data",
+          },
+        }
+      );
+
 
     return data;
   },
 
 
   grades: async () => {
-    const { data } = await axiosInstance.get(
-      "/register/get-grades",
-    );
+
+    const { data } =
+      await axiosInstance.get(
+        "/register/get-grades"
+      );
 
     return data;
   },
 
 
   governorates: async () => {
-    const { data } = await axiosInstance.get(
-      "/register/get-governorates",
-    );
+
+    const { data } =
+      await axiosInstance.get(
+        "/register/get-governorates"
+      );
 
     return data;
   },
+
 };

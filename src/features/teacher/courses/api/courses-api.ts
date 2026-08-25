@@ -1,20 +1,19 @@
 /**
- * Courses API layer.
+ * Instructor Courses API layer.
  *
- * When VITE_USE_MOCK=true the mock service is used — no real HTTP requests
- * are ever made. Flip the flag in .env.local to connect the real backend.
+ * Real backend only - no mock/static data.
  *
- * Expected API contract (REST):
- *   GET    /teacher/courses?page&pageSize&search&status&priceMin&priceMax&dateFrom&dateTo
- *   GET    /teacher/courses/:id
- *   POST   /teacher/courses          (multipart/form-data)
- *   PUT    /teacher/courses/:id      (multipart/form-data)
- *   DELETE /teacher/courses/:id
- *   PATCH  /teacher/courses/:id/status  { status: CourseStatus }
+ * API:
+ * GET    /instructor/courses
+ * GET    /courses/:id
+ * POST   /store-course
+ * POST   /courses/:id/edit-course
+ * DELETE /courses/:id/delete-course
  */
 
 import { axiosInstance, parseApiError } from "@/shared/api";
 import type { PaginatedResponse } from "@/shared/api";
+
 import type {
   Course,
   CoursesQueryParams,
@@ -22,142 +21,299 @@ import type {
   UpdateCoursePayload,
   ToggleCourseStatusPayload,
 } from "../types";
-import {
-  fetchCoursesMock,
-  fetchCourseMock,
-  createCourseMock,
-  updateCourseMock,
-  deleteCourseMock,
-  toggleCourseStatusMock,
-} from "./courses-api.mock";
 
-// ─── Feature flag ───
-const USE_MOCK = import.meta.env.VITE_USE_MOCK === "true";
-
-// ─── Base URL ───
 const BASE = "/instructor/courses";
 
-// ────────────────────────────────────────────────────
-// Fetch Courses (paginated + filtered)
-// ────────────────────────────────────────────────────
-export async function fetchCourses(
-  params: CoursesQueryParams
-): Promise<PaginatedResponse<Course>> {
-  if (USE_MOCK) return fetchCoursesMock(params);
 
+// ─────────────────────────────────────────────
+// Fetch Instructor Courses
+// ─────────────────────────────────────────────
+
+export async function fetchCourses(
+  params: CoursesQueryParams = {}
+): Promise<PaginatedResponse<Course>> {
   try {
-    const { data } = await axiosInstance.get<PaginatedResponse<Course>>(BASE, {
+    const { data } = await axiosInstance.get<any>(BASE, {
       params: {
         page: params.page,
         pageSize: params.pageSize,
         search: params.search || undefined,
         status: params.status || undefined,
-        priceMin: params.priceMin !== "" ? params.priceMin : undefined,
-        priceMax: params.priceMax !== "" ? params.priceMax : undefined,
+        priceMin:
+          params.priceMin !== ""
+            ? params.priceMin
+            : undefined,
+        priceMax:
+          params.priceMax !== ""
+            ? params.priceMax
+            : undefined,
         dateFrom: params.dateFrom || undefined,
         dateTo: params.dateTo || undefined,
       },
     });
+
+
+    // API response:
+    // {
+    //   message:"success",
+    //   data:[]
+    // }
+
+    if (Array.isArray(data?.data)) {
+      return {
+        data: data.data,
+        meta: {
+          page: 1,
+          pageSize: data.data.length,
+          total: data.data.length,
+          totalPages: 1,
+        },
+      };
+    }
+
+
     return data;
+
   } catch (err) {
     throw parseApiError(err);
   }
 }
 
-// ────────────────────────────────────────────────────
-// Fetch Single Course
-// ────────────────────────────────────────────────────
-export async function fetchCourse(id: string): Promise<Course> {
-  if (USE_MOCK) return fetchCourseMock(id);
+
+// ─────────────────────────────────────────────
+// Get Single Course
+// ─────────────────────────────────────────────
+
+export async function fetchCourse(
+  id: string
+): Promise<Course> {
 
   try {
-    const { data } = await axiosInstance.get<{ data: Course }>(`${BASE}/${id}`);
+
+    const { data } =
+      await axiosInstance.get<{ data: Course }>(
+        `/courses/${id}`
+      );
+
     return data.data;
+
   } catch (err) {
     throw parseApiError(err);
   }
 }
 
-// ────────────────────────────────────────────────────
+
+
+// ─────────────────────────────────────────────
 // Create Course
-// ────────────────────────────────────────────────────
-export async function createCourse(payload: CreateCoursePayload): Promise<Course> {
-  if (USE_MOCK) return createCourseMock(payload);
+// ─────────────────────────────────────────────
+
+export async function createCourse(
+  payload: CreateCoursePayload
+): Promise<Course> {
 
   try {
+
     const formData = buildFormData(payload);
-    const { data } = await axiosInstance.post<{ data: Course }>("/store-course", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+
+    const { data } =
+      await axiosInstance.post<{ data: Course }>(
+        "/store-course",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+
     return data.data;
+
   } catch (err) {
     throw parseApiError(err);
   }
 }
 
-// ────────────────────────────────────────────────────
+
+
+// ─────────────────────────────────────────────
 // Update Course
-// ────────────────────────────────────────────────────
-export async function updateCourse({ id, ...payload }: UpdateCoursePayload): Promise<Course> {
-  if (USE_MOCK) return updateCourseMock({ id, ...payload } as UpdateCoursePayload);
+// ─────────────────────────────────────────────
+
+export async function updateCourse(
+  payload: UpdateCoursePayload
+): Promise<Course> {
 
   try {
-    const formData = buildFormData(payload as CreateCoursePayload);
-    const { data } = await axiosInstance.post<{ data: Course }>(`/update-course/${id}`, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+
+    const {
+      id,
+      ...courseData
+    } = payload;
+
+
+    const formData =
+      buildFormData(
+        courseData as CreateCoursePayload
+      );
+
+
+    const { data } =
+      await axiosInstance.post<{ data: Course }>(
+        `/courses/${id}/edit-course`,
+        formData,
+        {
+          headers:{
+            "Content-Type":
+              "multipart/form-data",
+          },
+        }
+      );
+
+
     return data.data;
+
+
   } catch (err) {
+
     throw parseApiError(err);
+
   }
 }
 
-// ────────────────────────────────────────────────────
+
+
+// ─────────────────────────────────────────────
 // Delete Course
-// ────────────────────────────────────────────────────
-export async function deleteCourse(id: string): Promise<void> {
-  if (USE_MOCK) return deleteCourseMock(id);
+// ─────────────────────────────────────────────
+
+export async function deleteCourse(
+  id:string
+): Promise<void> {
 
   try {
-    await axiosInstance.delete(`/courses/${id}/delete-course`);
-  } catch (err) {
+
+    await axiosInstance.delete(
+      `/courses/${id}/delete-course`
+    );
+
+
+  } catch(err){
+
     throw parseApiError(err);
+
   }
 }
 
-// ────────────────────────────────────────────────────
+
+
+// ─────────────────────────────────────────────
 // Toggle Course Status
-// ────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
+
 export async function toggleCourseStatus(
   payload: ToggleCourseStatusPayload
-): Promise<Course> {
-  if (USE_MOCK) return toggleCourseStatusMock(payload);
+): Promise<Course>{
 
   try {
-    const { data } = await axiosInstance.patch<{ data: Course }>(
-      `${BASE}/${payload.id}/status`,
-      { status: payload.status }
-    );
+
+    const {data} =
+      await axiosInstance.patch<{data:Course}>(
+        `${BASE}/${payload.id}/status`,
+        {
+          status: payload.status
+        }
+      );
+
+
     return data.data;
-  } catch (err) {
+
+
+  } catch(err){
+
     throw parseApiError(err);
+
   }
+
 }
 
-// ────────────────────────────────────────────────────
-// Internal helpers
-// ────────────────────────────────────────────────────
-function buildFormData(payload: Partial<CreateCoursePayload>): FormData {
+
+
+// ─────────────────────────────────────────────
+// Build Multipart FormData
+// ─────────────────────────────────────────────
+
+function buildFormData(
+  payload: Partial<CreateCoursePayload>
+):FormData {
+
   const fd = new FormData();
-  if (payload.title !== undefined) fd.append("title", payload.title);
-  if (payload.description !== undefined) fd.append("description", payload.description);
-  if (payload.price !== undefined) fd.append("price", String(payload.price));
-  if (payload.durationDays !== undefined)
-    fd.append("durationDays", String(payload.durationDays));
-  if (payload.startDate !== undefined) fd.append("startDate", payload.startDate);
-  if (payload.endDate !== undefined) fd.append("endDate", payload.endDate);
-  if (payload.allowSeparateLectures !== undefined)
-    fd.append("allowSeparateLectures", String(payload.allowSeparateLectures));
-  if (payload.coverImage instanceof File) fd.append("coverImage", payload.coverImage);
+
+
+  if(payload.title !== undefined)
+    fd.append(
+      "title",
+      payload.title
+    );
+
+
+  if(payload.description !== undefined)
+    fd.append(
+      "description",
+      payload.description
+    );
+
+  if(payload.categoryId !== undefined)
+    fd.append(
+      "category_id",
+      String(payload.categoryId)
+    );
+
+
+  if(payload.price !== undefined)
+    fd.append(
+      "price",
+      String(payload.price)
+    );
+
+
+  if(payload.durationDays !== undefined)
+    fd.append(
+      "durationDays",
+      String(payload.durationDays)
+    );
+
+
+  if(payload.startDate !== undefined)
+    fd.append(
+      "start_date",
+      payload.startDate
+    );
+
+
+  if(payload.endDate !== undefined)
+    fd.append(
+      "end_date",
+      payload.endDate
+    );
+
+
+  if(payload.allowSeparateLectures !== undefined)
+    fd.append(
+      "lectures_can_be_purchased_separately",
+      String(
+        payload.allowSeparateLectures
+      )
+    );
+
+
+  if(payload.coverImage instanceof File)
+    fd.append(
+      "image",
+      payload.coverImage
+    );
+
+
   return fd;
 }

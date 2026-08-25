@@ -1,4 +1,6 @@
 import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
+import { getInstructorStatistics } from "../api/instructor-dashboard-api";
 import {
   UsersIcon,
   CreditCardIcon,
@@ -54,11 +56,16 @@ function StatCard({ title, value, change, icon: Icon, suffix, iconBg, iconColor 
 export function StatsCards() {
   const { t } = useTranslation("teacher");
 
+  const { data } = useQuery({
+    queryKey: ["instructor-statistics"],
+    queryFn: getInstructorStatistics,
+  });
+
   const stats: Omit<StatCardProps, "iconBg" | "iconColor">[] = [
-    { title: t("stats.registeredStudents"),  value: "1,284",  change: 12,  icon: UsersIcon },
-    { title: t("stats.activeSubscriptions"), value: "847",    change: 8,   icon: CreditCardIcon },
-    { title: t("stats.totalEarnings"),       value: "48,350", change: 15,  icon: DollarSignIcon, suffix: t("stats.currency") },
-    { title: t("stats.totalCourses"),        value: "12",     change: -2,  icon: BookOpenIcon },
+    { title: t("stats.registeredStudents"), value: String(data?.unique_students_count ?? 0), change: 0, icon: UsersIcon },
+    { title: t("stats.activeSubscriptions"), value: String(data?.active_subscriptions_count ?? 0), change: 0, icon: CreditCardIcon },
+    { title: t("stats.totalEarnings"), value: String(data?.total_revenue ?? 0), change: 0, icon: DollarSignIcon, suffix: t("stats.currency") },
+    { title: t("stats.totalCourses"), value: String(data?.courses?.length ?? 0), change: 0, icon: BookOpenIcon },
   ];
 
   const iconStyles = [

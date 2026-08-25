@@ -1,4 +1,6 @@
 import { useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { fetchCategories } from "../api";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
@@ -29,6 +31,11 @@ export function CourseForm({
 }: CourseFormProps) {
   const { t } = useTranslation("teacherCourses");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { data: categories = [] } = useQuery({
+    queryKey: ["course-categories"],
+    queryFn: fetchCategories,
+  });
   const [previewUrl, setPreviewUrl] = useState<string | null>(existingCover ?? null);
 
   const {
@@ -42,6 +49,7 @@ export function CourseForm({
     defaultValues: {
       title: "",
       description: "",
+      categoryId: 0,
       coverImage: null,
       price: 0,
       durationDays: 30,
@@ -103,6 +111,31 @@ export function CourseForm({
           {...register("description")}
         />
         {getError("description")}
+      </div>
+
+      {/* ── Category ── */}
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="course-category">Category *</Label>
+        <Controller
+          control={control}
+          name="categoryId"
+          render={({ field }) => (
+            <select
+              id="course-category"
+              className="h-10 rounded-md border border-input bg-background px-3"
+              value={field.value ?? 0}
+              onChange={(e) => field.onChange(Number(e.target.value))}
+            >
+              <option value={0}>Select Category</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          )}
+        />
+        {getError("categoryId")}
       </div>
 
       {/* ── Cover Image ── */}
@@ -271,6 +304,7 @@ export function CourseForm({
 export function courseToFormValues(course: Course): Partial<CourseFormValues> {
   return {
     title: course.title,
+    categoryId: course.categoryId ?? 0,
     description: course.description,
     price: course.price,
     durationDays: course.durationDays,

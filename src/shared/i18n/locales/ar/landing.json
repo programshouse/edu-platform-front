@@ -38,42 +38,7 @@
       "advanced": "متقدم"
     },
     "items": [
-      {
-        "title": "تطوير تطبيقات الويب الاحترافية",
-        "description": "تعلم بناء تطبيقات ويب حديثة باستخدام React و Node.js",
-        "students": 1250,
-        "lessons": 48,
-        "hours": 36,
-        "level": "intermediate",
-        "price": 299
-      },
-      {
-        "title": "تصميم واجهات المستخدم UI/UX",
-        "description": "إتقان تصميم تجارب المستخدم باستخدام Figma و Adobe XD",
-        "students": 890,
-        "lessons": 35,
-        "hours": 28,
-        "level": "beginner",
-        "price": 199
-      },
-      {
-        "title": "تحليل البيانات مع Python",
-        "description": "اكتشف قوة تحليل البيانات باستخدام Python و Pandas",
-        "students": 1450,
-        "lessons": 52,
-        "hours": 40,
-        "level": "intermediate",
-        "price": 349
-      },
-      {
-        "title": "تطوير تطبيقات الموبايل",
-        "description": "بناء تطبيقات iOS و Android باستخدام React Native",
-        "students": 680,
-        "lessons": 42,
-        "hours": 32,
-        "level": "advanced",
-        "price": 399
-      }
+
     ]
   },
   "testimonials": {

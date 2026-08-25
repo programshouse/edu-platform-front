@@ -13,6 +13,8 @@ export const courseFormSchema = z
       .min(10, { message: "validation.descriptionMin" })
       .max(2000, { message: "validation.descriptionMax" }),
 
+    categoryId: z.number({ error: "validation.categoryRequired" }).min(1, { message: "validation.categoryRequired" }),
+
     coverImage: z
       .instanceof(File)
       .optional()
