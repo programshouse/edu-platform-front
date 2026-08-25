@@ -16,7 +16,7 @@ import {
 } from "./exams-api.mock";
 
 const USE_MOCK = import.meta.env.VITE_USE_MOCK === "true";
-const BASE = "/instructor/exams";
+const BASE = "/instructor/tests";
 
 export async function fetchExams(
   params: ExamsQueryParams

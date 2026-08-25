@@ -41,7 +41,11 @@ export type CoursesQueryParams = CoursesFilters & CoursesPagination;
 // ─── Form Schemas (used with Zod + React Hook Form) ───
 export interface CreateCourseFormData {
   title: string;
+  titleAr: string;
+  titleEn: string;
   description: string;
+  descriptionAr: string;
+  descriptionEn: string;
   coverImage?: File | null;
   price: number;
   durationDays: number;
@@ -55,7 +59,11 @@ export type UpdateCourseFormData = Partial<CreateCourseFormData>;
 // ─── API Payloads ───
 export interface CreateCoursePayload {
   title: string;
+  titleAr: string;
+  titleEn: string;
   description: string;
+  descriptionAr: string;
+  descriptionEn: string;
   categoryId: number;
   coverImage?: File;
   price: number;

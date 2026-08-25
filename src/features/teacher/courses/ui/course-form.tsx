@@ -48,7 +48,11 @@ export function CourseForm({
     resolver: zodResolver(courseFormSchema) as any, // eslint-disable-line @typescript-eslint/no-explicit-any
     defaultValues: {
       title: "",
+      titleAr: "",
+      titleEn: "",
       description: "",
+      descriptionAr: "",
+      descriptionEn: "",
       categoryId: 0,
       coverImage: null,
       price: 0,
@@ -87,30 +91,24 @@ export function CourseForm({
       className="flex flex-col gap-5"
       noValidate
     >
-      {/* ── Title ── */}
+      {/* ── Bilingual Title ── */}
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="course-title">{t("form.title")} *</Label>
-        <Input
-          id="course-title"
-          placeholder={t("form.titlePlaceholder")}
-          aria-invalid={!!errors.title}
-          {...register("title")}
-        />
-        {getError("title")}
+        <Label>Title Arabic *</Label>
+        <Input {...register("titleAr")} aria-invalid={!!errors.titleAr} />
+        {getError("titleAr")}
+        <Label>Title English *</Label>
+        <Input {...register("titleEn")} aria-invalid={!!errors.titleEn} />
+        {getError("titleEn")}
       </div>
 
-      {/* ── Description ── */}
+      {/* ── Bilingual Description ── */}
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="course-description">{t("form.description")} *</Label>
-        <Textarea
-          id="course-description"
-          placeholder={t("form.descriptionPlaceholder")}
-          rows={4}
-          className="resize-none"
-          aria-invalid={!!errors.description}
-          {...register("description")}
-        />
-        {getError("description")}
+        <Label>Description Arabic *</Label>
+        <Textarea rows={4} {...register("descriptionAr")} />
+        {getError("descriptionAr")}
+        <Label>Description English *</Label>
+        <Textarea rows={4} {...register("descriptionEn")} />
+        {getError("descriptionEn")}
       </div>
 
       {/* ── Category ── */}
@@ -304,8 +302,12 @@ export function CourseForm({
 export function courseToFormValues(course: Course): Partial<CourseFormValues> {
   return {
     title: course.title,
+    titleAr: (course as any).titleAr ?? course.title,
+    titleEn: (course as any).titleEn ?? course.title,
     categoryId: course.categoryId ?? 0,
     description: course.description,
+    descriptionAr: (course as any).descriptionAr ?? course.description,
+    descriptionEn: (course as any).descriptionEn ?? course.description,
     price: course.price,
     durationDays: course.durationDays,
     startDate: course.startDate?.slice(0, 10) ?? "",

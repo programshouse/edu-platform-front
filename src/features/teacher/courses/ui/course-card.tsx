@@ -60,6 +60,7 @@ export function CourseCard({ course }: CourseCardProps) {
 
   return (
     <article
+      onClick={() => navigate(`/teacher/courses/${course.id}`)}
       className={cn(
         "group relative flex flex-col rounded-xl border border-border bg-card overflow-hidden",
         "shadow-sm hover:shadow-md transition-shadow duration-200"

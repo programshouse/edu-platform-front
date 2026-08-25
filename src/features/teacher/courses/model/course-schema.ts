@@ -3,15 +3,13 @@ import { z } from "zod";
 // ─── Create / Edit Course Schema ───
 export const courseFormSchema = z
   .object({
-    title: z
-      .string()
-      .min(3, { message: "validation.titleMin" })
-      .max(150, { message: "validation.titleMax" }),
+    title: z.string().optional().default(""),
+    titleAr: z.string().min(3, { message: "validation.titleMin" }).max(150, { message: "validation.titleMax" }),
+    titleEn: z.string().min(3, { message: "validation.titleMin" }).max(150, { message: "validation.titleMax" }),
 
-    description: z
-      .string()
-      .min(10, { message: "validation.descriptionMin" })
-      .max(2000, { message: "validation.descriptionMax" }),
+    description: z.string().optional().default(""),
+    descriptionAr: z.string().min(10, { message: "validation.descriptionMin" }).max(2000, { message: "validation.descriptionMax" }),
+    descriptionEn: z.string().min(10, { message: "validation.descriptionMin" }).max(2000, { message: "validation.descriptionMax" }),
 
     categoryId: z.number({ error: "validation.categoryRequired" }).min(1, { message: "validation.categoryRequired" }),
 

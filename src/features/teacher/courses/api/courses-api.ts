@@ -24,6 +24,8 @@ import type {
 
 const BASE = "/instructor/courses";
 
+const getLang = () => localStorage.getItem("i18nextLng")?.startsWith("ar") ? "ar" : "en";
+
 
 // ─────────────────────────────────────────────
 // Fetch Instructor Courses
@@ -34,6 +36,7 @@ export async function fetchCourses(
 ): Promise<PaginatedResponse<Course>> {
   try {
     const { data } = await axiosInstance.get<any>(BASE, {
+      headers: { lang: getLang() },
       params: {
         page: params.page,
         pageSize: params.pageSize,
@@ -92,7 +95,8 @@ export async function fetchCourse(
 
     const { data } =
       await axiosInstance.get<{ data: Course }>(
-        `/courses/${id}`
+        `/courses/${id}`,
+        { headers: { lang: getLang() } }
       );
 
     return data.data;
@@ -123,6 +127,7 @@ export async function createCourse(
         {
           headers: {
             "Content-Type": "multipart/form-data",
+            lang: getLang(),
           },
         }
       );
@@ -251,18 +256,15 @@ function buildFormData(
   const fd = new FormData();
 
 
-  if(payload.title !== undefined)
-    fd.append(
-      "title",
-      payload.title
-    );
+  if(payload.titleEn !== undefined)
+    fd.append("title_en", payload.titleEn);
+  if(payload.titleAr !== undefined)
+    fd.append("title_ar", payload.titleAr);
 
-
-  if(payload.description !== undefined)
-    fd.append(
-      "description",
-      payload.description
-    );
+  if(payload.descriptionEn !== undefined)
+    fd.append("description_en", payload.descriptionEn);
+  if(payload.descriptionAr !== undefined)
+    fd.append("description_ar", payload.descriptionAr);
 
   if(payload.categoryId !== undefined)
     fd.append(

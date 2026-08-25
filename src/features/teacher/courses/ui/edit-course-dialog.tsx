@@ -23,8 +23,13 @@ export function EditCourseDialog() {
   const handleSubmit = (data: CourseFormValues) => {
     updateCourse({
       id: editingCourse.id,
-      title: data.title,
-      description: data.description,
+      title: data.titleEn,
+      titleEn: data.titleEn,
+      titleAr: data.titleAr,
+      description: data.descriptionEn,
+      descriptionEn: data.descriptionEn,
+      descriptionAr: data.descriptionAr,
+      categoryId: data.categoryId,
       price: data.price,
       durationDays: data.durationDays,
       startDate: data.startDate,

@@ -23,6 +23,12 @@ axiosInstance.interceptors.request.use(
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
+    // Backend translations are selected by lang query key
+    const lang = localStorage.getItem("edu-platform-lang") || "ar";
+    config.params = {
+      ...(config.params || {}),
+      lang,
+    };
     return config;
   },
   (error) => Promise.reject(error),
