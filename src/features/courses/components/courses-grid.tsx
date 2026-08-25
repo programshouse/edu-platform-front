@@ -42,18 +42,19 @@ const courseColors = [
 
 
 type CourseItem = {
-
   id?: number;
 
   title?: string;
 
   description?: string;
 
-  students?: number;
+  students_count?: number;
 
-  lessons?: number;
+  lectures_count?: number;
 
-  hours?: number;
+  tests_count?: number;
+
+  total_duration_minutes?: number;
 
   level?: string;
 
@@ -62,7 +63,6 @@ type CourseItem = {
   category?: string;
 
   image?: string;
-
 };
 
 
@@ -83,12 +83,20 @@ export function CoursesGrid() {
   const { t, i18n } = useTranslation("courses");
 
 
-  const isRTL = i18n.language === "ar";
+  const currentLang =
+    i18n.language.startsWith("ar")
+      ? "ar"
+      : "en";
 
 
-  const ArrowIcon = isRTL
-    ? ArrowLeft
-    : ArrowRight;
+  const isRTL =
+    currentLang === "ar";
+
+
+  const ArrowIcon =
+    isRTL
+      ? ArrowLeft
+      : ArrowRight;
 
 
 
@@ -114,11 +122,16 @@ export function CoursesGrid() {
 
   } = useQuery({
 
-    queryKey:["allCourses"],
+    queryKey:[
+      "allCourses",
+      currentLang
+    ],
 
-    queryFn:coursesApi.all,
+    queryFn:
+      coursesApi.all,
 
   });
+
 
 
 
@@ -127,6 +140,8 @@ export function CoursesGrid() {
     "Courses API Response:",
     apiCourses
   );
+
+
 
 
 
@@ -147,6 +162,9 @@ export function CoursesGrid() {
     []
 
   ) as CourseItem[];
+
+
+
 
 
 
@@ -193,7 +211,6 @@ export function CoursesGrid() {
       );
 
 
-
     });
 
 
@@ -202,6 +219,9 @@ export function CoursesGrid() {
     searchQuery,
     activeFilter
   ]);
+
+
+
 
 
 
@@ -222,6 +242,7 @@ export function CoursesGrid() {
 
 
 
+
   if(error){
 
     return (
@@ -239,6 +260,9 @@ export function CoursesGrid() {
 
 
 
+
+
+
 return (
 
 <section className="py-16 lg:py-24 bg-white">
@@ -247,7 +271,6 @@ return (
 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
 
 
-{/* Search */}
 
 <div className="mb-12 space-y-6">
 
@@ -256,6 +279,7 @@ return (
 
 
 <Search
+
 className="
 absolute
 left-4
@@ -265,6 +289,7 @@ w-5
 h-5
 text-gray-400
 "
+
 />
 
 
@@ -292,10 +317,14 @@ bg-gray-50
 border
 rounded-xl
 "
+
 />
 
 
 </div>
+
+
+
 
 
 
@@ -321,9 +350,10 @@ setActiveFilter(key)
 
 className={
 
-activeFilter===key
+activeFilter === key
 
 ?
+
 "px-5 py-2.5 rounded-xl bg-blue-600 text-white"
 
 :
@@ -332,8 +362,8 @@ activeFilter===key
 
 }
 
-
 >
+
 
 {t(`filters.${key}`)}
 
@@ -346,11 +376,13 @@ activeFilter===key
 }
 
 
-
 </div>
 
 
 </div>
+
+
+
 
 
 
@@ -360,6 +392,7 @@ activeFilter===key
 filteredCourses.length > 0
 
 ?
+
 
 <motion.div
 
@@ -394,13 +427,10 @@ courseColors.length
 
 return (
 
-
 <motion.div
 
-
 key={
-course.id ??
-`${course.title}-${index}`
+course.id ?? index
 }
 
 
@@ -421,7 +451,6 @@ opacity:0,
 y:20
 }}
 
-
 className="
 bg-white
 rounded-2xl
@@ -431,8 +460,9 @@ hover:shadow-xl
 transition
 "
 
-
 >
+
+
 
 
 <div className="
@@ -470,7 +500,10 @@ object-cover
 
 
 
+
+
 <div className="p-5">
+
 
 
 <h3 className="
@@ -480,10 +513,15 @@ mb-2
 ">
 
 
-{course.title}
+{
+course.title
+}
 
 
 </h3>
+
+
+
 
 
 
@@ -494,10 +532,15 @@ mb-4
 ">
 
 
-{course.description}
+{
+course.description
+}
 
 
 </p>
+
+
+
 
 
 
@@ -514,7 +557,9 @@ text-gray-400
 <Users className="inline w-4 h-4"/>
 
 {" "}
-{course.students ?? 0}
+{
+course.students_count ?? 0
+}
 
 </span>
 
@@ -525,12 +570,17 @@ text-gray-400
 <BookOpen className="inline w-4 h-4"/>
 
 {" "}
-{course.lessons ?? 0}
+{
+course.lectures_count ?? 0
+}
 
 </span>
 
 
 </div>
+
+
+
 
 
 
@@ -549,9 +599,13 @@ border-t
 <Clock className="inline w-4 h-4"/>
 
 {" "}
-{course.hours ?? 0}
+{
+course.total_duration_minutes ?? 0
+}
 
 </span>
+
+
 
 
 <span className="
@@ -569,6 +623,8 @@ ${course.price ?? 0}
 
 
 </div>
+
+
 
 
 
@@ -596,7 +652,9 @@ rounded-xl
 >
 
 
-{t("card.enrollNow")}
+{
+t("card.enrollNow")
+}
 
 
 <ArrowIcon
@@ -619,7 +677,9 @@ h-4
 
 
 
+
 </div>
+
 
 
 </motion.div>
@@ -637,6 +697,7 @@ h-4
 
 
 </motion.div>
+
 
 
 
@@ -672,6 +733,8 @@ font-bold
 
 
 }
+
+
 
 
 

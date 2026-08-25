@@ -13,14 +13,16 @@ import { useCourseContentStore } from "../model/course-content-store";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { CoursesEmptyState } from "./courses-empty-error";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 export function ExamsTab() {
   const { t } = useTranslation("teacherCourses");
+  const navigate = useNavigate();
   const exams = useCourseContentStore((s) => s.exams);
   const isLoading = useCourseContentStore((s) => s.isLoadingExams);
 
   const handleCreateExam = () => {
-    toast.info(t("exams.builderNotice", "Exam builder page coming soon"));
+    navigate("/teacher/exams/create");
   };
 
   return (
