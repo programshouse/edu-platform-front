@@ -1,107 +1,120 @@
-
 import { axiosInstance, parseApiError } from "@/shared/api";
 import type { PaginatedResponse } from "@/shared/api";
-import type { 
-  Exam, 
-  ExamsQueryParams, 
+
+import type {
+  Exam,
+  ExamsQueryParams,
   ToggleExamStatusPayload,
   ExamBuilderFormData,
-  Question,
 } from "../types";
-import {
-  fetchExamsMock,
-  fetchExamDetailsMock,
-  createExamMock,
-  updateExamMock,
-  deleteExamMock,
-  toggleExamStatusMock,
-} from "./exams-api.mock";
 
-const USE_MOCK = import.meta.env.VITE_USE_MOCK === "true";
 const BASE = "/instructor/tests";
 
-const getLang = () =>
-  localStorage.getItem("i18nextLng")?.startsWith("ar") ? "ar" : "en";
+// ─── Normalize raw API exam → Exam ───
+function normalizeExam(raw: any): Exam {
+  return {
+    id:              String(raw.id),
+    title:           raw.title ?? raw.title_en ?? "",
+    courseId:        String(raw.course_id ?? raw.courseId ?? ""),
+    courseName:      raw.course_title ?? raw.courseName ?? undefined,
+    questionsCount:  Number(raw.tests_count ?? raw.questions_count ?? raw.questionsCount ?? 0),
+    totalGrade:      Number(raw.full_mark ?? raw.totalGrade ?? 0),
+    durationMins:    Number(raw.duration ?? raw.durationMins ?? 0),
+    attemptsAllowed: Number(raw.max_attempts ?? raw.attemptsAllowed ?? 1),
+    passingGrade:    raw.passing_grade != null ? Number(raw.passing_grade) : (raw.passingGrade ?? null),
+    status:          raw.status ?? "draft",
+    questions:       Array.isArray(raw.questions) ? raw.questions : [],
+    settings:        raw.settings ?? {
+      questionOrder:      "fixed",
+      shuffleAnswers:     false,
+      timeBehavior:       "start_on_attempt",
+      availabilityStart:  null,
+      availabilityEnd:    null,
+      attemptsLogic:      "highest",
+      resultVisibility:   "immediately",
+      essayHandling:      "wait_manual",
+    },
+    createdAt: raw.created_at ?? raw.createdAt ?? "",
+    updatedAt: raw.updated_at ?? raw.updatedAt ?? "",
+  };
+}
 
-/**
- * Backend endpoints:
- * GET    /instructor/tests
- * POST   /courses/{courseId}/store-test
- * POST   /courses/{courseId}/lectures/{lectureId}/tests/{testId}/store-question
- * POST   /courses/{courseId}/lectures/{lectureId}/tests/{testId}/edit-question
- * DELETE /courses/{courseId}/lectures/{lectureId}/tests/{testId}/delete-question
- * POST   /courses/{testId}/edit-test
- * DELETE /courses/{testId}/delete-test
- */
+// ─── Build FormData ───
+function examToForm(payload: ExamBuilderFormData): FormData {
+  const fd = new FormData();
+  fd.append("title_en", (payload as any).title_en ?? payload.title ?? "");
+  fd.append("title_ar", (payload as any).title_ar ?? payload.title ?? "");
+  fd.append("full_mark", String(
+    payload.questions.reduce((sum, q) => sum + Number(q.points || 0), 0)
+  ));
+  fd.append("duration",     String(payload.durationMins));
+  fd.append("max_attempts", String(payload.attemptsAllowed));
+  fd.append("status",       payload.status);
+  return fd;
+}
 
-export async function fetchExams(params: ExamsQueryParams): Promise<PaginatedResponse<Exam>> {
-  if (USE_MOCK) return fetchExamsMock(params);
-
+// ─── Fetch Exams List ───
+export async function fetchExams(
+  params: ExamsQueryParams
+): Promise<PaginatedResponse<Exam>> {
   try {
     const { data } = await axiosInstance.get(BASE, {
-      headers: { lang: getLang() },
       params: {
-        page: params.page,
+        page:     params.page,
         pageSize: params.pageSize,
-        search: params.search || undefined,
-        course: params.course || undefined,
-        status: params.status || undefined,
+        search:   params.search   || undefined,
+        course:   params.course   || undefined,
+        status:   params.status   || undefined,
       },
     });
-    return data;
+
+    if (Array.isArray(data?.data)) {
+      return {
+        data: data.data.map(normalizeExam),
+        meta: {
+          page:       1,
+          pageSize:   data.data.length,
+          total:      data.data.length,
+          totalPages: 1,
+        },
+      };
+    }
+
+    return {
+      ...data,
+      data: Array.isArray(data?.data) ? data.data.map(normalizeExam) : [],
+    };
   } catch (err) {
     throw parseApiError(err);
   }
 }
 
+// ─── Fetch Single Exam (for edit) ───
 export async function fetchExamDetails(id: string): Promise<Exam> {
-  if (USE_MOCK) return fetchExamDetailsMock(id);
-
   try {
-    const { data } = await axiosInstance.get(`${BASE}/${id}`, {
-      headers: { lang: getLang() },
-    });
-    return data.data;
+    // Try instructor-scoped endpoint first, fallback shape is same
+    const { data } = await axiosInstance.get(`/tests/${id}`);
+    return normalizeExam(data?.data ?? data);
   } catch (err) {
     throw parseApiError(err);
   }
 }
 
-function examToForm(payload: ExamBuilderFormData) {
-  const form = new FormData();
-
-  form.append("title", payload.title);
-  form.append("full_mark", String(
-    payload.questions.reduce((a, q) => a + Number(q.points || 0), 0)
-  ));
-  form.append("duration", String(payload.durationMins));
-  form.append("max_attempts", String(payload.attemptsAllowed));
-  form.append("status", payload.status);
-
-  return form;
-}
-
+// ─── Create Exam ───
 export async function createExam(payload: ExamBuilderFormData): Promise<Exam> {
-  if (USE_MOCK) return createExamMock(payload);
-
   try {
     const { data } = await axiosInstance.post(
       `/courses/${payload.courseId}/store-test`,
       examToForm(payload),
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          lang: getLang(),
-        },
-      }
+      { headers: { "Content-Type": "multipart/form-data" } }
     );
-
-    return data.data;
+    return normalizeExam(data?.data ?? data);
   } catch (err) {
     throw parseApiError(err);
   }
 }
 
+// ─── Update Exam ───
 export async function updateExam({
   id,
   payload,
@@ -109,106 +122,41 @@ export async function updateExam({
   id: string;
   payload: ExamBuilderFormData;
 }): Promise<Exam> {
-  if (USE_MOCK) return updateExamMock(id, payload);
-
   try {
     const { data } = await axiosInstance.post(
-      `/courses/${id}/edit-test`,
+      `/tests/${id}/edit-test`,
       examToForm(payload),
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          lang: getLang(),
-        },
-      }
+      { headers: { "Content-Type": "multipart/form-data" } }
     );
-
-    return data.data;
+    return normalizeExam(data?.data ?? data);
   } catch (err) {
     throw parseApiError(err);
   }
 }
 
+// ─── Delete Exam ───
 export async function deleteExam(id: string): Promise<void> {
-  if (USE_MOCK) return deleteExamMock(id);
-
   try {
-    await axiosInstance.delete(`/courses/${id}/delete-test`, {
-      headers: { lang: getLang() },
-    });
+    await axiosInstance.delete(`/tests/${id}/delete-test`);
   } catch (err) {
     throw parseApiError(err);
   }
 }
 
-export async function toggleExamStatus(payload: ToggleExamStatusPayload): Promise<Exam> {
-  if (USE_MOCK) return toggleExamStatusMock(payload);
-
+// ─── Toggle Status ───
+export async function toggleExamStatus(
+  payload: ToggleExamStatusPayload
+): Promise<Exam> {
   try {
+    const fd = new FormData();
+    fd.append("status", payload.status);
     const { data } = await axiosInstance.post(
-      `/courses/${payload.id}/edit-test`,
-      { status: payload.status },
-      { headers: { lang: getLang() } }
+      `/tests/${payload.id}/edit-test`,
+      fd,
+      { headers: { "Content-Type": "multipart/form-data" } }
     );
-    return data.data;
+    return normalizeExam(data?.data ?? data);
   } catch (err) {
     throw parseApiError(err);
   }
-}
-
-// Questions APIs
-
-export async function addTestQuestion(args: {
-  courseId: string;
-  lectureId: string;
-  testId: string;
-  question: Question;
-}) {
-  const { courseId, lectureId, testId, question } = args;
-
-  const body = new FormData();
-  body.append("question_en", question.text);
-  body.append("question_ar", question.text);
-  body.append("type", question.type);
-  body.append("mark", String(question.points));
-
-  return axiosInstance.post(
-    `/courses/${courseId}/lectures/${lectureId}/tests/${testId}/store-question`,
-    body,
-    { headers: { "Content-Type": "multipart/form-data", lang: getLang() } }
-  );
-}
-
-export async function editTestQuestion(args: {
-  courseId: string;
-  lectureId: string;
-  testId: string;
-  questionId: string;
-  question: Question;
-}) {
-  const { courseId, lectureId, testId, questionId, question } = args;
-
-  const body = new FormData();
-  body.append("question_en", question.text);
-  body.append("question_ar", question.text);
-  body.append("type", question.type);
-  body.append("mark", String(question.points));
-
-  return axiosInstance.post(
-    `/courses/${courseId}/lectures/${lectureId}/tests/${testId}/questions/${questionId}/edit-question`,
-    body,
-    { headers: { "Content-Type": "multipart/form-data", lang: getLang() } }
-  );
-}
-
-export async function deleteTestQuestion(args: {
-  courseId: string;
-  lectureId: string;
-  testId: string;
-  questionId: string;
-}) {
-  return axiosInstance.delete(
-    `/courses/${args.courseId}/lectures/${args.lectureId}/tests/${args.testId}/questions/${args.questionId}/delete-question`,
-    { headers: { lang: getLang() } }
-  );
 }

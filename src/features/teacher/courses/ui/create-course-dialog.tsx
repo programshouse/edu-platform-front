@@ -22,17 +22,17 @@ export function CreateCourseDialog() {
 
   const handleSubmit = (data: CourseFormValues) => {
     createCourse({
-      title: data.titleEn,
       titleEn: data.titleEn,
       titleAr: data.titleAr,
-      description: data.descriptionEn,
       descriptionEn: data.descriptionEn,
       descriptionAr: data.descriptionAr,
       categoryId: data.categoryId,
       price: data.price,
-      durationDays: data.durationDays,
+      level: data.level,
+      accessDurationDays: data.accessDurationDays,
+      totalDurationMinutes: data.totalDurationMinutes,
       startDate: data.startDate,
-      endDate: data.endDate,
+      ...(data.endDate ? { endDate: data.endDate } : {}),
       allowSeparateLectures: data.allowSeparateLectures,
       ...(data.coverImage instanceof File ? { coverImage: data.coverImage } : {}),
     });

@@ -117,7 +117,7 @@ export function CourseCard({ course }: CourseCardProps) {
           <StatChip icon={DollarSign} value={formattedPrice} />
           <StatChip
             icon={Clock}
-            value={`${course.durationDays} ${t("card.days")}`}
+            value={`${course.accessDurationDays} ${t("card.days")}`}
           />
           <StatChip
             icon={BookOpen}

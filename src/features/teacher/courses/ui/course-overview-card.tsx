@@ -115,12 +115,12 @@ export function CourseOverviewCard({
             <CourseInfoItem
               icon={Clock}
               label={t("overview.duration", "Duration")}
-              value={`${course.durationDays} ${t("card.days")}`}
+              value={`${course.accessDurationDays} ${t("card.days")}`}
             />
             <CourseInfoItem
               icon={Users}
               label={t("overview.students", "Enrolled Students")}
-              value={course.enrolledStudentsCount.toString()}
+              value={String(course.enrolledStudentsCount)}
             />
             <CourseInfoItem
               icon={CalendarDays}

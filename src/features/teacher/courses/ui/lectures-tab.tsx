@@ -1,5 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Plus, Pencil, Trash2, Video, Radio } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { Button } from "@/shared/components/ui/button";
 import {
   Table,
@@ -10,16 +12,37 @@ import {
   TableRow,
 } from "@/shared/components/ui/table";
 import { Badge } from "@/shared/components/ui/badge";
-import { useCourseContentStore } from "../model/course-content-store";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { CoursesEmptyState } from "./courses-empty-error";
 import { AddLectureModal } from "./add-lecture-modal";
+import { useCourseContentStore } from "../model/course-content-store";
+import { deleteLecture } from "../api";
 
 export function LecturesTab() {
   const { t } = useTranslation("teacherCourses");
-  const lectures = useCourseContentStore((s) => s.lectures);
-  const isLoading = useCourseContentStore((s) => s.isLoadingLectures);
-  const openLectureModal = useCourseContentStore((s) => s.openLectureModal);
+  const queryClient = useQueryClient();
+
+  const lectures          = useCourseContentStore((s) => s.lectures);
+  const isLoading         = useCourseContentStore((s) => s.isLoadingLectures);
+  const openLectureModal  = useCourseContentStore((s) => s.openLectureModal);
+  const courseId          = useCourseContentStore((s) => s.courseId);
+
+  const { mutate: remove, isPending: isDeleting } = useMutation({
+    mutationFn: (id: number) => deleteLecture(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["teacher", "course", courseId, "lectures"] });
+      toast.success(t("lectures.deleted", "Lecture deleted"));
+    },
+    onError: (err: { message?: string }) => {
+      toast.error(err.message ?? t("notifications.error", "Something went wrong"));
+    },
+  });
+
+  const formatDuration = (minutes: number) => {
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    return h > 0 ? `${h}h ${m}m` : `${m}m`;
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -38,7 +61,7 @@ export function LecturesTab() {
               <TableHead className="w-[40%]">{t("lectures.name", "Title")}</TableHead>
               <TableHead>{t("lectures.type", "Type")}</TableHead>
               <TableHead>{t("lectures.duration", "Duration")}</TableHead>
-              <TableHead>{t("lectures.status", "Status")}</TableHead>
+              <TableHead>{t("lectures.status", "Free")}</TableHead>
               <TableHead className="text-end">{t("lectures.actions", "Actions")}</TableHead>
             </TableRow>
           </TableHeader>
@@ -65,26 +88,40 @@ export function LecturesTab() {
                   <TableCell className="font-medium">{lecture.title}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      {lecture.type === "video" ? (
+                      {lecture.lecture_type === "recorded" ? (
                         <Video className="size-4 text-muted-foreground" />
                       ) : (
                         <Radio className="size-4 text-blue-500" />
                       )}
-                      <span className="capitalize">{t(`lectures.types.${lecture.type}`, lecture.type)}</span>
+                      <span className="capitalize">
+                        {t(`lectures.types.${lecture.lecture_type}`, lecture.lecture_type)}
+                      </span>
                     </div>
                   </TableCell>
-                  <TableCell className="text-muted-foreground">{lecture.duration}</TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {formatDuration(lecture.duration_minutes)}
+                  </TableCell>
                   <TableCell>
-                    <Badge variant={lecture.status === "visible" ? "default" : "secondary"}>
-                      {t(`lectures.statuses.${lecture.status}`, lecture.status)}
+                    <Badge variant={lecture.is_free ? "default" : "secondary"}>
+                      {lecture.is_free ? t("lectures.free", "Free") : t("lectures.paid", "Paid")}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-end">
                     <div className="flex items-center justify-end gap-2">
-                      <Button variant="ghost" size="icon" onClick={() => openLectureModal(lecture)}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => openLectureModal(lecture)}
+                      >
                         <Pencil className="size-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive hover:text-destructive"
+                        disabled={isDeleting}
+                        onClick={() => remove(lecture.id)}
+                      >
                         <Trash2 className="size-4" />
                       </Button>
                     </div>
@@ -95,7 +132,7 @@ export function LecturesTab() {
           </TableBody>
         </Table>
       </div>
-      
+
       <AddLectureModal />
     </div>
   );

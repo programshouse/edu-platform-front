@@ -31,7 +31,7 @@ const BASE = "/instructor/courses";
 // ─────────────────────────────────────────────
 
 export async function fetchCourses(
-  params: CoursesQueryParams = {}
+  params: Partial<CoursesQueryParams> = {}
 ): Promise<PaginatedResponse<Course>> {
   try {
     const { data } = await axiosInstance.get<any>(BASE, {
@@ -62,7 +62,7 @@ export async function fetchCourses(
 
     if (Array.isArray(data?.data)) {
       return {
-        data: data.data,
+        data: data.data.map(normalizeCourse),
         meta: {
           page: 1,
           pageSize: data.data.length,
@@ -71,7 +71,6 @@ export async function fetchCourses(
         },
       };
     }
-
 
     return data;
 
@@ -92,11 +91,11 @@ export async function fetchCourse(
   try {
 
     const { data } =
-      await axiosInstance.get<{ data: Course }>(
+      await axiosInstance.get<{ data: any }>(
         `/courses/${id}`,
       );
 
-    return data.data;
+    return normalizeCourse(data.data);
 
   } catch (err) {
     throw parseApiError(err);
@@ -242,15 +241,39 @@ export async function toggleCourseStatus(
 
 
 // ─────────────────────────────────────────────
-// Build Multipart FormData
+// Normalize raw API response → Course
 // ─────────────────────────────────────────────
+
+function normalizeCourse(raw: any): Course {
+  return {
+    id:                    String(raw.id),
+    title:                 raw.title ?? "",
+    description:           raw.description ?? "",
+    coverImage:            raw.image ?? raw.coverImage ?? null,
+    categoryId:            raw.category_id ?? raw.categoryId ?? undefined,
+    price:                 Number(raw.price ?? 0),
+    level:                 raw.level ?? "beginner",
+    accessDurationDays:    Number(raw.access_duration_days ?? raw.accessDurationDays ?? 0),
+    totalDurationMinutes:  Number(raw.total_duration_minutes ?? raw.totalDurationMinutes ?? 0),
+    startDate:             raw.start_date ?? raw.startDate ?? "",
+    endDate:               raw.end_date   ?? raw.endDate   ?? "",
+    lecturesCount:         Number(raw.lectures_count ?? raw.lecturesCount ?? 0),
+    enrolledStudentsCount: Number(raw.students_count ?? raw.enrolledStudentsCount ?? 0),
+    status:                raw.status ?? "active",
+    allowSeparateLectures:
+      raw.lectures_can_be_purchased_separately === 1 ||
+      raw.lectures_can_be_purchased_separately === true ||
+      raw.allowSeparateLectures === true,
+    createdAt: raw.created_at ?? raw.createdAt ?? "",
+    updatedAt: raw.updated_at ?? raw.updatedAt ?? "",
+  };
+}
 
 function buildFormData(
   payload: Partial<CreateCoursePayload>
 ):FormData {
 
   const fd = new FormData();
-
 
   if(payload.titleEn !== undefined)
     fd.append("title_en", payload.titleEn);
@@ -263,55 +286,34 @@ function buildFormData(
     fd.append("description_ar", payload.descriptionAr);
 
   if(payload.categoryId !== undefined)
-    fd.append(
-      "category_id",
-      String(payload.categoryId)
-    );
-
+    fd.append("category_id", String(payload.categoryId));
 
   if(payload.price !== undefined)
-    fd.append(
-      "price",
-      String(payload.price)
-    );
+    fd.append("price", String(payload.price));
 
+  if(payload.level !== undefined)
+    fd.append("level", payload.level);
 
-  if(payload.durationDays !== undefined)
-    fd.append(
-      "durationDays",
-      String(payload.durationDays)
-    );
+  if(payload.accessDurationDays !== undefined)
+    fd.append("access_duration_days", String(payload.accessDurationDays));
 
+  if(payload.totalDurationMinutes !== undefined)
+    fd.append("total_duration_minutes", String(payload.totalDurationMinutes));
 
   if(payload.startDate !== undefined)
-    fd.append(
-      "start_date",
-      payload.startDate
-    );
+    fd.append("start_date", payload.startDate);
 
-
-  if(payload.endDate !== undefined)
-    fd.append(
-      "end_date",
-      payload.endDate
-    );
-
+  if(payload.endDate !== undefined && payload.endDate !== "")
+    fd.append("end_date", payload.endDate);
 
   if(payload.allowSeparateLectures !== undefined)
     fd.append(
       "lectures_can_be_purchased_separately",
-      String(
-        payload.allowSeparateLectures
-      )
+      payload.allowSeparateLectures ? "1" : "0"
     );
-
 
   if(payload.coverImage instanceof File)
-    fd.append(
-      "image",
-      payload.coverImage
-    );
-
+    fd.append("image", payload.coverImage);
 
   return fd;
 }

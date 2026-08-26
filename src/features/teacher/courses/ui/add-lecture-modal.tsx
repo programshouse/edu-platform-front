@@ -1,37 +1,146 @@
-import { useState, useEffect } from "react";
+import { useRef, useEffect } from "react";
+import { useForm, Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/shared/components/ui/dialog";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/shared/components/ui/dialog";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
-import { Textarea } from "@/shared/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
+import { Switch } from "@/shared/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shared/components/ui/select";
 import { useCourseContentStore } from "../model/course-content-store";
-import { toast } from "sonner";
+import { createLecture, updateLecture } from "../api";
+
+// ─── Schema ───
+const lectureSchema = z.object({
+  titleEn:         z.string().min(2, "Title EN is required"),
+  titleAr:         z.string().min(2, "Title AR is required"),
+  lectureType:     z.enum(["recorded", "live"]),
+  video:           z.instanceof(File).optional().nullable(),
+  durationMinutes: z.number().int().min(1, "Duration required"),
+  isFree:          z.boolean().default(false),
+});
+
+type LectureFormValues = z.infer<typeof lectureSchema>;
 
 export function AddLectureModal() {
   const { t } = useTranslation("teacherCourses");
-  const isOpen = useCourseContentStore((s) => s.isAddLectureModalOpen);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const queryClient  = useQueryClient();
+
+  const isOpen        = useCourseContentStore((s) => s.isAddLectureModalOpen);
   const editingLecture = useCourseContentStore((s) => s.editingLecture);
   const closeLectureModal = useCourseContentStore((s) => s.closeLectureModal);
-  
-  const [step, setStep] = useState(1);
-  const [type, setType] = useState<"video" | "live">("video");
-  
-  // Reset step when modal opens
-  useEffect(() => {
-    if (isOpen) {
-      setStep(1);
-      setType(editingLecture?.type || "video");
-    }
-  }, [isOpen, editingLecture]);
+  const courseId      = useCourseContentStore((s) => s.courseId);
 
-  const handleNext = () => setStep((s) => Math.min(s + 1, 3));
-  const handleBack = () => setStep((s) => Math.max(s - 1, 1));
-  
-  const handleSave = () => {
-    toast.success(editingLecture ? t("lectures.updated", "Lecture updated") : t("lectures.created", "Lecture created"));
-    closeLectureModal();
+  const isEditing = !!editingLecture;
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    watch,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm<LectureFormValues>({
+    resolver: zodResolver(lectureSchema) as any, // eslint-disable-line
+    defaultValues: {
+      titleEn: "",
+      titleAr: "",
+      lectureType: "recorded",
+      video: null,
+      durationMinutes: 0,
+      isFree: false,
+    },
+  });
+
+  const lectureType = watch("lectureType");
+
+  // Populate form when editing
+  useEffect(() => {
+    if (isOpen && editingLecture) {
+      reset({
+        titleEn:         editingLecture.title_en ?? editingLecture.title,
+        titleAr:         editingLecture.title_ar ?? editingLecture.title,
+        lectureType:     editingLecture.lecture_type,
+        video:           null,
+        durationMinutes: editingLecture.duration_minutes,
+        isFree:          editingLecture.is_free,
+      });
+    } else if (isOpen) {
+      reset({
+        titleEn: "", titleAr: "", lectureType: "recorded",
+        video: null, durationMinutes: 0, isFree: false,
+      });
+    }
+  }, [isOpen, editingLecture, reset]);
+
+  // ─── Mutations ───
+  const { mutate: create, isPending: isCreating } = useMutation({
+    mutationFn: (data: LectureFormValues) =>
+      createLecture(courseId!, {
+        titleEn:         data.titleEn,
+        titleAr:         data.titleAr,
+        lectureType:     data.lectureType,
+        video:           data.video ?? undefined,
+        durationMinutes: data.durationMinutes,
+        isFree:          data.isFree ? 1 : 0,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["teacher", "course", courseId, "lectures"] });
+      toast.success(t("lectures.created", "Lecture added"));
+      closeLectureModal();
+    },
+    onError: (err: { message?: string }) => {
+      toast.error(err.message ?? t("notifications.error", "Something went wrong"));
+    },
+  });
+
+  const { mutate: update, isPending: isUpdating } = useMutation({
+    mutationFn: (data: LectureFormValues) =>
+      updateLecture(editingLecture!.id, {
+        titleEn:         data.titleEn,
+        titleAr:         data.titleAr,
+        lectureType:     data.lectureType,
+        video:           data.video ?? undefined,
+        durationMinutes: data.durationMinutes,
+        isFree:          data.isFree ? 1 : 0,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["teacher", "course", courseId, "lectures"] });
+      toast.success(t("lectures.updated", "Lecture updated"));
+      closeLectureModal();
+    },
+    onError: (err: { message?: string }) => {
+      toast.error(err.message ?? t("notifications.error", "Something went wrong"));
+    },
+  });
+
+  const isPending = isCreating || isUpdating;
+
+  const onSubmit = (data: LectureFormValues) => {
+    if (isEditing) {
+      update(data);
+    } else {
+      if (!courseId) { toast.error("Course ID missing"); return; }
+      create(data);
+    }
   };
 
   return (
@@ -39,97 +148,119 @@ export function AddLectureModal() {
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>
-            {editingLecture ? t("lectures.editTitle", "Edit Lecture") : t("lectures.addTitle", "Add New Lecture")}
+            {isEditing
+              ? t("lectures.editTitle", "Edit Lecture")
+              : t("lectures.addTitle", "Add New Lecture")}
           </DialogTitle>
-          <div className="flex gap-2 pt-4">
-            {[1, 2, 3].map((s) => (
-              <div 
-                key={s} 
-                className={`flex-1 h-1.5 rounded-full ${s <= step ? 'bg-primary' : 'bg-muted'}`} 
-              />
-            ))}
-          </div>
         </DialogHeader>
 
-        <div className="py-4">
-          {step === 1 && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
-              <div className="space-y-2">
-                <Label>{t("lectures.formTitle", "Lecture Title")}</Label>
-                <Input defaultValue={editingLecture?.title || ""} placeholder={t("lectures.titlePlaceholder", "Enter title...")} />
-              </div>
-              <div className="space-y-2">
-                <Label>{t("lectures.formDesc", "Description")}</Label>
-                <Textarea rows={3} placeholder={t("lectures.descPlaceholder", "What is this lecture about?")} />
-              </div>
-            </div>
-          )}
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 py-2" noValidate>
 
-          {step === 2 && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
-              <div className="space-y-2">
-                <Label>{t("lectures.formType", "Lecture Type")}</Label>
-                <Select value={type} onValueChange={(val: "video" | "live") => setType(val)}>
+          {/* ── Titles ── */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col gap-1.5">
+              <Label>Title English *</Label>
+              <Input {...register("titleEn")} placeholder="Lecture title" aria-invalid={!!errors.titleEn} />
+              {errors.titleEn && <p className="text-xs text-destructive">{errors.titleEn.message}</p>}
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label>Title Arabic *</Label>
+              <Input {...register("titleAr")} placeholder="عنوان المحاضرة" dir="rtl" aria-invalid={!!errors.titleAr} />
+              {errors.titleAr && <p className="text-xs text-destructive">{errors.titleAr.message}</p>}
+            </div>
+          </div>
+
+          {/* ── Type ── */}
+          <div className="flex flex-col gap-1.5">
+            <Label>Lecture Type *</Label>
+            <Controller
+              control={control}
+              name="lectureType"
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={field.onChange}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="video">{t("lectures.types.video", "Video Recording")}</SelectItem>
-                    <SelectItem value="live">{t("lectures.types.live", "Live Session")}</SelectItem>
+                    <SelectItem value="recorded">{t("lectures.types.recorded", "Recorded")}</SelectItem>
+                    <SelectItem value="live">{t("lectures.types.live", "Live")}</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-
-              {type === "video" ? (
-                <div className="space-y-2 pt-2">
-                  <Label>{t("lectures.videoUrl", "Video URL or Upload")}</Label>
-                  <Input type="url" placeholder="https://..." />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {t("lectures.videoHint", "Or upload a file directly")}
-                  </p>
-                  <Input type="file" accept="video/mp4,video/x-m4v,video/*" />
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 gap-4 pt-2">
-                  <div className="space-y-2">
-                    <Label>{t("lectures.liveDate", "Date")}</Label>
-                    <Input type="date" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>{t("lectures.liveTime", "Time")}</Label>
-                    <Input type="time" />
-                  </div>
-                </div>
               )}
-            </div>
-          )}
+            />
+          </div>
 
-          {step === 3 && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
-              <div className="space-y-2">
-                <Label>{t("lectures.access", "Access Type")}</Label>
-                <Select defaultValue="paid">
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="free">{t("lectures.accessFree", "Free Preview")}</SelectItem>
-                    <SelectItem value="paid">{t("lectures.accessPaid", "Paid (Enrolled only)")}</SelectItem>
-                  </SelectContent>
-                </Select>
+          {/* ── Video (only for recorded) ── */}
+          {lectureType === "recorded" && (
+            <div className="flex flex-col gap-1.5">
+              <Label>Video File {!isEditing && "*"}</Label>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="video/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0] ?? null;
+                  setValue("video", file, { shouldValidate: true });
+                }}
+              />
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  {t("form.uploadCover", "Choose file")}
+                </Button>
+                <span className="text-sm text-muted-foreground self-center">
+                  {watch("video")?.name ?? (isEditing ? "No new file selected" : "No file chosen")}
+                </span>
               </div>
             </div>
           )}
-        </div>
 
-        <DialogFooter className="flex justify-between items-center sm:justify-between w-full">
-          <Button variant="ghost" onClick={step === 1 ? closeLectureModal : handleBack}>
-            {step === 1 ? t("actions.cancel", "Cancel") : t("actions.back", "Back")}
-          </Button>
-          <Button onClick={step === 3 ? handleSave : handleNext}>
-            {step === 3 ? t("actions.save", "Save") : t("actions.next", "Next")}
-          </Button>
-        </DialogFooter>
+          {/* ── Duration ── */}
+          <div className="flex flex-col gap-1.5">
+            <Label>Duration (minutes) *</Label>
+            <Input
+              type="number"
+              min={1}
+              placeholder="60"
+              aria-invalid={!!errors.durationMinutes}
+              {...register("durationMinutes", { valueAsNumber: true })}
+            />
+            {errors.durationMinutes && <p className="text-xs text-destructive">{errors.durationMinutes.message}</p>}
+          </div>
+
+          {/* ── Is Free ── */}
+          <Controller
+            control={control as any} // eslint-disable-line
+            name="isFree"
+            render={({ field }) => (
+              <div className="flex items-center justify-between rounded-lg border p-4">
+                <div>
+                  <Label className="text-base font-medium">Free Preview</Label>
+                  <p className="text-sm text-muted-foreground">Allow non-enrolled students to watch</p>
+                </div>
+                <Switch checked={field.value} onCheckedChange={field.onChange} />
+              </div>
+            )}
+          />
+
+          <DialogFooter className="pt-2">
+            <Button type="button" variant="ghost" onClick={closeLectureModal} disabled={isPending}>
+              {t("actions.cancel", "Cancel")}
+            </Button>
+            <Button type="submit" disabled={isPending}>
+              {isPending
+                ? t("form.submitting", "Saving…")
+                : isEditing
+                  ? t("actions.save", "Update")
+                  : t("lectures.add", "Add Lecture")}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

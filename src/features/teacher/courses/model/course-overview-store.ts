@@ -6,20 +6,20 @@ interface CourseOverviewState {
   isLoading: boolean;
   isEditModalOpen: boolean;
   isConfirmDialogOpen: boolean;
-  
+
   // Actions
   setCourse: (course: Course) => void;
-  simulateLoading: () => void;
-  
+  setLoading: (v: boolean) => void;
+
   // Modal toggles
   openEditModal: () => void;
   closeEditModal: () => void;
-  
+
   // Confirm Dialog toggles
   openConfirmDialog: () => void;
   closeConfirmDialog: () => void;
 
-  // Optimistic/Local updates
+  // Optimistic local updates
   updateCourseLocally: (data: Partial<Course>) => void;
   toggleStatusLocally: (status: CourseStatus) => void;
 }
@@ -31,16 +31,11 @@ export const useCourseOverviewStore = create<CourseOverviewState>((set) => ({
   isConfirmDialogOpen: false,
 
   setCourse: (course) => set({ course, isLoading: false }),
-  simulateLoading: () => {
-    set({ isLoading: true });
-    // Simulate network delay
-    setTimeout(() => set({ isLoading: false }), 800);
-  },
+  setLoading: (v) => set({ isLoading: v }),
 
-  openEditModal: () => set({ isEditModalOpen: true }),
-  closeEditModal: () => set({ isEditModalOpen: false }),
-
-  openConfirmDialog: () => set({ isConfirmDialogOpen: true }),
+  openEditModal:    () => set({ isEditModalOpen: true }),
+  closeEditModal:   () => set({ isEditModalOpen: false }),
+  openConfirmDialog:  () => set({ isConfirmDialogOpen: true }),
   closeConfirmDialog: () => set({ isConfirmDialogOpen: false }),
 
   updateCourseLocally: (data) =>

@@ -1,5 +1,4 @@
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -9,35 +8,36 @@ import {
 } from "@/shared/components/ui/dialog";
 import { CourseForm, courseToFormValues } from "./course-form";
 import { useCourseOverviewStore } from "../model/course-overview-store";
+import { useUpdateCourse } from "../hooks/use-update-course";
 import type { CourseFormValues } from "../model/course-schema";
 
 export function EditCourseOverviewModal() {
   const { t } = useTranslation("teacherCourses");
-  const isOpen = useCourseOverviewStore((s) => s.isEditModalOpen);
-  const course = useCourseOverviewStore((s) => s.course);
+  const isOpen       = useCourseOverviewStore((s) => s.isEditModalOpen);
+  const course       = useCourseOverviewStore((s) => s.course);
   const closeEditModal = useCourseOverviewStore((s) => s.closeEditModal);
-  const updateCourseLocally = useCourseOverviewStore((s) => s.updateCourseLocally);
+
+  const { mutate: updateCourse, isPending } = useUpdateCourse();
 
   if (!course) return null;
 
   const handleSubmit = (data: CourseFormValues) => {
-    // Note: In a real app we'd call an API here.
-    // For now, we update local store to simulate a successful API call
-    updateCourseLocally({
-      title: data.title,
-      description: data.description,
+    updateCourse({
+      id: course.id,
+      titleEn: data.titleEn,
+      titleAr: data.titleAr,
+      descriptionEn: data.descriptionEn,
+      descriptionAr: data.descriptionAr,
+      categoryId: data.categoryId,
       price: data.price,
-      durationDays: data.durationDays,
+      level: data.level,
+      accessDurationDays: data.accessDurationDays,
+      totalDurationMinutes: data.totalDurationMinutes,
       startDate: data.startDate,
-      endDate: data.endDate,
+      ...(data.endDate ? { endDate: data.endDate } : {}),
       allowSeparateLectures: data.allowSeparateLectures,
-      ...(data.coverImage instanceof File
-        ? { coverImage: URL.createObjectURL(data.coverImage) }
-        : {}),
+      ...(data.coverImage instanceof File ? { coverImage: data.coverImage } : {}),
     });
-    
-    closeEditModal();
-    toast.success(t("notifications.courseUpdated", "Course updated successfully"));
   };
 
   return (
@@ -53,6 +53,7 @@ export function EditCourseOverviewModal() {
             defaultValues={courseToFormValues(course)}
             existingCover={course.coverImage}
             onSubmit={handleSubmit}
+            isSubmitting={isPending}
             submitLabel={t("editDialog.submit")}
           />
         </div>

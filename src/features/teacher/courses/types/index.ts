@@ -1,6 +1,9 @@
 // ─── Course Status ───
 export type CourseStatus = "active" | "inactive" | "finished";
 
+// ─── Course Level ───
+export type CourseLevel = "beginner" | "intermediate" | "advanced";
+
 // ─── Core Course Entity ───
 export interface Course {
   id: string;
@@ -10,7 +13,9 @@ export interface Course {
   categoryId?: number;
   category?: { id:number; name:string };
   price: number;
-  durationDays: number;
+  level: CourseLevel;
+  accessDurationDays: number;
+  totalDurationMinutes: number;
   startDate: string;
   endDate: string;
   lecturesCount: number;
@@ -40,17 +45,17 @@ export type CoursesQueryParams = CoursesFilters & CoursesPagination;
 
 // ─── Form Schemas (used with Zod + React Hook Form) ───
 export interface CreateCourseFormData {
-  title: string;
   titleAr: string;
   titleEn: string;
-  description: string;
   descriptionAr: string;
   descriptionEn: string;
   coverImage?: File | null;
   price: number;
-  durationDays: number;
+  level: CourseLevel;
+  accessDurationDays: number;
+  totalDurationMinutes: number;
   startDate: string;
-  endDate: string;
+  endDate?: string;
   allowSeparateLectures: boolean;
 }
 
@@ -58,18 +63,18 @@ export type UpdateCourseFormData = Partial<CreateCourseFormData>;
 
 // ─── API Payloads ───
 export interface CreateCoursePayload {
-  title: string;
   titleAr: string;
   titleEn: string;
-  description: string;
   descriptionAr: string;
   descriptionEn: string;
   categoryId: number;
   coverImage?: File;
   price: number;
-  durationDays: number;
+  level: CourseLevel;
+  accessDurationDays: number;
+  totalDurationMinutes: number;
   startDate: string;
-  endDate: string;
+  endDate?: string;
   allowSeparateLectures: boolean;
 }
 
