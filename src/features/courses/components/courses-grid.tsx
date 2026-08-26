@@ -5,6 +5,7 @@ import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import { coursesApi } from "@/features/courses/api/courses-api";
+import { useAuthStore } from "@/shared/stores/auth-store";
 
 import {
   BookOpen,
@@ -115,6 +116,10 @@ export function CoursesGrid() {
 
 
 
+  const user = useAuthStore((state) => state.user);
+  const role = user?.role?.toLowerCase();
+  const isInstructor = role === "instructor" || role === "teacher";
+
   const {
     data: apiCourses,
     isLoading,
@@ -123,12 +128,14 @@ export function CoursesGrid() {
   } = useQuery({
 
     queryKey:[
-      "allCourses",
+      isInstructor ? "instructorCourses" : "allCourses",
       currentLang
     ],
 
     queryFn:
-      coursesApi.all,
+      isInstructor
+        ? coursesApi.instructorCourses
+        : coursesApi.all,
 
   });
 

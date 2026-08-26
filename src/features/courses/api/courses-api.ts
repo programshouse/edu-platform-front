@@ -45,6 +45,21 @@ export const coursesApi = {
 
 
 
+  // Instructor's own courses
+  instructorCourses: async () => {
+
+    const { data } =
+      await axiosInstance.get(
+        "/instructor/courses",
+      );
+
+
+    return data;
+
+  },
+
+
+
   // Course details
   details: async (
     id: number | string

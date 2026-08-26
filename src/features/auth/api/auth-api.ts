@@ -1,4 +1,5 @@
 import { axiosInstance } from "@/shared/api/axios-instance";
+import { useAuthStore } from "@/shared/stores/auth-store";
 
 export type LoginPayload = {
   email: string;
@@ -19,7 +20,6 @@ export type RegisterPayload = {
   grade_id?: string;
   school?: string;
   department_name?: string;
-
   first_name?: string;
   second_name?: string;
   last_name?: string;
@@ -40,13 +40,10 @@ export type AuthResponse = {
   [key: string]: any;
 };
 
-
 export const authApi = {
-
   login: async (
     payload: LoginPayload
   ): Promise<AuthResponse> => {
-
     const { data } = await axiosInstance.post(
       "/login",
       payload
@@ -57,19 +54,15 @@ export const authApi = {
 
 
   register: async (
-    payload: FormData | RegisterPayload,
+    payload: FormData | RegisterPayload
   ): Promise<AuthResponse> => {
-
     let body = payload;
 
-
     if (!(payload instanceof FormData)) {
-
       const form = new FormData();
 
       Object.entries(payload).forEach(
         ([key, value]) => {
-
           if (
             value !== undefined &&
             value !== null
@@ -79,25 +72,23 @@ export const authApi = {
               String(value)
             );
           }
-
         }
       );
 
       body = form;
     }
 
-
-    const { data } = await axiosInstance.post(
-      "/register",
-      body,
-      {
-        headers: {
-          "Content-Type":
-            "multipart/form-data",
-        },
-      }
-    );
-
+    const { data } =
+      await axiosInstance.post(
+        "/register",
+        body,
+        {
+          headers: {
+            "Content-Type":
+              "multipart/form-data",
+          },
+        }
+      );
 
     return data;
   },
@@ -110,7 +101,6 @@ export const authApi = {
   refresh: async (
     refresh_token: string
   ): Promise<AuthResponse> => {
-
     const { data } =
       await axiosInstance.post(
         "/auth/refresh",
@@ -129,9 +119,17 @@ export const authApi = {
    */
   logout: async () => {
 
+    const { user } = useAuthStore.getState();
+
+    const endpoint =
+      user?.role === "instructor"
+        ? "/instructor/logout"
+        : "/student/logout";
+
+
     const { data } =
       await axiosInstance.post(
-        "/logout"
+        endpoint
       );
 
     return data;
@@ -142,10 +140,17 @@ export const authApi = {
    * Current logged user profile
    */
   profile: async () => {
+    const { user } = useAuthStore.getState();
+
+    const endpoint =
+      user?.role === "instructor"
+        ? "/instructor/profile"
+        : "/student/profile";
+
 
     const { data } =
       await axiosInstance.get(
-        "/profile"
+        endpoint
       );
 
     return data;
@@ -168,7 +173,6 @@ export const authApi = {
         }
       );
 
-
     return data;
   },
 
@@ -189,13 +193,11 @@ export const authApi = {
         }
       );
 
-
     return data;
   },
 
 
   grades: async () => {
-
     const { data } =
       await axiosInstance.get(
         "/register/get-grades"
@@ -206,7 +208,6 @@ export const authApi = {
 
 
   governorates: async () => {
-
     const { data } =
       await axiosInstance.get(
         "/register/get-governorates"
@@ -214,5 +215,4 @@ export const authApi = {
 
     return data;
   },
-
 };
