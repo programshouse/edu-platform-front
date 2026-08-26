@@ -71,7 +71,9 @@ export function useExamBuilder(examId?: string) {
         status:          examData.status,
         questions:       examData.questions ?? [],
         settings:        examData.settings ?? emptyDefaults.settings,
-      });
+        // carry totalGrade so examToForm can use it as full_mark fallback
+        totalGrade:      examData.totalGrade,
+      } as any);
     }
   }, [examData]); // eslint-disable-line react-hooks/exhaustive-deps
 

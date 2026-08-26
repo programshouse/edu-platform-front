@@ -10,46 +10,57 @@ import type {
 
 const BASE = "/instructor/tests";
 
-// ─── Normalize raw API exam → Exam ───
+// ─── Normalize raw API → Exam ───
 function normalizeExam(raw: any): Exam {
   return {
     id:              String(raw.id),
-    title:           raw.title ?? raw.title_en ?? "",
+    title:           raw.title    ?? raw.title_en ?? "",
+    title_en:        raw.title_en ?? raw.title    ?? "",
+    title_ar:        raw.title_ar ?? raw.title    ?? "",
     courseId:        String(raw.course_id ?? raw.courseId ?? ""),
-    courseName:      raw.course_title ?? raw.courseName ?? undefined,
-    questionsCount:  Number(raw.tests_count ?? raw.questions_count ?? raw.questionsCount ?? 0),
-    totalGrade:      Number(raw.full_mark ?? raw.totalGrade ?? 0),
-    durationMins:    Number(raw.duration ?? raw.durationMins ?? 0),
+    courseName:      raw.course_title ?? raw.courseName ?? "",
+    questionsCount:  Number(raw.questions_count ?? raw.questionsCount ?? raw.questions?.length ?? 0),
+    totalGrade:      Number(raw.full_mark   ?? raw.totalGrade ?? 0),
+    durationMins:    Number(raw.duration    ?? raw.durationMins ?? 0),
     attemptsAllowed: Number(raw.max_attempts ?? raw.attemptsAllowed ?? 1),
     passingGrade:    raw.passing_grade != null ? Number(raw.passing_grade) : (raw.passingGrade ?? null),
     status:          raw.status ?? "draft",
     questions:       Array.isArray(raw.questions) ? raw.questions : [],
     settings:        raw.settings ?? {
-      questionOrder:      "fixed",
-      shuffleAnswers:     false,
-      timeBehavior:       "start_on_attempt",
-      availabilityStart:  null,
-      availabilityEnd:    null,
-      attemptsLogic:      "highest",
-      resultVisibility:   "immediately",
-      essayHandling:      "wait_manual",
+      questionOrder:     "fixed",
+      shuffleAnswers:    false,
+      timeBehavior:      "start_on_attempt",
+      availabilityStart: null,
+      availabilityEnd:   null,
+      attemptsLogic:     "highest",
+      resultVisibility:  "immediately",
+      essayHandling:     "wait_manual",
     },
-    createdAt: raw.created_at ?? raw.createdAt ?? "",
-    updatedAt: raw.updated_at ?? raw.updatedAt ?? "",
+    createdAt: raw.created_at ?? "",
+    updatedAt: raw.updated_at ?? "",
   };
 }
 
-// ─── Build FormData ───
+// ─── Build FormData for create / update ───
 function examToForm(payload: ExamBuilderFormData): FormData {
   const fd = new FormData();
-  fd.append("title_en", (payload as any).title_en ?? payload.title ?? "");
-  fd.append("title_ar", (payload as any).title_ar ?? payload.title ?? "");
-  fd.append("full_mark", String(
-    payload.questions.reduce((sum, q) => sum + Number(q.points || 0), 0)
-  ));
+
+  // title: single field in form → send as both en & ar
+  const titleEn = (payload as any).title_en ?? payload.title ?? "";
+  const titleAr = (payload as any).title_ar ?? payload.title ?? "";
+  fd.append("title_en", titleEn);
+  fd.append("title_ar", titleAr);
+
+  // full_mark: sum of question points, fallback to stored totalGrade
+  const mark = payload.questions?.length
+    ? payload.questions.reduce((sum, q) => sum + Number(q.points || 0), 0)
+    : Number((payload as any).totalGrade ?? 0);
+  fd.append("full_mark",    String(mark));
+
   fd.append("duration",     String(payload.durationMins));
   fd.append("max_attempts", String(payload.attemptsAllowed));
-  fd.append("status",       payload.status);
+  fd.append("status",       payload.status ?? "draft");
+
   return fd;
 }
 
@@ -62,23 +73,11 @@ export async function fetchExams(
       params: {
         page:     params.page,
         pageSize: params.pageSize,
-        search:   params.search   || undefined,
-        course:   params.course   || undefined,
-        status:   params.status   || undefined,
+        search:   params.search  || undefined,
+        course:   params.course  || undefined,
+        status:   params.status  || undefined,
       },
     });
-
-    if (Array.isArray(data?.data)) {
-      return {
-        data: data.data.map(normalizeExam),
-        meta: {
-          page:       1,
-          pageSize:   data.data.length,
-          total:      data.data.length,
-          totalPages: 1,
-        },
-      };
-    }
 
     return {
       ...data,
@@ -89,12 +88,16 @@ export async function fetchExams(
   }
 }
 
-// ─── Fetch Single Exam (for edit) ───
+// ─── Fetch Single Exam for Edit ───
+// The backend has no GET /instructor/tests/:id route.
+// We fetch the full list and find the matching exam by id.
 export async function fetchExamDetails(id: string): Promise<Exam> {
   try {
-    // Try instructor-scoped endpoint first, fallback shape is same
-    const { data } = await axiosInstance.get(`/tests/${id}`);
-    return normalizeExam(data?.data ?? data);
+    const { data } = await axiosInstance.get(BASE);
+    const list: any[] = Array.isArray(data?.data) ? data.data : [];
+    const raw = list.find((e: any) => String(e.id) === String(id));
+    if (!raw) throw new Error(`Exam ${id} not found`);
+    return normalizeExam(raw);
   } catch (err) {
     throw parseApiError(err);
   }
@@ -144,9 +147,7 @@ export async function deleteExam(id: string): Promise<void> {
 }
 
 // ─── Toggle Status ───
-export async function toggleExamStatus(
-  payload: ToggleExamStatusPayload
-): Promise<Exam> {
+export async function toggleExamStatus(payload: ToggleExamStatusPayload): Promise<Exam> {
   try {
     const fd = new FormData();
     fd.append("status", payload.status);

@@ -38,6 +38,8 @@ export interface ExamSettings {
 export interface Exam {
   id: string;
   title: string;
+  title_en?: string;
+  title_ar?: string;
   courseId: string;
   courseName?: string;
   questionsCount: number;

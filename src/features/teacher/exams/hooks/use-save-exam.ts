@@ -16,9 +16,11 @@ import type {
 } from "../types";
 
 
+
 export function useSaveExam(
   examId?: string
 ) {
+
 
   const { t } =
     useTranslation("teacherExams");
@@ -35,13 +37,15 @@ export function useSaveExam(
 
   return useMutation({
 
+
     mutationFn:
       async (
         payload: ExamBuilderFormData
       ) => {
 
 
-        if(examId){
+        if (examId) {
+
 
           return updateExam({
 
@@ -51,10 +55,12 @@ export function useSaveExam(
 
           });
 
+
         }
 
 
         return createExam(payload);
+
 
       },
 
@@ -76,6 +82,7 @@ export function useSaveExam(
 
       if(examId){
 
+
         queryClient.invalidateQueries({
 
           queryKey:[
@@ -85,6 +92,7 @@ export function useSaveExam(
           ],
 
         });
+
 
       }
 
@@ -115,7 +123,7 @@ export function useSaveExam(
 
 
 
-    onError:(error:Error)=>{
+    onError:(error: Error)=>{
 
 
       toast.error(
