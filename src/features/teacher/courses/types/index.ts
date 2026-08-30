@@ -11,17 +11,19 @@ export interface Course {
   description: string;
   coverImage: string | null;
   categoryId?: number;
+  categoryName?: string;
   category?: { id:number; name:string };
   price: number;
-  level: CourseLevel;
-  accessDurationDays: number;
-  totalDurationMinutes: number;
+  level?: CourseLevel;
+  accessDurationDays?: number;
+  totalDurationMinutes?: number;
   startDate: string;
   endDate: string;
   lecturesCount: number;
   enrolledStudentsCount: number;
   status: CourseStatus;
   allowSeparateLectures: boolean;
+  durationDays?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -51,9 +53,9 @@ export interface CreateCourseFormData {
   descriptionEn: string;
   coverImage?: File | null;
   price: number;
-  level: CourseLevel;
-  accessDurationDays: number;
-  totalDurationMinutes: number;
+  level?: CourseLevel;
+  accessDurationDays?: number;
+  totalDurationMinutes?: number;
   startDate: string;
   endDate?: string;
   allowSeparateLectures: boolean;
@@ -70,9 +72,9 @@ export interface CreateCoursePayload {
   categoryId: number;
   coverImage?: File;
   price: number;
-  level: CourseLevel;
-  accessDurationDays: number;
-  totalDurationMinutes: number;
+  level?: CourseLevel;
+  accessDurationDays?: number;
+  totalDurationMinutes?: number;
   startDate: string;
   endDate?: string;
   allowSeparateLectures: boolean;

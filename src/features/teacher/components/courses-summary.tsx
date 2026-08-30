@@ -9,7 +9,8 @@ import { useCoursesQuery } from "@/features/teacher/courses/hooks/use-courses-qu
 type CourseStatus =
   | "active"
   | "inactive"
-  | "expired";
+  | "expired"
+  | "finished";
 
 
 interface Course {
@@ -38,6 +39,9 @@ const STATUS_STYLE: Record<CourseStatus,string> = {
 
   expired:
     "bg-red-50 text-red-600 border border-red-200",
+
+  finished:
+    "bg-gray-50 text-gray-600 border border-gray-200",
 
 };
 

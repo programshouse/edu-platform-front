@@ -18,28 +18,7 @@ import {
 } from "lucide-react";
 
 
-const courseColors = [
-  {
-    bg: "bg-blue-50",
-    tag: "bg-blue-100 text-blue-700",
-  },
-  {
-    bg: "bg-pink-50",
-    tag: "bg-pink-100 text-pink-700",
-  },
-  {
-    bg: "bg-emerald-50",
-    tag: "bg-emerald-100 text-emerald-700",
-  },
-  {
-    bg: "bg-purple-50",
-    tag: "bg-purple-100 text-purple-700",
-  },
-  {
-    bg: "bg-amber-50",
-    tag: "bg-amber-100 text-amber-700",
-  },
-];
+
 
 
 type CourseItem = {
@@ -422,13 +401,6 @@ gap-6
 
 filteredCourses.map(
 (course,index)=>{
-
-
-const color =
-courseColors[
-index %
-courseColors.length
-];
 
 
 

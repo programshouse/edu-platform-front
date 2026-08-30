@@ -1,6 +1,5 @@
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { motion } from "framer-motion";
 
 import {
   GraduationCap,

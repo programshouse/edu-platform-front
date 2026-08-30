@@ -91,8 +91,6 @@ function ActivityList({
 
  items,
 
- showStatus,
-
  linkTo="#"
 
 }:ActivityListProps){

@@ -39,10 +39,7 @@ export function CoursesPreview() {
 
 
 
-  const categories: Category[] =
-    Array.isArray(data)
-      ? data
-      : data?.data ?? [];
+  const categories: Category[] = data ?? [];
 
 
 

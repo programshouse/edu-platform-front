@@ -21,4 +21,4 @@ export const APP_CONFIG = {
 } as const;
 
 export type SupportedLanguage = (typeof APP_CONFIG.supportedLanguages)[number];
-export type UserRole = "student" | "admin" | "teacher";
+export type UserRole = "student" | "admin" | "teacher" | "instructor";
