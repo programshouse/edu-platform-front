@@ -611,7 +611,7 @@ ${course.price ?? 0}
 
 <Link
 
-to={`/courses/${course.id}`}
+to={`/student/courses/${course.id}/enroll`}
 
 className="block mt-4"
 

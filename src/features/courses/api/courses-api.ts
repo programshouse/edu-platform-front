@@ -1,28 +1,28 @@
 import { axiosInstance } from "@/shared/api/axios-instance";
 
 
-
-
-
 export const coursesApi = {
 
 
   // Student/public courses
   all: async () => {
-    const { data } = await axiosInstance.get("/get-all-courses");
+
+    const { data } = await axiosInstance.get(
+      "/get-all-courses"
+    );
+
     return data;
+
   },
 
 
 
-  // Public/available courses for students
+  // Public courses
   getAllCourses: async () => {
 
-    const { data } =
-      await axiosInstance.get(
-        "/get-all-courses",
-      );
-
+    const { data } = await axiosInstance.get(
+      "/get-all-courses"
+    );
 
     return data;
 
@@ -30,14 +30,12 @@ export const coursesApi = {
 
 
 
-  // Courses purchased/subscribed by current student
+  // Student enrolled courses
   studentCourses: async () => {
 
-    const { data } =
-      await axiosInstance.get(
-        "/student/get-courses",
-      );
-
+    const { data } = await axiosInstance.get(
+      "/student/get-courses"
+    );
 
     return data;
 
@@ -45,14 +43,12 @@ export const coursesApi = {
 
 
 
-  // Instructor's own courses
+  // Instructor courses
   instructorCourses: async () => {
 
-    const { data } =
-      await axiosInstance.get(
-        "/instructor/courses",
-      );
-
+    const { data } = await axiosInstance.get(
+      "/instructor/courses"
+    );
 
     return data;
 
@@ -65,11 +61,9 @@ export const coursesApi = {
     id: number | string
   ) => {
 
-    const { data } =
-      await axiosInstance.get(
-        `/courses/${id}/details`,
-      );
-
+    const { data } = await axiosInstance.get(
+      `/courses/${id}/details`
+    );
 
     return data;
 
@@ -77,16 +71,15 @@ export const coursesApi = {
 
 
 
+  // Student subscribe to course
   subscribe: async (
     id: number | string
   ) => {
 
-    const { data } =
-      await axiosInstance.post(
-        `/courses/${id}/subscribe-to-course`,
-        {},
-      );
-
+    const { data } = await axiosInstance.post(
+      `/courses/${id}/subscribe-to-course`,
+      {}
+    );
 
     return data;
 

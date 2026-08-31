@@ -11,234 +11,342 @@ import type { ApiErrorResponse } from "./types";
 import { getAppLanguage } from "@/shared/i18n/language";
 
 
-const axiosInstance: AxiosInstance = axios.create({
+
+export const axiosInstance: AxiosInstance = axios.create({
+
   baseURL: APP_CONFIG.api.baseUrl,
+
   timeout: APP_CONFIG.api.timeout,
+
   headers: {
+
     "Content-Type": "application/json",
+
+    Accept: "application/json",
+
   },
+
 });
 
 
-// ─── Request Interceptor ───
+
+
+// ==============================
+// REQUEST INTERCEPTOR
+// ==============================
+
 axiosInstance.interceptors.request.use(
+
   (config: InternalAxiosRequestConfig) => {
 
-    const { accessToken } = useAuthStore.getState();
+
+    const {
+      accessToken
+    } = useAuthStore.getState();
 
 
-    // Authorization token
+
+    console.log(
+      "API TOKEN:",
+      accessToken
+    );
+
+
+
     if (accessToken) {
+
       config.headers.Authorization =
         `Bearer ${accessToken}`;
+
     }
 
 
-    // Global backend language
-    // Every API receives the same lang key automatically
-    const lang = getAppLanguage();
+
+
+    const lang =
+      getAppLanguage() || "ar";
+
+
 
     config.params = {
+
       ...(config.params || {}),
+
       lang,
+
     };
+
+
 
     config.headers.lang = lang;
 
+
+
     return config;
+
+
   },
 
-  (error) => Promise.reject(error),
+
+  (error)=>{
+
+    return Promise.reject(error);
+
+  }
+
 );
 
 
 
-// ─── Response Interceptor with Refresh Token Logic ───
+
+
+
+// ==============================
+// RESPONSE INTERCEPTOR
+// ==============================
+
 
 let isRefreshing = false;
 
 
-let failedQueue: Array<{
-  resolve: (value: unknown) => void;
-  reject: (reason: unknown) => void;
+
+let failedQueue:Array<{
+
+ resolve:(value:any)=>void;
+
+ reject:(reason:any)=>void;
+
 }> = [];
 
 
 
-const processQueue = (
-  error: unknown,
-  token: string | null = null
-) => {
 
-  failedQueue.forEach((promise) => {
+function processQueue(
+ error:any,
+ token:string|null=null
+){
 
-    if (error) {
-      promise.reject(error);
-    } else {
-      promise.resolve(token);
-    }
+ failedQueue.forEach((item)=>{
 
-  });
+   if(error){
+
+     item.reject(error);
+
+   }else{
+
+     item.resolve(token);
+
+   }
+
+ });
 
 
-  failedQueue = [];
-};
+ failedQueue=[];
+
+}
+
+
+
 
 
 
 axiosInstance.interceptors.response.use(
 
-  (response) => response,
 
+(response)=>response,
 
-  async (
-    error: AxiosError<ApiErrorResponse>
-  ) => {
 
 
-    const originalRequest =
-      error.config as InternalAxiosRequestConfig & {
-        _retry?: boolean;
-      };
+async(
+ error:AxiosError<ApiErrorResponse>
+)=>{
 
 
+ const originalRequest =
+ error.config as InternalAxiosRequestConfig & {
+   _retry?:boolean;
+ };
 
-    // Handle 401 Unauthorized
-    if (
-      error.response?.status === 401 &&
-      !originalRequest._retry
-    ) {
 
 
-      if (isRefreshing) {
 
-        return new Promise(
-          (resolve, reject) => {
 
-            failedQueue.push({
-              resolve,
-              reject,
-            });
+ // only refresh on 401
+ if(
+   error.response?.status === 401 &&
+   !originalRequest._retry
+ ){
 
-          }
-        )
-        .then((token) => {
 
-          originalRequest.headers.Authorization =
-            `Bearer ${token}`;
 
-          return axiosInstance(originalRequest);
+   if(isRefreshing){
 
-        });
 
-      }
+     return new Promise(
+       (resolve,reject)=>{
 
 
+         failedQueue.push({
+           resolve,
+           reject
+         });
 
-      originalRequest._retry = true;
-      isRefreshing = true;
 
+       }
 
+     )
+     .then((token)=>{
 
-      try {
 
+       originalRequest.headers.Authorization =
+       `Bearer ${token}`;
 
-        const {
-          refreshToken,
-        } = useAuthStore.getState();
 
+       return axiosInstance(
+         originalRequest
+       );
 
 
-        if (!refreshToken) {
-          throw new Error(
-            "No refresh token"
-          );
-        }
+     });
 
 
+   }
 
-        const { data } = await axios.post(
-          `${APP_CONFIG.api.baseUrl}/auth/refresh`,
-          {
-            refreshToken,
-          },
-        );
 
 
 
-        const newAccessToken =
-          data.accessToken;
+   originalRequest._retry=true;
 
+   isRefreshing=true;
 
 
-        useAuthStore
-          .getState()
-          .setTokens(
-            newAccessToken,
-            data.refreshToken
-          );
 
 
+   try{
 
-        processQueue(
-          null,
-          newAccessToken
-        );
 
+     const {
+       refreshToken
+     } =
+     useAuthStore.getState();
 
 
-        originalRequest.headers.Authorization =
-          `Bearer ${newAccessToken}`;
 
 
+     if(!refreshToken){
 
-        return axiosInstance(
-          originalRequest
-        );
+       throw new Error(
+        "No refresh token"
+       );
 
+     }
 
 
-      } catch (refreshError) {
 
 
-        processQueue(
-          refreshError,
-          null
-        );
+     const response =
+     await axios.post(
 
+       `${APP_CONFIG.api.baseUrl}/auth/refresh`,
 
-        useAuthStore
-          .getState()
-          .clearAuth();
+       {
+         refreshToken
+       }
 
+     );
 
-        window.location.href =
-          APP_CONFIG.auth.loginPath;
 
 
 
-        return Promise.reject(
-          refreshError
-        );
 
+     const newAccessToken =
+     response.data.accessToken;
 
-      } finally {
 
-        isRefreshing = false;
 
-      }
+     const newRefreshToken =
+     response.data.refreshToken;
 
-    }
 
 
 
-    return Promise.reject(error);
+     useAuthStore
+     .getState()
+     .setTokens(
+       newAccessToken,
+       newRefreshToken
+     );
 
-  },
+
+
+
+
+     processQueue(
+       null,
+       newAccessToken
+     );
+
+
+
+
+     originalRequest.headers.Authorization =
+       `Bearer ${newAccessToken}`;
+
+
+
+
+     return axiosInstance(
+       originalRequest
+     );
+
+
+
+
+   }catch(refreshError){
+
+
+
+     processQueue(
+       refreshError,
+       null
+     );
+
+
+
+     useAuthStore
+     .getState()
+     .clearAuth();
+
+
+
+     window.location.href =
+     APP_CONFIG.auth.loginPath;
+
+
+
+     return Promise.reject(
+       refreshError
+     );
+
+
+
+   }finally{
+
+
+     isRefreshing=false;
+
+
+   }
+
+
+ }
+
+
+
+
+ return Promise.reject(error);
+
+
+}
+
 );
-
-
-
-export {
-  axiosInstance
-};

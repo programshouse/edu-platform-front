@@ -22,6 +22,7 @@ import { SignUpPage } from "@/features/auth/signup-page";
 
 import { TestPage } from "@/features/courses/test-page";
 import { AssignmentPage } from "@/features/courses/assignment-page";
+import { EnrollCoursePage } from "@/features/student/enroll/page";
 
 import { ProfilePage } from "@/features/profile/page";
 
@@ -60,6 +61,11 @@ const router = createBrowserRouter([
       {
         path:"/courses/:id",
         element:<CourseDetailsPage />,
+      },
+
+      {
+        path:"/student/courses/:courseId/enroll",
+        element:<EnrollCoursePage />,
       },
 
 
@@ -189,18 +195,14 @@ const router = createBrowserRouter([
       {
         path:"exams/:id/results",
         element:
-          <div className="p-8">
-            Exam Results — Coming Soon
-          </div>,
+          <div className="p-8 bg-white rounded-2xl shadow m-8"><h1 className="text-2xl font-bold">نتائج الاختبار</h1><div className="grid md:grid-cols-3 gap-4 mt-6"><div className="p-5 bg-blue-50 rounded-xl">الدرجة<br/><b>18 / 20</b></div><div className="p-5 bg-green-50 rounded-xl">الحالة<br/><b>ناجح</b></div><div className="p-5 bg-gray-50 rounded-xl">النسبة<br/><b>90%</b></div></div></div>,
       },
 
 
       {
         path:"exams/:id/grading",
         element:
-          <div className="p-8">
-            Exam Grading — Coming Soon
-          </div>,
+          <div className="p-8 bg-white rounded-2xl shadow m-8"><h1 className="text-2xl font-bold">تصحيح الاختبار</h1><div className="mt-6 space-y-4"><div className="p-5 border rounded-xl">السؤال الأول<br/><span className="text-red-500">إجابة الطالب: خطأ</span><br/><span className="text-green-600">الإجابة الصحيحة: صحيحة</span></div></div></div>,
       },
 
 
