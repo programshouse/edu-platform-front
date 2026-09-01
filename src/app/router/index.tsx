@@ -31,7 +31,7 @@ import { TeacherCoursesPage } from "@/features/teacher/courses/page";
 import { TeacherCourseDetailsPage } from "@/features/teacher/courses/course-details-page";
 import { TeacherExamsPage } from "@/features/teacher/exams/page";
 import { ExamBuilderPage } from "@/features/teacher/exams/ui/builder/exam-builder-page";
-
+import StudentCoursePage from "@/features/student/course/page";
 
 
 const router = createBrowserRouter([
@@ -86,7 +86,10 @@ const router = createBrowserRouter([
         element:<AssignmentPage />,
       },
 
-
+{
+  path:"/student/courses/:courseId",
+  element:<StudentCoursePage />,
+},
       {
         path:"/about",
         element:<AboutPage />,

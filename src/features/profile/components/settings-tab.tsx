@@ -1,382 +1,884 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { User, Lock, Save, ChevronDown, Loader2 } from "lucide-react";
-import { PasswordForm } from "./edit-profile-modal";
-import { authApi } from "@/features/auth/api/auth-api";
+import {
+  Save,
+  Lock,
+  Loader2,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 
-// ─── Constants ─────────────────────────────────────────────────────────────
+import { studentApi } from "@/features/student/api/student-api";
 
-const GOVERNORATE_KEYS = [
-  "cairo", "giza", "alexandria", "dakahlia", "sharqia", "monufia",
-  "qalyubia", "beheira", "gharbia", "kafr_el_sheikh", "damietta",
-  "port_said", "ismailia", "suez", "north_sinai", "south_sinai",
-  "beni_suef", "fayoum", "minya", "asyut", "sohag", "qena",
-  "luxor", "aswan", "red_sea", "new_valley", "matrouh",
-] as const;
 
-const GRADE_KEYS = [
-  "grade_1_prep", "grade_2_prep", "grade_3_prep",
-  "grade_1_sec", "grade_2_sec", "grade_3_sec",
-] as const;
+interface StudentSettings {
 
-// ─── Props Interface ────────────────────────────────────────────────────────
+  id?:number;
 
-export interface StudentSettings {
-  firstName: string;
-  secondName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  parentPhone: string;
-  dateOfBirth: string;
-  governorate: string;
-  address: string;
-  grade: string;
-  school: string;
-  section: "arabic" | "english" | "languages";
+  fullName:string;
+
+  email:string;
+
+  phone:string;
+
+  parentPhone:string;
+
+  dateOfBirth:string;
+
+  governorate:number;
+
+  address:string;
+
+  grade:number;
+
+  school:string;
+
+  section:string;
+
 }
 
-interface SettingsTabProps {
-  student: StudentSettings;
-  onProfileUpdated?: () => void;
+
+
+interface Props {
+
+  student:StudentSettings;
+
+  onProfileUpdated:()=>void;
+
 }
 
-const sectionVariants = {
-  hidden: { opacity: 0, y: 16 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.35 } },
+
+
+export function SettingsTab({
+  student,
+  onProfileUpdated
+}:Props){
+
+
+const {t}=useTranslation("profile");
+
+
+const [loading,setLoading]=useState(false);
+
+const [passwordLoading,setPasswordLoading]=useState(false);
+
+
+const [message,setMessage]=useState("");
+
+const [error,setError]=useState("");
+
+
+
+const [showPassword,setShowPassword]=useState(false);
+
+
+
+const [form,setForm]=useState({
+
+  full_name:student.fullName || "",
+
+  email:student.email || "",
+
+  phone:student.phone || "",
+
+  parent_phone:student.parentPhone || "",
+
+  dob:student.dateOfBirth || "",
+
+  governorate_id:String(student.governorate || ""),
+
+  address:student.address || "",
+
+  grade_id:String(student.grade || ""),
+
+  school:student.school || "",
+
+  department_name:student.section || "",
+
+});
+
+
+
+
+const [password,setPassword]=useState({
+
+ current_password:"",
+
+ password:"",
+
+ password_confirmation:""
+
+});
+
+
+
+
+
+
+const updateField=(key:string,value:string)=>{
+
+setForm(prev=>({
+
+...prev,
+
+[key]:value
+
+}));
+
 };
 
-// ─── Settings Tab Component ──────────────────────────────────────────────────
 
-export function SettingsTab({ student, onProfileUpdated }: SettingsTabProps) {
-  const { t } = useTranslation("profile");
-  const { t: tAuth } = useTranslation("auth");
-  const queryClient = useQueryClient();
 
-  const [data, setData] = useState<StudentSettings>(student);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Sync internal state whenever the fetched student prop updates/refetches
-  useEffect(() => {
-    if (student) {
-      setData(student);
-    }
-  }, [student]);
 
-  const set = (field: keyof StudentSettings, value: string) =>
-    setData((prev) => ({ ...prev, [field]: value }));
+const updatePasswordField=(
 
-  // ── Mutation: Update Profile ───────────────────────────────────────────────
-  const updateProfileMutation = useMutation({
-    mutationFn: (formData: FormData) => authApi.updateProfile(formData),
-    onSuccess: (res) => {
-      setSuccessMessage(res?.message || t("settings.updateSuccess", "Profile updated successfully"));
-      setErrorMessage(null);
-      
-      // Invalidate global query cache to force immediate UI refresh across all tabs
-      queryClient.invalidateQueries({ queryKey: ["studentProfile"] });
-      
-      if (onProfileUpdated) {
-        onProfileUpdated();
-      }
-    },
-    onError: (err: any) => {
-      setErrorMessage(err?.response?.data?.message || t("settings.updateError", "Failed to update profile"));
-      setSuccessMessage(null);
-    },
-  });
+key:string,
 
-  // ── Mutation: Change Password ─────────────────────────────────────────────
-  const changePasswordMutation = useMutation({
-    mutationFn: (formData: FormData) => authApi.changePassword(formData),
-  });
+value:string
 
-  const handleProfileSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSuccessMessage(null);
-    setErrorMessage(null);
+)=>{
 
-    const formData = new FormData();
-    // Appending form values with fallback keys (snake_case and camelCase compatibility)
-    formData.append("first_name", data.firstName || "");
-    formData.append("second_name", data.secondName || "");
-    formData.append("last_name", data.lastName || "");
-    formData.append("email", data.email || "");
-    formData.append("phone", data.phone || "");
-    formData.append("parent_phone", data.parentPhone || "");
-    formData.append("date_of_birth", data.dateOfBirth || "");
-    formData.append("governorate", data.governorate || "");
-    formData.append("address", data.address || "");
-    formData.append("grade", data.grade || "");
-    formData.append("school", data.school || "");
-    formData.append("section", data.section || "");
+setPassword(prev=>({
 
-    updateProfileMutation.mutate(formData);
-  };
+...prev,
 
-  const handlePasswordSubmit = async (passwordData: { current: string; new: string; confirm: string }) => {
-    const formData = new FormData();
-    formData.append("current_password", passwordData.current);
-    formData.append("new_password", passwordData.new);
-    formData.append("new_password_confirmation", passwordData.confirm);
+[key]:value
 
-    return changePasswordMutation.mutateAsync(formData);
-  };
+}));
 
-  const inputCls =
-    "w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition";
+};
 
-  const selectCls =
-    "w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition appearance-none cursor-pointer";
 
-  const passwordLabels = {
-    current: t("settings.currentPassword"),
-    new: t("settings.newPassword"),
-    confirm: t("settings.confirmPassword"),
-    update: t("settings.updatePassword"),
-    hint: t("settings.passwordHint"),
-  };
 
-  return (
-    <div className="space-y-6 grid grid-cols-1 md:grid-cols-2 gap-x-4">
-      {/* ── Edit Personal Data Form ── */}
-      <motion.div
-        variants={sectionVariants}
-        initial="hidden"
-        animate="visible"
-        className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6"
-      >
-        <div className="flex items-center gap-2.5 mb-6">
-          <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center">
-            <User className="w-4.5 h-4.5 text-blue-600" />
-          </div>
-          <h2 className="text-base font-bold text-gray-900">{t("settings.editTitle")}</h2>
-        </div>
 
-        {/* Feedback Alert Banners */}
-        {successMessage && (
-          <div className="mb-4 p-3 rounded-xl bg-emerald-50 text-emerald-700 text-sm font-medium">
-            {successMessage}
-          </div>
-        )}
 
-        {errorMessage && (
-          <div className="mb-4 p-3 rounded-xl bg-red-50 text-red-700 text-sm font-medium">
-            {errorMessage}
-          </div>
-        )}
 
-        <form className="space-y-5" onSubmit={handleProfileSubmit}>
-          {/* Name Row */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {(["firstName", "secondName", "lastName"] as const).map((field) => (
-              <div key={field}>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  {t(`settings.${field}`)}
-                </label>
-                <input
-                  id={`settings-${field}`}
-                  type="text"
-                  value={data[field] || ""}
-                  onChange={(e) => set(field, e.target.value)}
-                  className={inputCls}
-                />
-              </div>
-            ))}
-          </div>
 
-          {/* Date of Birth + Phone */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                {t("settings.dateOfBirth")}
-              </label>
-              <input
-                id="settings-dob"
-                type="date"
-                value={data.dateOfBirth || ""}
-                onChange={(e) => set("dateOfBirth", e.target.value)}
-                className={inputCls}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                {t("settings.phone")}
-              </label>
-              <input
-                id="settings-phone"
-                type="tel"
-                value={data.phone || ""}
-                onChange={(e) => set("phone", e.target.value)}
-                className={inputCls}
-              />
-            </div>
-          </div>
+const handleUpdate=async(
+e:React.FormEvent
+)=>{
 
-          {/* Parent Phone + Email */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                {t("settings.parentPhone")}
-              </label>
-              <input
-                id="settings-parent-phone"
-                type="tel"
-                value={data.parentPhone || ""}
-                onChange={(e) => set("parentPhone", e.target.value)}
-                className={inputCls}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                {t("settings.email")}
-              </label>
-              <input
-                id="settings-email"
-                type="email"
-                value={data.email || ""}
-                onChange={(e) => set("email", e.target.value)}
-                className={inputCls}
-              />
-            </div>
-          </div>
 
-          {/* Governorate + Address */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                {t("settings.governorate")}
-              </label>
-              <div className="relative">
-                <select
-                  id="settings-governorate"
-                  value={data.governorate || ""}
-                  onChange={(e) => set("governorate", e.target.value)}
-                  className={selectCls}
-                >
-                  {GOVERNORATE_KEYS.map((key) => (
-                    <option key={key} value={key}>
-                      {tAuth(`governorates.${key}`)}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute inset-e-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                {t("settings.address")}
-              </label>
-              <input
-                id="settings-address"
-                type="text"
-                value={data.address || ""}
-                onChange={(e) => set("address", e.target.value)}
-                className={inputCls}
-              />
-            </div>
-          </div>
+e.preventDefault();
 
-          {/* Grade + School */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                {t("settings.grade")}
-              </label>
-              <div className="relative">
-                <select
-                  id="settings-grade"
-                  value={data.grade || ""}
-                  onChange={(e) => set("grade", e.target.value)}
-                  className={selectCls}
-                >
-                  {GRADE_KEYS.map((key) => (
-                    <option key={key} value={key}>
-                      {tAuth(`grades.${key}`)}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute inset-e-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                {t("settings.school")}
-              </label>
-              <input
-                id="settings-school"
-                type="text"
-                value={data.school || ""}
-                onChange={(e) => set("school", e.target.value)}
-                className={inputCls}
-              />
-            </div>
-          </div>
 
-          {/* Section Selection */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
-              {t("settings.section")}
-            </label>
-            <div className="grid grid-cols-2 gap-3">
-              {(["arabic", "languages"] as const).map((value) => (
-                <label
-                  key={value}
-                  className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
-                    data.section === value
-                      ? "border-blue-500 bg-blue-50/60 text-blue-700"
-                      : "border-gray-200 bg-gray-50/50 text-gray-600 hover:border-gray-300"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    value={value}
-                    checked={data.section === value}
-                    onChange={() => set("section", value)}
-                    className="sr-only"
-                  />
-                  <span className="font-medium text-sm">
-                    {tAuth(`signup.section${value.charAt(0).toUpperCase() + value.slice(1)}`)}
-                  </span>
-                </label>
-              ))}
-            </div>
-          </div>
+try{
 
-          <button
-            id="settings-save-btn"
-            type="submit"
-            disabled={updateProfileMutation.isPending}
-            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-linear-to-r from-blue-600 to-blue-700 text-sm font-semibold text-white shadow-md shadow-blue-200 hover:shadow-blue-300 hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {updateProfileMutation.isPending ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Save className="w-4 h-4" />
-            )}
-            {t("settings.saveChanges")}
-          </button>
-        </form>
-      </motion.div>
 
-      {/* ── Change Password Form ── */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35, delay: 0.1 }}
-        className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 h-fit"
-      >
-        <div className="flex items-center gap-2.5 mb-6">
-          <div className="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center">
-            <Lock className="w-4.5 h-4.5 text-indigo-600" />
-          </div>
-          <h2 className="text-base font-bold text-gray-900">{t("settings.passwordTitle")}</h2>
-        </div>
-        <PasswordForm labels={passwordLabels} onSubmit={handlePasswordSubmit} />
-      </motion.div>
-    </div>
-  );
+setLoading(true);
+
+setError("");
+
+
+
+const formData=new FormData();
+
+
+
+Object.entries(form).forEach(([key,value])=>{
+
+
+formData.append(
+key,
+value
+);
+
+
+});
+
+
+
+
+
+await studentApi.updateProfile(
+formData
+);
+
+
+
+setMessage(
+"Profile updated successfully"
+);
+
+
+
+onProfileUpdated();
+
+
+
+}
+
+catch(err:any){
+
+
+setError(
+
+err?.response?.data?.message ||
+
+"Update failed"
+
+);
+
+
+}
+
+finally{
+
+
+setLoading(false);
+
+
+}
+
+
+};
+
+
+
+
+
+
+
+
+
+const handlePassword=async(
+e:React.FormEvent
+)=>{
+
+
+e.preventDefault();
+
+
+try{
+
+
+setPasswordLoading(true);
+
+setError("");
+
+
+
+const formData=new FormData();
+
+
+
+formData.append(
+"current_password",
+password.current_password
+);
+
+
+
+formData.append(
+"password",
+password.password
+);
+
+
+
+formData.append(
+"password_confirmation",
+password.password_confirmation
+);
+
+
+
+
+
+await studentApi.changePassword(
+formData
+);
+
+
+
+setMessage(
+"Password changed successfully"
+);
+
+
+
+setPassword({
+
+current_password:"",
+password:"",
+password_confirmation:""
+
+});
+
+
+}
+
+catch(err:any){
+
+
+setError(
+
+err?.response?.data?.message ||
+
+"Password update failed"
+
+);
+
+
+}
+
+finally{
+
+
+setPasswordLoading(false);
+
+
+}
+
+
+};
+
+
+
+
+
+
+
+const inputClass=`
+
+w-full
+
+border
+
+border-gray-200
+
+rounded-xl
+
+px-4
+
+py-3
+
+text-sm
+
+outline-none
+
+focus:ring-2
+
+focus:ring-blue-500
+
+`;
+
+
+
+
+
+
+
+return (
+
+<div className="grid lg:grid-cols-2 gap-6">
+
+
+
+
+
+
+{/* PROFILE */}
+
+
+<motion.form
+
+onSubmit={handleUpdate}
+
+className="
+bg-white
+rounded-2xl
+border
+p-6
+space-y-4
+"
+
+>
+
+
+<h2 className="
+font-bold
+text-xl
+">
+
+تعديل البيانات الشخصية
+
+</h2>
+
+
+
+
+
+{message &&
+
+<div className="
+bg-green-50
+text-green-700
+p-3
+rounded-xl
+text-sm
+">
+
+{message}
+
+</div>
+
+}
+
+
+
+
+{error &&
+
+<div className="
+bg-red-50
+text-red-600
+p-3
+rounded-xl
+text-sm
+">
+
+{error}
+
+</div>
+
+}
+
+
+
+
+
+
+
+<input
+
+className={inputClass}
+
+value={form.full_name}
+
+onChange={e=>
+updateField(
+"full_name",
+e.target.value
+)
+}
+
+placeholder="Full Name"
+
+/>
+
+
+
+
+
+
+<input
+
+className={inputClass}
+
+value={form.email}
+
+disabled
+
+placeholder="Email"
+
+/>
+
+
+
+
+
+
+<input
+
+className={inputClass}
+
+value={form.phone}
+
+onChange={e=>
+updateField(
+"phone",
+e.target.value
+)
+}
+
+placeholder="Phone"
+
+/>
+
+
+
+
+
+
+<input
+
+className={inputClass}
+
+value={form.parent_phone}
+
+onChange={e=>
+updateField(
+"parent_phone",
+e.target.value
+)
+}
+
+placeholder="Parent Phone"
+
+/>
+
+
+
+
+
+
+<input
+
+type="date"
+
+className={inputClass}
+
+value={form.dob}
+
+onChange={e=>
+updateField(
+"dob",
+e.target.value
+)
+}
+
+/>
+
+
+
+
+
+
+
+<input
+
+className={inputClass}
+
+value={form.address}
+
+onChange={e=>
+updateField(
+"address",
+e.target.value
+)
+}
+
+placeholder="Address"
+
+/>
+
+
+
+
+
+
+
+<input
+
+className={inputClass}
+
+value={form.school}
+
+onChange={e=>
+updateField(
+"school",
+e.target.value
+)
+}
+
+placeholder="School"
+
+/>
+
+
+
+
+
+
+<input
+
+className={inputClass}
+
+value={form.department_name}
+
+onChange={e=>
+updateField(
+"department_name",
+e.target.value
+)
+}
+
+placeholder="Department"
+
+/>
+
+
+
+
+
+
+<button
+
+disabled={loading}
+
+className="
+w-full
+bg-blue-600
+text-white
+rounded-xl
+py-3
+font-semibold
+flex
+items-center
+justify-center
+gap-2
+"
+
+>
+
+{
+
+loading ?
+
+<Loader2 className="animate-spin"/>
+
+:
+
+<Save/>
+
+}
+
+
+حفظ التغييرات
+
+
+</button>
+
+
+
+
+</motion.form>
+
+
+
+
+
+
+
+
+
+{/* PASSWORD */}
+
+
+
+<motion.form
+
+onSubmit={handlePassword}
+
+className="
+bg-white
+rounded-2xl
+border
+p-6
+space-y-4
+"
+
+>
+
+
+<h2 className="
+font-bold
+text-xl
+flex
+items-center
+gap-2
+">
+
+<Lock/>
+
+تغيير كلمة المرور
+
+</h2>
+
+
+
+
+
+
+<div className="relative">
+
+
+<input
+
+type={
+showPassword
+?
+"text"
+:
+"password"
+}
+
+className={inputClass}
+
+value={
+password.current_password
+}
+
+onChange={e=>
+updatePasswordField(
+"current_password",
+e.target.value
+)
+}
+
+placeholder="Current password"
+
+/>
+
+
+<button
+
+type="button"
+
+onClick={()=>
+setShowPassword(!showPassword)
+}
+
+className="
+absolute
+right-3
+top-3
+"
+
+>
+
+
+{
+showPassword
+?
+<EyeOff/>
+:
+<Eye/>
+}
+
+
+</button>
+
+
+</div>
+
+
+
+
+
+
+
+<input
+
+type="password"
+
+className={inputClass}
+
+value={
+password.password
+}
+
+onChange={e=>
+updatePasswordField(
+"password",
+e.target.value
+)
+}
+
+placeholder="New password"
+
+/>
+
+
+
+
+
+
+<input
+
+type="password"
+
+className={inputClass}
+
+value={
+password.password_confirmation
+}
+
+onChange={e=>
+updatePasswordField(
+"password_confirmation",
+e.target.value
+)
+}
+
+placeholder="Confirm password"
+
+/>
+
+
+
+
+
+
+
+<button
+
+disabled={passwordLoading}
+
+className="
+w-full
+bg-indigo-600
+text-white
+rounded-xl
+py-3
+font-semibold
+flex
+justify-center
+"
+
+>
+
+{
+
+passwordLoading
+
+?
+
+<Loader2 className="animate-spin"/>
+
+:
+
+"تحديث كلمة المرور"
+
+}
+
+
+</button>
+
+
+
+
+</motion.form>
+
+
+
+
+
+</div>
+
+)
+
 }
