@@ -4,7 +4,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 
+import { useDebounce } from "use-debounce";
 import { coursesApi } from "@/features/courses/api/courses-api";
+import { searchApi } from "@/features/courses/api/search-api";
 import { useAuthStore } from "@/shared/stores/auth-store";
 
 import {
@@ -19,29 +21,17 @@ import {
 
 
 
-
-
 type CourseItem = {
   id?: number;
-
   title?: string;
-
   description?: string;
-
   students_count?: number;
-
   lectures_count?: number;
-
   tests_count?: number;
-
   total_duration_minutes?: number;
-
   level?: string;
-
   price?: number;
-
   category?: string;
-
   image?: string;
 };
 
@@ -60,7 +50,8 @@ const filterKeys = [
 export function CoursesGrid() {
 
 
-  const { t, i18n } = useTranslation("courses");
+  const { t, i18n } =
+    useTranslation("courses");
 
 
   const currentLang =
@@ -94,10 +85,32 @@ export function CoursesGrid() {
 
 
 
+  const [
+    debouncedSearch
+  ] = useDebounce(
+    searchQuery,
+    500
+  );
 
-  const user = useAuthStore((state) => state.user);
-  const role = user?.role?.toLowerCase();
-  const isInstructor = role === "instructor" || role === "teacher";
+
+
+  const user =
+    useAuthStore(
+      (state)=>state.user
+    );
+
+
+  const role =
+    user?.role?.toLowerCase();
+
+
+  const isInstructor =
+    role === "instructor" ||
+    role === "teacher";
+
+
+
+  // Courses API
 
   const {
     data: apiCourses,
@@ -107,25 +120,46 @@ export function CoursesGrid() {
   } = useQuery({
 
     queryKey:[
-      isInstructor ? "instructorCourses" : "allCourses",
+      isInstructor
+      ? "instructorCourses"
+      : "allCourses",
       currentLang
     ],
 
+
     queryFn:
       isInstructor
-        ? coursesApi.instructorCourses
-        : coursesApi.all,
+      ? coursesApi.instructorCourses
+      : coursesApi.all,
 
   });
 
 
 
+  // Search API
+
+  const {
+    data: searchResults,
+    isFetching:isSearching
+
+  } = useQuery({
+
+    queryKey:[
+      "search",
+      debouncedSearch
+    ],
 
 
-  console.log(
-    "Courses API Response:",
-    apiCourses
-  );
+    queryFn:
+      ()=>searchApi.search(
+        debouncedSearch
+      ),
+
+
+    enabled:
+      debouncedSearch.length > 1,
+
+  });
 
 
 
@@ -135,15 +169,19 @@ export function CoursesGrid() {
 
     Array.isArray(apiCourses?.data)
 
-      ? apiCourses.data
+    ?
 
-      :
+    apiCourses.data
+
+    :
 
     Array.isArray(apiCourses)
 
-      ? apiCourses
+    ?
 
-      :
+    apiCourses
+
+    :
 
     []
 
@@ -153,59 +191,79 @@ export function CoursesGrid() {
 
 
 
+  const searchedCourses =
 
+    debouncedSearch.length > 1
 
-  const filteredCourses = useMemo(()=>{
+    ?
 
+    searchResults?.data?.courses ?? []
 
-    return courses.filter((course)=>{
+    :
 
-
-      const matchesSearch =
-
-        !searchQuery ||
-
-        course.title
-        ?.toLowerCase()
-        .includes(
-          searchQuery.toLowerCase()
-        )
-
-        ||
-
-        course.description
-        ?.toLowerCase()
-        .includes(
-          searchQuery.toLowerCase()
-        );
+    courses;
 
 
 
-      const matchesFilter =
-
-        activeFilter === "all"
-
-        ||
-
-        course.category === activeFilter;
 
 
 
-      return (
-        matchesSearch &&
-        matchesFilter
+
+  const filteredCourses =
+    useMemo(()=>{
+
+
+      return searchedCourses.filter(
+        (course:CourseItem)=>{
+
+
+          const matchesSearch =
+
+            !searchQuery
+
+            ||
+
+            course.title
+            ?.toLowerCase()
+            .includes(
+              searchQuery.toLowerCase()
+            )
+
+            ||
+
+            course.description
+            ?.toLowerCase()
+            .includes(
+              searchQuery.toLowerCase()
+            );
+
+
+
+          const matchesFilter =
+
+            activeFilter === "all"
+
+            ||
+
+            course.category === activeFilter;
+
+
+
+          return (
+            matchesSearch &&
+            matchesFilter
+          );
+
+
+        }
       );
 
 
-    });
-
-
-  },[
-    courses,
-    searchQuery,
-    activeFilter
-  ]);
-
+    },[
+      searchedCourses,
+      searchQuery,
+      activeFilter
+    ]);
 
 
 
@@ -229,11 +287,18 @@ export function CoursesGrid() {
 
 
 
+
   if(error){
 
     return (
 
-      <div className="py-20 text-center text-red-500">
+      <div
+        className="
+        py-20
+        text-center
+        text-red-500
+        "
+      >
 
         Failed to load courses
 
@@ -247,21 +312,46 @@ export function CoursesGrid() {
 
 
 
-
-
 return (
 
-<section className="py-16 lg:py-24 bg-white">
+<section
+className="
+py-16
+lg:py-24
+bg-white
+"
+>
 
 
-<div className="container mx-auto px-4 sm:px-6 lg:px-8">
+<div
+className="
+container
+mx-auto
+px-4
+sm:px-6
+lg:px-8
+"
+>
 
 
 
-<div className="mb-12 space-y-6">
+
+<div
+className="
+mb-12
+space-y-6
+"
+>
 
 
-<div className="max-w-md mx-auto relative">
+
+<div
+className="
+max-w-md
+mx-auto
+relative
+"
+>
 
 
 <Search
@@ -291,8 +381,11 @@ t("search.placeholder")
 value={searchQuery}
 
 onChange={(e)=>
-setSearchQuery(e.target.value)
+setSearchQuery(
+ e.target.value
+)
 }
+
 
 className="
 w-full
@@ -307,6 +400,24 @@ rounded-xl
 />
 
 
+
+{
+isSearching &&
+
+<p
+className="
+text-xs
+text-blue-500
+mt-2
+text-center
+"
+>
+Searching...
+</p>
+
+}
+
+
 </div>
 
 
@@ -314,12 +425,14 @@ rounded-xl
 
 
 
-<div className="
+<div
+className="
 flex
 flex-wrap
 justify-center
 gap-2
-">
+"
+>
 
 
 {
@@ -333,6 +446,7 @@ key={key}
 onClick={()=>
 setActiveFilter(key)
 }
+
 
 className={
 
@@ -350,9 +464,7 @@ activeFilter === key
 
 >
 
-
 {t(`filters.${key}`)}
-
 
 </button>
 
@@ -373,9 +485,9 @@ activeFilter === key
 
 
 
-
 {
 filteredCourses.length > 0
+
 
 ?
 
@@ -398,13 +510,9 @@ gap-6
 
 
 {
-
 filteredCourses.map(
-(course,index)=>{
+(course,index)=>(
 
-
-
-return (
 
 <motion.div
 
@@ -430,6 +538,7 @@ opacity:0,
 y:20
 }}
 
+
 className="
 bg-white
 rounded-2xl
@@ -444,10 +553,12 @@ transition
 
 
 
-<div className="
+<div
+className="
 h-48
 bg-gray-100
-">
+"
+>
 
 
 {
@@ -458,7 +569,8 @@ course.image &&
 src={course.image}
 
 alt={
-course.title ?? "Course"
+course.title ??
+"Course"
 }
 
 className="
@@ -468,7 +580,6 @@ object-cover
 "
 
 />
-
 
 }
 
@@ -480,22 +591,21 @@ object-cover
 
 
 
-
 <div className="p-5">
 
 
 
-<h3 className="
+<h3
+className="
 font-bold
 text-gray-900
 mb-2
-">
-
+"
+>
 
 {
 course.title
 }
-
 
 </h3>
 
@@ -503,18 +613,17 @@ course.title
 
 
 
-
-<p className="
+<p
+className="
 text-sm
 text-gray-500
 mb-4
-">
-
+"
+>
 
 {
 course.description
 }
-
 
 </p>
 
@@ -523,19 +632,28 @@ course.description
 
 
 
-<div className="
+<div
+className="
 flex
 gap-4
 text-xs
 text-gray-400
-">
+"
+>
 
 
 <span>
 
-<Users className="inline w-4 h-4"/>
+<Users
+className="
+inline
+w-4
+h-4
+"
+/>
 
 {" "}
+
 {
 course.students_count ?? 0
 }
@@ -546,9 +664,16 @@ course.students_count ?? 0
 
 <span>
 
-<BookOpen className="inline w-4 h-4"/>
+<BookOpen
+className="
+inline
+w-4
+h-4
+"
+/>
 
 {" "}
+
 {
 course.lectures_count ?? 0
 }
@@ -564,20 +689,29 @@ course.lectures_count ?? 0
 
 
 
-<div className="
+<div
+className="
 flex
 justify-between
 mt-4
 pt-4
 border-t
-">
+"
+>
 
 
 <span>
 
-<Clock className="inline w-4 h-4"/>
+<Clock
+className="
+inline
+w-4
+h-4
+"
+/>
 
 {" "}
+
 {
 course.total_duration_minutes ?? 0
 }
@@ -587,18 +721,17 @@ course.total_duration_minutes ?? 0
 
 
 
-<span className="
+<span
+className="
 text-lg
 font-bold
 text-blue-600
-">
-
+"
+>
 
 ${course.price ?? 0}
 
-
 </span>
-
 
 
 </div>
@@ -611,7 +744,9 @@ ${course.price ?? 0}
 
 <Link
 
-to={`/student/courses/${course.id}/enroll`}
+to={
+`/student/courses/${course.id}/enroll`
+}
 
 className="block mt-4"
 
@@ -660,14 +795,10 @@ h-4
 </div>
 
 
-
 </motion.div>
 
 
-);
-
-
-})
+))
 
 }
 
@@ -683,7 +814,12 @@ h-4
 :
 
 
-<div className="text-center py-20">
+<div
+className="
+text-center
+py-20
+"
+>
 
 
 <SearchX
@@ -698,12 +834,16 @@ text-gray-400
 />
 
 
-<h3 className="
+<h3
+className="
 mt-4
 font-bold
-">
+"
+>
 
-{t("search.noResults")}
+{
+t("search.noResults")
+}
 
 </h3>
 
@@ -712,7 +852,6 @@ font-bold
 
 
 }
-
 
 
 
