@@ -1,314 +1,210 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { toast } from "sonner";
+import {
+  BookOpen,
+  ClipboardList,
+  TrendingUp,
+  ArrowLeft,
+  Loader2,
+  CheckCircle2,
+} from "lucide-react";
+
 import { coursesApi } from "@/features/courses/api/courses-api";
+
+
+const FEATURES = [
+  { icon: BookOpen,      ar: "وصول كامل للمحاضرات",       en: "Full lecture access" },
+  { icon: ClipboardList, ar: "اختبارات وتقييمات",          en: "Tests & assessments" },
+  { icon: TrendingUp,    ar: "متابعة تقدمك في التعلم",    en: "Track your progress" },
+];
 
 
 export function EnrollCoursePage() {
 
   const { courseId } = useParams();
+  const navigate     = useNavigate();
 
-  const navigate = useNavigate();
-
-
-  const [course, setCourse] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const [course,    setCourse]    = useState<any>(null);
+  const [loading,   setLoading]   = useState(true);
   const [enrolling, setEnrolling] = useState(false);
-  const [message, setMessage] = useState("");
+  const [enrolled,  setEnrolled]  = useState(false);
 
 
-
+  // ── Load course details ──────────────────────────────────
   useEffect(() => {
 
-    async function loadCourse() {
+    if (!courseId) return;
 
+    (async () => {
       try {
-
-        const response = await coursesApi.details(courseId as string);
-
-        setCourse(response?.data ?? response);
-
-
-      } catch (error) {
-
-        console.error("Course details error:", error);
-
+        const res = await coursesApi.details(courseId);
+        setCourse(res?.data ?? res);
+      } catch {
+        toast.error("فشل تحميل بيانات الكورس");
       } finally {
-
         setLoading(false);
-
       }
-
-    }
-
-
-    if (courseId) {
-      loadCourse();
-    }
-
+    })();
 
   }, [courseId]);
 
 
-
-
-
+  // ── Subscribe ────────────────────────────────────────────
   async function handleEnroll() {
 
-
     if (!courseId) return;
-
 
     try {
 
       setEnrolling(true);
 
+      const res = await coursesApi.subscribe(courseId);
 
-      const response = await coursesApi.subscribe(courseId);
+      setEnrolled(true);
 
-
-      setMessage(
-        response?.message ||
-        "تم الاشتراك في الكورس بنجاح"
+      toast.success(
+        res?.message || "تم الاشتراك في الكورس بنجاح 🎉",
+        { duration: 3000 }
       );
 
-
+      // go to course details after 1.5 s
       setTimeout(() => {
+        navigate(`/courses/${courseId}`);
+      }, 1500);
 
-        navigate(`/student/courses/${courseId}`);
+    } catch (err: any) {
 
-      }, 1200);
+      const msg =
+        err?.response?.data?.message ||
+        "حدث خطأ أثناء الاشتراك";
 
-
-
-    } catch (error: any) {
-
-
-      setMessage(
-        error?.response?.data?.message ||
-        "حدث خطأ أثناء الاشتراك"
-      );
-
+      // 409 = already subscribed
+      if (err?.response?.status === 409) {
+        toast.info(msg || "أنت مشترك بالفعل في هذا الكورس");
+        setTimeout(() => navigate(`/courses/${courseId}`), 1200);
+      } else {
+        toast.error(msg);
+      }
 
     } finally {
-
       setEnrolling(false);
-
     }
 
   }
 
 
-
-
+  // ── Loading ──────────────────────────────────────────────
   if (loading) {
-
     return (
-
       <div className="min-h-screen flex items-center justify-center">
-
-        <p>
-          جاري تحميل بيانات الكورس...
-        </p>
-
+        <Loader2 className="animate-spin w-10 h-10 text-blue-600" />
       </div>
-
     );
-
   }
 
 
-
-
-
+  // ── Page ─────────────────────────────────────────────────
   return (
+    <div className="min-h-screen bg-gray-50 py-12 px-4" dir="rtl">
+      <div className="max-w-4xl mx-auto">
 
-    <div className="min-h-screen bg-gray-50 py-12" dir="rtl">
-
-
-      <div className="max-w-6xl mx-auto px-4">
-
-
-        <div className="bg-white rounded-3xl shadow-xl overflow-hidden grid md:grid-cols-2">
-
-
-
-          {/* Course Image */}
-
-          <div className="h-[400px] bg-gray-100">
+        {/* Back */}
+        <Link
+          to={`/courses/${courseId}`}
+          className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-800 mb-6 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          عرض تفاصيل الكورس
+        </Link>
 
 
-            {
-              course?.image ?
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-3xl shadow-xl overflow-hidden grid md:grid-cols-2"
+        >
 
+          {/* Image */}
+          <div className="h-[360px] md:h-auto bg-gray-100">
+            {course?.image ? (
               <img
-
                 src={course.image}
-
                 alt={course?.title}
-
                 className="w-full h-full object-cover"
-
               />
-
-              :
-
-              <div className="h-full flex items-center justify-center text-7xl">
-
+            ) : (
+              <div className="h-full flex items-center justify-center text-8xl">
                 🎓
-
               </div>
-
-            }
-
-
+            )}
           </div>
-
-
-
 
 
           {/* Details */}
+          <div className="p-8 flex flex-col justify-between">
 
-          <div className="p-8">
+            <div>
 
+              <h1 className="text-3xl font-bold text-gray-900 mb-3">
+                {course?.title || "اسم الكورس"}
+              </h1>
 
+              {course?.description && (
+                <p className="text-gray-500 leading-7 text-sm mb-6">
+                  {course.description}
+                </p>
+              )}
 
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">
-
-              {course?.title || "اسم الكورس"}
-
-            </h1>
-
-
-
-            <p className="text-gray-600 leading-8 mb-6">
-
-              {
-                course?.description ||
-                "اشترك في الكورس واحصل على محتوى تعليمي كامل"
-              }
-
-            </p>
-
-
-
-
-            <div className="space-y-3 mb-8">
-
-
-              <div className="bg-gray-50 rounded-xl p-4">
-
-                ✅ وصول كامل للمحاضرات
-
+              {/* Feature list */}
+              <div className="space-y-3 mb-8">
+                {FEATURES.map(({ icon: Icon, ar }) => (
+                  <div
+                    key={ar}
+                    className="flex items-center gap-3 bg-blue-50 rounded-xl p-3.5"
+                  >
+                    <CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0" />
+                    <span className="text-sm font-medium text-gray-700">{ar}</span>
+                  </div>
+                ))}
               </div>
-
-
-
-              <div className="bg-gray-50 rounded-xl p-4">
-
-                ✅ اختبارات وتقييمات
-
-              </div>
-
-
-
-
-              <div className="bg-gray-50 rounded-xl p-4">
-
-                ✅ متابعة تقدمك في التعلم
-
-              </div>
-
-
 
             </div>
 
 
+            <div>
 
-
-
-            <div className="flex justify-between items-center mb-8">
-
-
-              <span className="text-gray-500">
-
-                سعر الكورس
-
-              </span>
-
-
-              <span className="text-2xl font-bold text-primary">
-
-                {course?.price || 0} $
-
-              </span>
-
-
-            </div>
-
-
-
-
-
-            <button
-
-              onClick={handleEnroll}
-
-              disabled={enrolling}
-
-              className="
-              w-full
-              bg-primary
-              text-white
-              rounded-2xl
-              py-4
-              font-bold
-              text-lg
-              hover:opacity-90
-              disabled:opacity-50
-              "
-
-            >
-
-              {
-                enrolling
-                ?
-                "جاري التسجيل..."
-                :
-                "اشترك الآن"
-              }
-
-
-            </button>
-
-
-
-
-
-            {
-              message &&
-
-              <div className="mt-5 rounded-xl bg-green-50 text-green-700 p-4 text-center">
-
-                {message}
-
+              {/* Price */}
+              <div className="flex justify-between items-center mb-6">
+                <span className="text-gray-500 text-sm">سعر الكورس</span>
+                <span className="text-2xl font-bold text-blue-600">
+                  {course?.price ?? 0} $
+                </span>
               </div>
 
-            }
+              {/* Enroll button */}
+              <button
+                onClick={handleEnroll}
+                disabled={enrolling || enrolled}
+                className="
+                  w-full py-4 rounded-2xl font-bold text-lg
+                  bg-blue-600 hover:bg-blue-700 text-white
+                  disabled:opacity-60 disabled:cursor-not-allowed
+                  transition-colors flex items-center justify-center gap-2
+                "
+              >
+                {enrolling && <Loader2 className="w-5 h-5 animate-spin" />}
+                {enrolled  ? "تم الاشتراك ✓" : enrolling ? "جاري التسجيل..." : "اشترك الآن"}
+              </button>
 
-
+            </div>
 
           </div>
 
-
-        </div>
-
+        </motion.div>
 
       </div>
-
-
     </div>
-
   );
-
 }

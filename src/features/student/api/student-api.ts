@@ -224,7 +224,7 @@ export const studentApi = {
   getTests: async()=>{
 
     const {data}=await axiosInstance.get(
-      "/student/tests"
+      "/get-tests"
     );
 
     return data;
@@ -311,7 +311,7 @@ export const studentApi = {
   getHomeworks: async()=>{
 
     const {data}=await axiosInstance.get(
-      "/student/homeworks"
+      "/get-homeworks"
     );
 
     return data;
