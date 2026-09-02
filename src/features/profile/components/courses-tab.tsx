@@ -7,6 +7,7 @@ import {
   Calendar,
   CheckCircle,
 } from "lucide-react";
+
 import { cn } from "@/shared/lib/utils";
 
 
@@ -25,6 +26,12 @@ interface EnrolledCourse {
   status?: "active" | "expired";
 
   expiresAt?: string;
+
+  lectures?: any[];
+
+  homework_titles?: string[];
+
+  test_titles?: string[];
 
 }
 
@@ -47,12 +54,15 @@ hidden:{
 
 visible:{
  opacity:1,
+
  transition:{
   staggerChildren:0.07
  }
+
 }
 
 };
+
 
 
 
@@ -65,10 +75,11 @@ hidden:{
 
 visible:{
  opacity:1,
- y:0,
+
  transition:{
   duration:0.35
  }
+
 }
 
 };
@@ -77,9 +88,10 @@ visible:{
 
 
 
-
 export function CoursesTab({
- courses
+
+courses
+
 }:CoursesTabProps){
 
 
@@ -89,7 +101,9 @@ const {t}=useTranslation("profile");
 
 
 
+
 if(!courses.length){
+
 
 return (
 
@@ -115,10 +129,16 @@ mb-4
 ">
 
 <BookOpen
-className="w-8 h-8 text-blue-400"
+className="
+w-8
+h-8
+text-blue-400
+"
 />
 
+
 </div>
+
 
 
 
@@ -133,6 +153,7 @@ text-gray-700
 </p>
 
 
+
 <p className="
 text-sm
 text-gray-400
@@ -142,6 +163,7 @@ mt-1
 {t("courses.noCoursesDesc")}
 
 </p>
+
 
 
 <Link
@@ -166,12 +188,14 @@ font-semibold
 </Link>
 
 
-
 </div>
 
 )
 
 }
+
+
+
 
 
 
@@ -206,8 +230,15 @@ const isActive =
 course.status !== "expired";
 
 
+const isCompleted =
+course.progress >= 100;
+
+
+
+
 
 return (
+
 
 <motion.div
 
@@ -226,7 +257,12 @@ flex
 flex-col
 "
 
+
 >
+
+
+
+
 
 
 {/* Image */}
@@ -240,7 +276,9 @@ bg-gray-100
 
 {
 
+
 course.image ?
+
 
 <img
 
@@ -256,7 +294,9 @@ object-cover
 
 />
 
+
 :
+
 
 <div className="
 w-full
@@ -267,16 +307,24 @@ justify-center
 ">
 
 <BookOpen
+
 className="
 w-10
 h-10
 text-gray-300
 "
+
 />
+
 
 </div>
 
+
 }
+
+
+
+
 
 
 
@@ -293,9 +341,18 @@ className={cn(
 
 "flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-semibold",
 
+isCompleted
+
+?
+
+"bg-blue-600 text-white"
+
+:
+
 isActive
 
 ?
+
 "bg-emerald-500 text-white"
 
 :
@@ -307,10 +364,26 @@ isActive
 >
 
 
-<CheckCircle className="w-3 h-3"/>
+<CheckCircle
+
+className="
+w-3
+h-3
+"
+
+/>
 
 
 {
+
+
+isCompleted
+
+?
+
+"Completed"
+
+:
 
 isActive
 
@@ -325,13 +398,18 @@ t("courses.status.expired")
 }
 
 
+
 </span>
 
 
+
 </div>
 
 
+
 </div>
+
+
 
 
 
@@ -348,6 +426,9 @@ flex-1
 ">
 
 
+
+
+
 <h3 className="
 font-bold
 text-gray-900
@@ -356,6 +437,8 @@ text-gray-900
 {course.title}
 
 </h3>
+
+
 
 
 
@@ -375,6 +458,11 @@ line-clamp-2
 
 
 
+
+
+{/* Progress */}
+
+
 <div>
 
 
@@ -385,11 +473,13 @@ text-xs
 mb-1
 ">
 
+
 <span>
 
 {t("courses.progress")}
 
 </span>
+
 
 
 <span className="
@@ -402,7 +492,9 @@ font-bold
 </span>
 
 
+
 </div>
+
 
 
 
@@ -418,13 +510,16 @@ overflow-hidden
 <div
 
 style={{
+
 width:`${course.progress || 0}%`
+
 }}
 
 className="
 h-full
 bg-blue-600
 rounded-full
+transition-all
 "
 
 />
@@ -433,7 +528,11 @@ rounded-full
 </div>
 
 
+
 </div>
+
+
+
 
 
 
@@ -449,7 +548,16 @@ text-xs
 text-gray-400
 ">
 
-<Calendar className="w-3.5 h-3.5"/>
+
+<Calendar
+
+className="
+w-3.5
+h-3.5
+"
+
+/>
+
 
 
 {course.expiresAt || "-"}
@@ -464,12 +572,20 @@ text-gray-400
 
 
 
+
 <div className="
 flex
 gap-2
 mt-auto
 pt-2
 ">
+
+
+
+
+
+
+{/* Continue Learning */}
 
 
 <Link
@@ -494,7 +610,21 @@ isActive
 
 >
 
-{t("courses.accessCourse")}
+
+{
+
+isCompleted
+
+?
+
+"Completed"
+
+:
+
+t("courses.accessCourse")
+
+}
+
 
 </Link>
 
@@ -502,10 +632,17 @@ isActive
 
 
 
+
+
+
+
+{/* Details */}
+
+
+
 <Link
 
 to={`/courses/${course.id}`}
-
 className="
 flex
 items-center
@@ -523,25 +660,45 @@ hover:bg-gray-50
 
 >
 
-<ExternalLink className="w-3.5 h-3.5"/>
+
+<ExternalLink
+
+className="
+w-3.5
+h-3.5
+"
+
+/>
+
+
 
 {t("courses.viewDetails")}
+
 
 
 </Link>
 
 
 
-</div>
 
 
 
 
 </div>
+
+
+
+
+
+
+</div>
+
+
 
 
 
 </motion.div>
+
 
 
 )
@@ -549,7 +706,9 @@ hover:bg-gray-50
 
 })
 
+
 }
+
 
 
 </motion.div>
