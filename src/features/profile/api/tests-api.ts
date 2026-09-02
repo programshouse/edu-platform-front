@@ -7,25 +7,25 @@ export const testsApi = {
   // GET /tests — list all student tests
   getStudentTests: async () => {
 
-    const { data } = await axiosInstance.get("/tests");
+    const { data } = await axiosInstance.get("/get-tests");
     return data;
 
   },
 
 
   // GET /tests/:id/details — intro info + previous result (mark, result, questions)
-  getTestDetails: async (id: number | string) => {
+  getTestDetails: async (test_id: number | string) => {
 
-    const { data } = await axiosInstance.get(`/student/tests/${id}`);
+    const { data } = await axiosInstance.get(`/student/tests/${test_id}`);
     return data;
 
   },
 
 
   // GET /student/tests/:id — questions with options for taking the test
-  getQuestions: async (id: number | string) => {
+  getQuestions: async (test_id: number | string) => {
 
-    const { data } = await axiosInstance.get(`/tests/${id}/details`);
+    const { data } = await axiosInstance.get(`/student/tests/${test_id}`);
     return data;
 
   },
@@ -52,20 +52,17 @@ export const testsApi = {
 
 
   // POST /tests/:id/submit-test
-  submitTest: async (id: number | string) => {
-
-    const { data } = await axiosInstance.post(`/tests/${id}/submit-test`);
+  submitTest: async (test_id: number | string) => {
+    const { data } = await axiosInstance.post(`/tests/${test_id}/submit-test`);
     return data;
 
   },
 
 
   // GET /tests/:id/details — results after submission (mark, result, questions)
-  showTestResults: async (id: number | string) => {
-
-    const { data } = await axiosInstance.get(`/tests/${id}/details`);
+  showTestResults: async (test_id: number | string) => {
+    const { data } = await axiosInstance.get(`/student/tests/${test_id}`);
     return data;
-
   },
 
 

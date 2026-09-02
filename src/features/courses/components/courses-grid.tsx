@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useDebounce } from "use-debounce";
 import { coursesApi } from "@/features/courses/api/courses-api";
 import { searchApi } from "@/features/courses/api/search-api";
+import { getCategories } from "@/features/landing/components/api/categories-api";
 import { useAuthStore } from "@/shared/stores/auth-store";
 
 import {
@@ -37,15 +38,6 @@ type CourseItem = {
 
 
 
-const filterKeys = [
-  "all",
-  "webDev",
-  "design",
-  "dataScience",
-  "mobile",
-] as const;
-
-
 
 export function CoursesGrid() {
 
@@ -74,7 +66,7 @@ export function CoursesGrid() {
   const [
     activeFilter,
     setActiveFilter
-  ] = useState("all");
+  ] = useState<number | "all">("all");
 
 
 
@@ -102,6 +94,14 @@ export function CoursesGrid() {
 
   const role =
     user?.role?.toLowerCase();
+
+  const {
+    data: categories = []
+  } = useQuery({
+    queryKey:["categories", currentLang],
+    queryFn: getCategories,
+  });
+
 
 
   const isInstructor =
@@ -245,7 +245,7 @@ export function CoursesGrid() {
 
             ||
 
-            course.category === activeFilter;
+            Number((course as any).category_id ?? (course as any).category?.id) === activeFilter;
 
 
 
@@ -435,43 +435,23 @@ gap-2
 >
 
 
-{
-filterKeys.map((key)=>(
-
-
 <button
-
-key={key}
-
-onClick={()=>
-setActiveFilter(key)
-}
-
-
-className={
-
-activeFilter === key
-
-?
-
-"px-5 py-2.5 rounded-xl bg-blue-600 text-white"
-
-:
-
-"px-5 py-2.5 rounded-xl bg-gray-100"
-
-}
-
+key="all"
+onClick={()=>setActiveFilter("all")}
+className={activeFilter === "all" ? "px-5 py-2.5 rounded-xl bg-blue-600 text-white" : "px-5 py-2.5 rounded-xl bg-gray-100"}
 >
-
-{t(`filters.${key}`)}
-
+{t("filters.all")}
 </button>
 
-
-))
-
-}
+{categories.map((category)=>(
+<button
+key={category.id}
+onClick={()=>setActiveFilter(category.id)}
+className={activeFilter === category.id ? "px-5 py-2.5 rounded-xl bg-blue-600 text-white" : "px-5 py-2.5 rounded-xl bg-gray-100"}
+>
+{category.name}
+</button>
+))}
 
 
 </div>
@@ -499,7 +479,7 @@ layout
 className="
 grid
 sm:grid-cols-2
-lg:grid-cols-3
+lg:grid-cols-4
 gap-6
 "
 
