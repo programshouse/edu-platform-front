@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import {
   Save,
@@ -14,37 +13,36 @@ import { studentApi } from "@/features/student/api/student-api";
 
 interface StudentSettings {
 
-  id?:number;
+  id?: number;
 
-  fullName:string;
+  fullName: string;
 
-  email:string;
+  email: string;
 
-  phone:string;
+  phone: string;
 
-  parentPhone:string;
+  parentPhone: string;
 
-  dateOfBirth:string;
+  dateOfBirth: string;
 
-  governorate:number;
+  governorate: number;
 
-  address:string;
+  address: string;
 
-  grade:number;
+  grade: number;
 
-  school:string;
+  school: string;
 
-  section:string;
+  section: string;
 
 }
 
 
-
 interface Props {
 
-  student:StudentSettings;
+  student: StudentSettings;
 
-  onProfileUpdated:()=>void;
+  onProfileUpdated: () => void;
 
 }
 
@@ -53,61 +51,44 @@ interface Props {
 export function SettingsTab({
   student,
   onProfileUpdated
-}:Props){
+}: Props) {
 
 
-const {t}=useTranslation("profile");
+const [loading, setLoading] = useState(false);
+
+const [passwordLoading, setPasswordLoading] = useState(false);
 
 
-const [loading,setLoading]=useState(false);
+const [message, setMessage] = useState("");
 
-const [passwordLoading,setPasswordLoading]=useState(false);
-
-
-const [message,setMessage]=useState("");
-
-const [error,setError]=useState("");
+const [error, setError] = useState("");
 
 
-
-const [showPassword,setShowPassword]=useState(false);
+const [showPassword, setShowPassword] = useState(false);
 
 
 
-const [form,setForm]=useState({
+const [form, setForm] = useState({
 
-  full_name:student.fullName || "",
+  full_name: student.fullName || "",
 
-  email:student.email || "",
+  email: student.email || "",
 
-  phone:student.phone || "",
+  phone: student.phone || "",
 
-  parent_phone:student.parentPhone || "",
+  parent_phone: student.parentPhone || "",
 
-  dob:student.dateOfBirth || "",
+  dob: student.dateOfBirth || "",
 
-  governorate_id:String(student.governorate || ""),
+  governorate_id: String(student.governorate || ""),
 
-  address:student.address || "",
+  address: student.address || "",
 
-  grade_id:String(student.grade || ""),
+  grade_id: String(student.grade || ""),
 
-  school:student.school || "",
+  school: student.school || "",
 
-  department_name:student.section || "",
-
-});
-
-
-
-
-const [password,setPassword]=useState({
-
- current_password:"",
-
- password:"",
-
- password_confirmation:""
+  department_name: student.section || "",
 
 });
 
@@ -115,16 +96,30 @@ const [password,setPassword]=useState({
 
 
 
+const [password, setPassword] = useState({
 
-const updateField=(key:string,value:string)=>{
+  current_password: "",
 
-setForm(prev=>({
+  password: "",
 
-...prev,
+  password_confirmation: ""
 
-[key]:value
+});
 
-}));
+
+
+
+
+
+const updateField = (
+  key: string,
+  value: string
+) => {
+
+  setForm(prev => ({
+    ...prev,
+    [key]: value
+  }));
 
 };
 
@@ -132,21 +127,15 @@ setForm(prev=>({
 
 
 
-const updatePasswordField=(
+const updatePasswordField = (
+  key: string,
+  value: string
+) => {
 
-key:string,
-
-value:string
-
-)=>{
-
-setPassword(prev=>({
-
-...prev,
-
-[key]:value
-
-}));
+  setPassword(prev => ({
+    ...prev,
+    [key]: value
+  }));
 
 };
 
@@ -155,16 +144,15 @@ setPassword(prev=>({
 
 
 
-
-const handleUpdate=async(
-e:React.FormEvent
-)=>{
+const handleUpdate = async (
+e: React.FormEvent
+) => {
 
 
 e.preventDefault();
 
 
-try{
+try {
 
 
 setLoading(true);
@@ -173,11 +161,11 @@ setError("");
 
 
 
-const formData=new FormData();
+const formData = new FormData();
 
 
 
-Object.entries(form).forEach(([key,value])=>{
+Object.entries(form).forEach(([key,value]) => {
 
 
 formData.append(
@@ -187,7 +175,6 @@ value
 
 
 });
-
 
 
 
@@ -224,7 +211,7 @@ err?.response?.data?.message ||
 
 }
 
-finally{
+finally {
 
 
 setLoading(false);
@@ -241,14 +228,13 @@ setLoading(false);
 
 
 
-
-
-const handlePassword=async(
+const handlePassword = async (
 e:React.FormEvent
 )=>{
 
 
 e.preventDefault();
+
 
 
 try{
@@ -260,7 +246,7 @@ setError("");
 
 
 
-const formData=new FormData();
+const formData = new FormData();
 
 
 
@@ -286,10 +272,10 @@ password.password_confirmation
 
 
 
-
 await studentApi.changePassword(
 formData
 );
+
 
 
 
@@ -302,10 +288,13 @@ setMessage(
 setPassword({
 
 current_password:"",
+
 password:"",
+
 password_confirmation:""
 
 });
+
 
 
 }
@@ -339,9 +328,7 @@ setPasswordLoading(false);
 
 
 
-
-
-const inputClass=`
+const inputClass = `
 
 w-full
 
@@ -366,22 +353,12 @@ focus:ring-blue-500
 `;
 
 
-
-
-
-
-
 return (
 
 <div className="grid lg:grid-cols-2 gap-6">
 
 
-
-
-
-
 {/* PROFILE */}
-
 
 <motion.form
 
@@ -409,8 +386,6 @@ text-xl
 
 
 
-
-
 {message &&
 
 <div className="
@@ -426,7 +401,6 @@ text-sm
 </div>
 
 }
-
 
 
 
@@ -451,14 +425,15 @@ text-sm
 
 
 
-
 <input
+
+name="full_name"
 
 className={inputClass}
 
 value={form.full_name}
 
-onChange={e=>
+onChange={e =>
 updateField(
 "full_name",
 e.target.value
@@ -475,6 +450,8 @@ placeholder="Full Name"
 
 
 <input
+
+name="email"
 
 className={inputClass}
 
@@ -493,11 +470,13 @@ placeholder="Email"
 
 <input
 
+name="phone"
+
 className={inputClass}
 
 value={form.phone}
 
-onChange={e=>
+onChange={e =>
 updateField(
 "phone",
 e.target.value
@@ -513,13 +492,16 @@ placeholder="Phone"
 
 
 
+
 <input
+
+name="parent_phone"
 
 className={inputClass}
 
 value={form.parent_phone}
 
-onChange={e=>
+onChange={e =>
 updateField(
 "parent_phone",
 e.target.value
@@ -535,7 +517,10 @@ placeholder="Parent Phone"
 
 
 
+
 <input
+
+name="dob"
 
 type="date"
 
@@ -543,7 +528,7 @@ className={inputClass}
 
 value={form.dob}
 
-onChange={e=>
+onChange={e =>
 updateField(
 "dob",
 e.target.value
@@ -560,11 +545,38 @@ e.target.value
 
 <input
 
+name="governorate_id"
+
+className={inputClass}
+
+value={form.governorate_id}
+
+onChange={e =>
+updateField(
+"governorate_id",
+e.target.value
+)
+}
+
+placeholder="Governorate"
+
+/>
+
+
+
+
+
+
+
+<input
+
+name="address"
+
 className={inputClass}
 
 value={form.address}
 
-onChange={e=>
+onChange={e =>
 updateField(
 "address",
 e.target.value
@@ -583,11 +595,38 @@ placeholder="Address"
 
 <input
 
+name="grade_id"
+
+className={inputClass}
+
+value={form.grade_id}
+
+onChange={e =>
+updateField(
+"grade_id",
+e.target.value
+)
+}
+
+placeholder="Grade"
+
+/>
+
+
+
+
+
+
+
+<input
+
+name="school"
+
 className={inputClass}
 
 value={form.school}
 
-onChange={e=>
+onChange={e =>
 updateField(
 "school",
 e.target.value
@@ -603,13 +642,16 @@ placeholder="School"
 
 
 
+
 <input
+
+name="department_name"
 
 className={inputClass}
 
 value={form.department_name}
 
-onChange={e=>
+onChange={e =>
 updateField(
 "department_name",
 e.target.value
@@ -619,6 +661,7 @@ e.target.value
 placeholder="Department"
 
 />
+
 
 
 
@@ -644,6 +687,7 @@ gap-2
 
 >
 
+
 {
 
 loading ?
@@ -657,6 +701,7 @@ loading ?
 }
 
 
+
 حفظ التغييرات
 
 
@@ -664,20 +709,8 @@ loading ?
 
 
 
-
 </motion.form>
-
-
-
-
-
-
-
-
-
 {/* PASSWORD */}
-
-
 
 <motion.form
 
@@ -718,6 +751,8 @@ gap-2
 
 <input
 
+name="current_password"
+
 type={
 showPassword
 ?
@@ -732,7 +767,7 @@ value={
 password.current_password
 }
 
-onChange={e=>
+onChange={e =>
 updatePasswordField(
 "current_password",
 e.target.value
@@ -744,11 +779,12 @@ placeholder="Current password"
 />
 
 
+
 <button
 
 type="button"
 
-onClick={()=>
+onClick={() =>
 setShowPassword(!showPassword)
 }
 
@@ -762,11 +798,17 @@ top-3
 
 
 {
+
 showPassword
+
 ?
+
 <EyeOff/>
+
 :
+
 <Eye/>
+
 }
 
 
@@ -783,6 +825,8 @@ showPassword
 
 <input
 
+name="password"
+
 type="password"
 
 className={inputClass}
@@ -791,7 +835,7 @@ value={
 password.password
 }
 
-onChange={e=>
+onChange={e =>
 updatePasswordField(
 "password",
 e.target.value
@@ -807,7 +851,10 @@ placeholder="New password"
 
 
 
+
 <input
+
+name="password_confirmation"
 
 type="password"
 
@@ -817,7 +864,7 @@ value={
 password.password_confirmation
 }
 
-onChange={e=>
+onChange={e =>
 updatePasswordField(
 "password_confirmation",
 e.target.value
@@ -847,9 +894,12 @@ py-3
 font-semibold
 flex
 justify-center
+items-center
+gap-2
 "
 
 >
+
 
 {
 
@@ -870,15 +920,13 @@ passwordLoading
 
 
 
-
 </motion.form>
-
-
 
 
 
 </div>
 
-)
+);
+
 
 }
