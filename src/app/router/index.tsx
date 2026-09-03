@@ -30,6 +30,8 @@ import { TeacherDashboardPage } from "@/features/teacher/page";
 import { TeacherCoursesPage } from "@/features/teacher/courses/page";
 import { TeacherCourseDetailsPage } from "@/features/teacher/courses/course-details-page";
 import { TeacherExamsPage } from "@/features/teacher/exams/page";
+import { ExamResultsPage } from "@/features/teacher/exams/results-page";
+import { ExamCorrectionPage } from "@/features/teacher/exams/correction-page";
 import InstructorLatestStudentsPage from "@/features/teacher/test-results/students-page";
 import PendingTestsPage from "@/features/teacher/test-results/pending-page";
 import InstructorCorrectionPage from "@/features/teacher/test-results/correction-page";
@@ -214,8 +216,7 @@ const router = createBrowserRouter([
 
       {
         path:"exams/:id/results",
-        element:
-          <div className="p-8 bg-white rounded-2xl shadow m-8"><h1 className="text-2xl font-bold">نتائج الاختبار</h1><div className="grid md:grid-cols-3 gap-4 mt-6"><div className="p-5 bg-blue-50 rounded-xl">الدرجة<br/><b>18 / 20</b></div><div className="p-5 bg-green-50 rounded-xl">الحالة<br/><b>ناجح</b></div><div className="p-5 bg-gray-50 rounded-xl">النسبة<br/><b>90%</b></div></div></div>,
+        element:<ExamResultsPage />,
       },
 
 
@@ -245,8 +246,7 @@ const router = createBrowserRouter([
 
       {
         path:"exams/:id/grading",
-        element:
-          <div className="p-8 bg-white rounded-2xl shadow m-8"><h1 className="text-2xl font-bold">تصحيح الاختبار</h1><div className="mt-6 space-y-4"><div className="p-5 border rounded-xl">السؤال الأول<br/><span className="text-red-500">إجابة الطالب: خطأ</span><br/><span className="text-green-600">الإجابة الصحيحة: صحيحة</span></div></div></div>,
+        element:<ExamCorrectionPage />,
       },
 
 

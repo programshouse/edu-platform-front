@@ -18,9 +18,9 @@ export const instructorTestsApi = {
   },
 
 
-  // GET /tests/:id/show-all-students-test-results — all student results for a test
+
   getStudentResults: async (id: string) => {
-    const { data } = await axiosInstance.get(`/tests/${id}/show-all-students-test-results`);
+    const { data } = await axiosInstance.get(`/tests/${id}/get-student-test-results`);
     return data?.data ?? [];
   },
 
@@ -40,21 +40,35 @@ export const instructorTestsApi = {
   },
 
 
-  // POST /tests/:testId/mark-student-test  body: { student_id, mark }
-  markStudent: async (
-    testId: string | number,
-    studentId: string | number,
-    mark: number | string
-  ) => {
-    const fd = new FormData();
-    fd.append('student_id', String(studentId));
-    fd.append('mark',       String(mark));
-    const { data } = await axiosInstance.post(
-      `/tests/${testId}/mark-student-test`,
-      fd
-    );
-    return data;
-  },
+// Mark student test
+// POST /student/{student_id}/tests/{test_id}/mark
+// Body: multipart/form-data { mark }
+
+markStudent: async (
+  testId: string | number,
+  studentId: string | number,
+  mark: number | string
+) => {
+
+  const formData = new FormData();
+
+  formData.append(
+    "mark",
+    String(mark)
+  );
+
+  const { data } = await axiosInstance.post(
+    `/student/${studentId}/tests/${testId}/mark`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+
+  return data;
+},
 
 
   // GET /instructor/latest-subscribed-students

@@ -161,3 +161,31 @@ export async function toggleExamStatus(payload: ToggleExamStatusPayload): Promis
     throw parseApiError(err);
   }
 }
+
+// ─── Exam Results (all student submissions) ───
+export async function fetchExamResults(id: string): Promise<any[]> {
+  try {
+    const { data } = await axiosInstance.get(`/tests/${id}/get-student-test-results`);
+    return data?.data ?? [];
+  } catch (err) {
+    throw parseApiError(err);
+  }
+}
+
+// ─── Mark a student's exam ───
+// POST /student/:studentId/tests/:testId/mark  { mark: number }
+export async function markExamStudent(
+  testId:    string | number,
+  studentId: string | number,
+  mark:      number
+): Promise<any> {
+  try {
+    const { data } = await axiosInstance.post(
+      `/student/${studentId}/tests/${testId}/mark`,
+      { mark }
+    );
+    return data;
+  } catch (err) {
+    throw parseApiError(err);
+  }
+}

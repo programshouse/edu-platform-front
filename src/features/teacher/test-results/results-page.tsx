@@ -42,7 +42,19 @@ interface StudentResult {
 function getName(s: StudentResult["student"]): string {
   if (!s) return "—";
   if (typeof s === "string") return s;
-  return s.name ?? "—";
+  return (s as any).name ?? "—";
+}
+
+// Normalise pending-test shape → StudentResult
+function normaliseResult(r: any): StudentResult {
+  return {
+    student:         r.student ?? { id: r.student_id ?? 0, name: r.student_name ?? "—" },
+    student_mark:    r.student_mark ?? r.mark ?? null,
+    full_mark:       r.full_mark ?? r.test?.full_mark ?? 0,
+    result:          r.result ?? null,
+    student_attempt: r.student_attempt ?? 1,
+    submitted_at:    r.submitted_at ?? null,
+  };
 }
 
 function ResultBadge({ result }: { result: StudentResult["result"] }) {
@@ -62,16 +74,17 @@ export default function InstructorTestResultsPage() {
 
   const { data: results = [], isLoading, isError, refetch } = useQuery({
     queryKey: ["instructor-test-results", id],
-    queryFn:  () => instructorTestsApi.getStudentResults(id),
+    queryFn:  () => instructorTestsApi.getPendingForTest(id),
     enabled:  !!id,
   });
 
-  const total   = results.length;
-  const passed  = results.filter((r: StudentResult) => r.result === "passed").length;
-  const failed  = results.filter((r: StudentResult) => r.result === "failed").length;
-  const pending = results.filter((r: StudentResult) => !r.result || r.result === "pending").length;
+  const normalised = (results as any[]).map(normaliseResult);
+  const total   = normalised.length;
+  const passed  = normalised.filter((r) => r.result === "passed").length;
+  const failed  = normalised.filter((r) => r.result === "failed").length;
+  const pending = normalised.filter((r) => !r.result || r.result === "pending").length;
   const avgMark = total
-    ? (results.reduce((s: number, r: StudentResult) => s + (r.student_mark ?? 0), 0) / total).toFixed(1)
+    ? (normalised.reduce((s, r) => s + (r.student_mark ?? 0), 0) / total).toFixed(1)
     : "—";
 
 
@@ -182,7 +195,8 @@ export default function InstructorTestResultsPage() {
                 </TableHeader>
 
                 <TableBody>
-                  {results.map((r: StudentResult, i: number) => {
+                  {results.map((raw: any, i: number) => {
+                    const r = normaliseResult(raw);
                     const pct = r.full_mark
                       ? Math.round(((r.student_mark ?? 0) / r.full_mark) * 100)
                       : 0;
