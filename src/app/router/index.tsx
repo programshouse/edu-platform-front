@@ -30,10 +30,15 @@ import { TeacherDashboardPage } from "@/features/teacher/page";
 import { TeacherCoursesPage } from "@/features/teacher/courses/page";
 import { TeacherCourseDetailsPage } from "@/features/teacher/courses/course-details-page";
 import { TeacherExamsPage } from "@/features/teacher/exams/page";
+import InstructorLatestStudentsPage from "@/features/teacher/test-results/students-page";
+import PendingTestsPage from "@/features/teacher/test-results/pending-page";
+import InstructorCorrectionPage from "@/features/teacher/test-results/correction-page";
 import { ExamBuilderPage } from "@/features/teacher/exams/ui/builder/exam-builder-page";
 import StudentCoursePage from "@/features/student/course/page";
 import { StudentTestPage } from "@/features/student/tests/student-test-page";
 import { StudentTestResultsPage } from "@/features/student/tests/student-test-results-page";
+import InstructorTestsPage from "@/features/teacher/test-results/page";
+import InstructorTestResultsPage from "@/features/teacher/test-results/results-page";
 
 
 const router = createBrowserRouter([
@@ -211,6 +216,30 @@ const router = createBrowserRouter([
         path:"exams/:id/results",
         element:
           <div className="p-8 bg-white rounded-2xl shadow m-8"><h1 className="text-2xl font-bold">نتائج الاختبار</h1><div className="grid md:grid-cols-3 gap-4 mt-6"><div className="p-5 bg-blue-50 rounded-xl">الدرجة<br/><b>18 / 20</b></div><div className="p-5 bg-green-50 rounded-xl">الحالة<br/><b>ناجح</b></div><div className="p-5 bg-gray-50 rounded-xl">النسبة<br/><b>90%</b></div></div></div>,
+      },
+
+
+      {
+        path:"tests",
+        element:<InstructorTestsPage />,
+      },
+
+
+      {
+        path:"tests/:id/results",
+        element:<InstructorTestResultsPage />,
+      },
+      {
+        path:"students",
+        element:<InstructorLatestStudentsPage />,
+      },
+      {
+        path:"tests/pending",
+        element:<PendingTestsPage />,
+      },
+      {
+        path:"tests/:id/correction",
+        element:<InstructorCorrectionPage />,
       },
 
 

@@ -68,6 +68,12 @@ export function TeacherSidebar() {
       icon: ClipboardListIcon,
       exact: false,
     },
+    {
+      title: "Test Results",
+      url: "/teacher/tests",
+      icon: ClipboardListIcon,
+      exact: false,
+    },
   ];
 
   // const secondaryItems = [

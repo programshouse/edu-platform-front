@@ -14,18 +14,18 @@ export const testsApi = {
 
 
   // GET /tests/:id/details — intro info + previous result (mark, result, questions)
-  getTestDetails: async (test_id: number | string) => {
+  getTestDetails: async (id: number | string) => {
 
-    const { data } = await axiosInstance.get(`/student/tests/${test_id}`);
+    const { data } = await axiosInstance.get(`/student/tests/${id}/details`);
     return data;
 
   },
 
 
   // GET /student/tests/:id — questions with options for taking the test
-  getQuestions: async (test_id: number | string) => {
+  getQuestions: async (id: number | string) => {
 
-    const { data } = await axiosInstance.get(`/student/tests/${test_id}`);
+    const { data } = await axiosInstance.get(`/student/tests/${id}/details`);
     return data;
 
   },
@@ -52,16 +52,16 @@ export const testsApi = {
 
 
   // POST /tests/:id/submit-test
-  submitTest: async (test_id: number | string) => {
-    const { data } = await axiosInstance.post(`/tests/${test_id}/submit-test`);
+  submitTest: async (id: number | string) => {
+    const { data } = await axiosInstance.post(`/tests/${id}/submit-test`);
     return data;
 
   },
 
 
   // GET /tests/:id/details — results after submission (mark, result, questions)
-  showTestResults: async (test_id: number | string) => {
-    const { data } = await axiosInstance.get(`/student/tests/${test_id}`);
+  showTestResults: async (id: number | string) => {
+    const { data } = await axiosInstance.get(`/tests/${id}`);
     return data;
   },
 
