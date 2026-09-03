@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import {
   MoreHorizontal,
   Edit,
@@ -8,6 +9,7 @@ import {
   Pause,
   BarChart,
   FileText,
+  Eye,
 } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
@@ -23,12 +25,15 @@ import { TableCell, TableRow } from "@/shared/components/ui/table";
 import { useExamsUIStore } from "../model/exams-ui-store";
 import { useToggleExamStatus } from "../hooks/use-toggle-exam-status";
 import { StatusBadge } from "./status-badge";
+import { ExamShowModal } from "./exam-show-modal";
 import type { Exam } from "../types";
 
 export function ExamRow({ exam }: { exam: Exam }) {
   const { t, i18n } = useTranslation("teacherExams");
 
   const navigate = useNavigate();
+
+  const [showModal, setShowModal] = useState(false);
 
   const openDeleteModal = useExamsUIStore(
     (s) => s.openDeleteModal
@@ -77,6 +82,7 @@ export function ExamRow({ exam }: { exam: Exam }) {
 
 
   return (
+  <>
     <TableRow>
 
       <TableCell className="font-medium">
@@ -152,6 +158,20 @@ export function ExamRow({ exam }: { exam: Exam }) {
 
 
           <DropdownMenuContent align="end">
+
+
+            <DropdownMenuItem
+              onClick={() => setShowModal(true)}
+            >
+
+              <Eye className="size-4 me-2" />
+
+              {t("actions.show", "عرض")}
+
+            </DropdownMenuItem>
+
+
+            <DropdownMenuSeparator />
 
 
             <DropdownMenuItem
@@ -259,5 +279,13 @@ export function ExamRow({ exam }: { exam: Exam }) {
       </TableCell>
 
     </TableRow>
+
+    <ExamShowModal
+      examId={exam.id}
+      examTitle={exam.title}
+      open={showModal}
+      onClose={() => setShowModal(false)}
+    />
+  </>
   );
 }

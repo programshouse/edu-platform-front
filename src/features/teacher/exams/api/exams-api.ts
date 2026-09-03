@@ -172,19 +172,44 @@ export async function fetchExamResults(id: string): Promise<any[]> {
   }
 }
 
-// ─── Mark a student's exam ───
-// POST /student/:studentId/tests/:testId/mark  { mark: number }
-export async function markExamStudent(
-  testId:    string | number,
-  studentId: string | number,
-  mark:      number
-): Promise<any> {
+// ─── Edit Question Option ───
+// POST /courses/:courseId/lectures/:lectureId/tests/:testId/test-questions/:questionId/question-options/:optionId/edit-question-option
+export async function editQuestionOption(params: {
+  courseId:   string | number;
+  lectureId:  string | number;
+  testId:     string | number;
+  questionId: string | number;
+  optionId:   string | number;
+  text_en:    string;
+  text_ar?:   string;
+}): Promise<any> {
   try {
+    const fd = new FormData();
+    fd.append("text_en", params.text_en);
+    if (params.text_ar) fd.append("text_ar", params.text_ar);
     const { data } = await axiosInstance.post(
-      `/student/${studentId}/tests/${testId}/mark`,
-      { mark }
+      `/courses/${params.courseId}/lectures/${params.lectureId}/tests/${params.testId}/test-questions/${params.questionId}/question-options/${params.optionId}/edit-question-option`,
+      fd
     );
     return data;
+  } catch (err) {
+    throw parseApiError(err);
+  }
+}
+
+// ─── Delete Question Option ───
+// DELETE /courses/:courseId/lectures/:lectureId/tests/:testId/test-questions/:questionId/question-options/:optionId/delete-question-option
+export async function deleteQuestionOption(params: {
+  courseId:   string | number;
+  lectureId:  string | number;
+  testId:     string | number;
+  questionId: string | number;
+  optionId:   string | number;
+}): Promise<void> {
+  try {
+    await axiosInstance.delete(
+      `/courses/${params.courseId}/lectures/${params.lectureId}/tests/${params.testId}/test-questions/${params.questionId}/question-options/${params.optionId}/delete-question-option`
+    );
   } catch (err) {
     throw parseApiError(err);
   }

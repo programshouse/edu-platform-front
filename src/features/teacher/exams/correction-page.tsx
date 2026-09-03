@@ -12,7 +12,8 @@ import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 import { TeacherPageLayout } from "../components/teacher-page-layout";
-import { fetchExamResults, markExamStudent } from "./api/exams-api";
+import { fetchExamResults } from "./api/exams-api";
+import { instructorTestsApi } from "@/features/teacher/test-results/api";
 
 
 // ─── Types ───────────────────────────────────────────────
@@ -112,7 +113,7 @@ export function ExamCorrectionPage() {
   const entries: StudentEntry[] = (raw as any[]).map(normalise);
 
   const { mutate: saveMark, isPending: saving } = useMutation({
-    mutationFn: () => markExamStudent(id, entries[selectedIdx].student.id, Number(mark)),
+    mutationFn: () => instructorTestsApi.markStudent(id, entries[selectedIdx].student.id, Number(mark)),
     onSuccess: () => {
       setSavedMarks((p) => ({ ...p, [entries[selectedIdx].student.id]: Number(mark) }));
       toast.success("تم حفظ الدرجة بنجاح ✓");
