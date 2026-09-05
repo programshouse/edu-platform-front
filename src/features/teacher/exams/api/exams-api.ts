@@ -88,11 +88,52 @@ export async function fetchExams(
   }
 }
 
-// ─── Fetch Single Exam for Edit ───
-// The backend has no GET /instructor/tests/:id route.
-// We fetch the full list and find the matching exam by id.
+// ─── Fetch Single Exam for Edit / Show ───
+export async function fetchExamShow(id: string | number): Promise<any> {
+  try {
+    const { data } = await axiosInstance.get(`/tests/${id}/show-test-details`);
+    if (data) return data?.data ?? data;
+  } catch {}
+
+  try {
+    const { data } = await axiosInstance.get(`/tests/${id}`);
+    if (data) return data?.data ?? data;
+  } catch {}
+
+  try {
+    const { data } = await axiosInstance.get(`/tests/${id}/details`);
+    if (data) return data?.data ?? data;
+  } catch {}
+
+  try {
+    const { data } = await axiosInstance.get(`/tests/${id}/questions`);
+    if (data) return data?.data ?? data;
+  } catch {}
+
+  const { data } = await axiosInstance.get(BASE);
+  const list: any[] = Array.isArray(data?.data) ? data.data : Array.isArray(data) ? data : [];
+  const raw = list.find((e: any) => String(e.id) === String(id));
+  if (raw) return normalizeExam(raw);
+  throw new Error(`Exam ${id} not found`);
+}
+
+export const showTest = fetchExamShow;
+export const getTestDetails = fetchExamShow;
+
 export async function fetchExamDetails(id: string): Promise<Exam> {
   try {
+    try {
+      const { data } = await axiosInstance.get(`/tests/${id}/show-test-details`);
+      const item = data?.data ?? data;
+      if (item && typeof item === "object") return normalizeExam(item);
+    } catch {}
+
+    try {
+      const { data } = await axiosInstance.get(`/tests/${id}`);
+      const item = data?.data ?? data;
+      if (item && typeof item === "object") return normalizeExam(item);
+    } catch {}
+
     const { data } = await axiosInstance.get(BASE);
     const list: any[] = Array.isArray(data?.data) ? data.data : [];
     const raw = list.find((e: any) => String(e.id) === String(id));

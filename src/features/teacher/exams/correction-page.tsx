@@ -3,319 +3,875 @@ import { useParams, Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+
 import {
-  CheckCircle2, ChevronLeft, ChevronRight,
-  ClipboardList, Loader2, User, AlertCircle, PenLine, BookOpen,
+  CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+  ClipboardList,
+  Loader2,
+  User,
+  AlertCircle,
+  PenLine,
+  BookOpen,
 } from "lucide-react";
 
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
+
 import { TeacherPageLayout } from "../components/teacher-page-layout";
+
 import { fetchExamResults } from "./api/exams-api";
+
 import { instructorTestsApi } from "@/features/teacher/test-results/api";
 
 
-// ─── Types ───────────────────────────────────────────────
 
-interface AnswerOption { id: number; option_en: string; option_ar: string }
+interface AnswerOption {
+
+  id: number;
+
+  option_en: string;
+
+  option_ar: string;
+
+}
+
+
+
 interface SubmittedQuestion {
-  id: number; question_en: string; question_ar: string;
-  mark: number; type: string;
+
+  id: number;
+
+  question_en: string;
+
+  question_ar: string;
+
+  mark: number;
+
+  type: string;
+
   options?: AnswerOption[];
+
   student_answer_option_id?: number | null;
+
   student_answer_text?: string | null;
+
 }
+
+
+
 interface StudentEntry {
-  student:         { id: number; name: string };
-  student_mark:    number | null;
-  full_mark:       number;
-  result:          string | null;
-  student_attempt: number;
-  submitted_at?:   string;
-  questions?:      SubmittedQuestion[];
-}
 
-function normalise(r: any): StudentEntry {
-  return {
-    student:         r.student ?? { id: r.student_id ?? 0, name: r.student_name ?? "—" },
-    student_mark:    r.student_mark ?? r.mark ?? null,
-    full_mark:       r.full_mark ?? 0,
-    result:          r.result ?? null,
-    student_attempt: r.student_attempt ?? 1,
-    submitted_at:    r.submitted_at ?? null,
-    questions:       Array.isArray(r.questions) ? r.questions : [],
+  student: {
+
+    id: number;
+
+    name: string;
+
   };
+
+
+  student_mark: number | null;
+
+  full_mark: number;
+
+  result: string | null;
+
+  student_attempt: number;
+
+  submitted_at?: string;
+
+
+  questions?: SubmittedQuestion[];
+
+}
+function normalise(r: any): StudentEntry {
+
+  return {
+
+    student: {
+
+      id:
+        r.student?.id ??
+        r.student_id ??
+        0,
+
+
+      name:
+        r.student?.name ??
+        r.student_name ??
+        "—",
+
+    },
+
+
+    student_mark:
+
+      r.student_mark ??
+      r.mark ??
+      null,
+
+
+
+    full_mark:
+
+      r.full_mark ??
+      0,
+
+
+
+    result:
+
+      r.result ??
+      null,
+
+
+
+    student_attempt:
+
+      r.student_attempt ??
+      1,
+
+
+
+    submitted_at:
+
+      r.submitted_at ??
+      null,
+
+
+
+    questions:
+
+      Array.isArray(r.questions)
+
+        ? r.questions
+
+        : [],
+
+  };
+
 }
 
 
-// ─── Question card ───────────────────────────────────────
 
-function QuestionCard({ q, index }: { q: SubmittedQuestion; index: number }) {
+
+
+function QuestionCard({
+
+  q,
+
+  index,
+
+}: {
+
+  q: SubmittedQuestion;
+
+  index: number;
+
+}) {
+
+
   return (
+
     <div className="rounded-xl border bg-card overflow-hidden">
+
+
       <div className="bg-muted/40 border-b px-5 py-3.5 flex items-start justify-between gap-4">
+
+
         <div className="flex items-start gap-3">
-          <span className="shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center mt-0.5">{index + 1}</span>
-          <p className="font-medium text-foreground leading-relaxed text-sm">{q.question_ar || q.question_en}</p>
+
+
+          <span
+            className="
+            shrink-0
+            w-6
+            h-6
+            rounded-full
+            bg-primary/10
+            text-primary
+            text-xs
+            font-bold
+            flex
+            items-center
+            justify-center
+            "
+          >
+
+            {index + 1}
+
+          </span>
+
+
+
+          <p className="font-medium text-sm leading-relaxed">
+
+            {q.question_ar || q.question_en}
+
+          </p>
+
+
         </div>
-        <Badge variant="secondary" className="shrink-0 text-xs">{q.mark} درجة</Badge>
+
+
+
+        <Badge className="shrink-0">
+
+          {q.mark} درجة
+
+        </Badge>
+
+
+
       </div>
+
+
+
+
       <div className="px-5 py-4">
-        {q.type === "essay" ? (
-          <div className="bg-muted/30 rounded-lg p-4 text-sm text-foreground/80 min-h-[80px] border">
-            {q.student_answer_text || <span className="text-muted-foreground italic">لم يكتب الطالب إجابة</span>}
-          </div>
-        ) : Array.isArray(q.options) && q.options.length > 0 ? (
-          <div className="space-y-2">
-            {q.options.map((opt) => {
-              const chosen = opt.id === q.student_answer_option_id;
-              return (
-                <div key={opt.id} className={cn(
-                  "flex items-center gap-3 px-4 py-2.5 rounded-lg border text-sm transition-colors",
-                  chosen ? "border-primary/40 bg-primary/5 text-primary font-medium" : "border-border text-muted-foreground"
-                )}>
-                  <div className={cn("w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center", chosen ? "border-primary" : "border-muted-foreground/30")}>
-                    {chosen && <div className="w-2 h-2 rounded-full bg-primary" />}
-                  </div>
-                  <span className="flex-1">{opt.option_ar || opt.option_en}</span>
-                  {chosen && <Badge className="text-xs shrink-0">إجابة الطالب</Badge>}
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <p className="text-sm text-muted-foreground italic">لا توجد خيارات</p>
-        )}
+
+
+        {
+          q.type === "essay"
+
+            ?
+
+            <div className="
+              bg-muted/30
+              rounded-lg
+              p-4
+              text-sm
+              border
+            ">
+
+              {
+                q.student_answer_text ||
+                "لا توجد إجابة"
+              }
+
+
+            </div>
+
+
+            :
+
+            <div className="text-sm text-muted-foreground">
+
+              {
+                q.student_answer_text ||
+                "تم اختيار الإجابة"
+              }
+
+            </div>
+
+        }
+
+
       </div>
+
+
+
     </div>
+
   );
+
 }
-
-
-// ─── Page ────────────────────────────────────────────────
-
 export function ExamCorrectionPage() {
 
-  const { id = "" }  = useParams();
-  const queryClient  = useQueryClient();
+
+  const { id = "" } = useParams();
+
+
+  const queryClient = useQueryClient();
+
+
 
   const [selectedIdx, setSelectedIdx] = useState(0);
-  const [mark,        setMark]        = useState("");
-  const [savedMarks,  setSavedMarks]  = useState<Record<number, number>>({});
 
-  const { data: raw = [], isLoading, isError, refetch } = useQuery({
-    queryKey: ["exam-grading", id],
-    queryFn:  () => fetchExamResults(id),
-    enabled:  !!id,
+
+  const [mark, setMark] = useState("");
+
+
+  const [savedMarks, setSavedMarks] =
+    useState<Record<number, number>>({});
+
+
+
+
+  const {
+    data: raw = [],
+    isLoading,
+    isError,
+    refetch,
+
+  } = useQuery({
+
+    queryKey: [
+      "exam-grading",
+      id
+    ],
+
+
+    queryFn: () =>
+      fetchExamResults(id),
+
+
+    enabled:
+      !!id,
+
   });
 
-  const entries: StudentEntry[] = (raw as any[]).map(normalise);
 
-  const { mutate: saveMark, isPending: saving } = useMutation({
-    mutationFn: () => instructorTestsApi.markStudent(id, entries[selectedIdx].student.id, Number(mark)),
-    onSuccess: () => {
-      setSavedMarks((p) => ({ ...p, [entries[selectedIdx].student.id]: Number(mark) }));
-      toast.success("تم حفظ الدرجة بنجاح ✓");
-      setMark("");
-      queryClient.invalidateQueries({ queryKey: ["exam-grading",  id] });
-      queryClient.invalidateQueries({ queryKey: ["exam-results",  id] });
-      if (selectedIdx < entries.length - 1) setSelectedIdx((p) => p + 1);
+
+
+  const entries: StudentEntry[] =
+    (raw as any[])
+      .map(normalise);
+
+
+
+
+
+  const {
+    mutate: saveMark,
+    isPending: saving,
+
+  } = useMutation({
+
+
+
+    mutationFn: () => {
+
+
+      const current =
+        entries[selectedIdx];
+
+
+
+      const studentId =
+        current.student.id;
+
+
+
+      if (!studentId) {
+
+        throw new Error(
+          "Student ID missing"
+        );
+
+      }
+
+
+
+
+      const questions =
+
+        current.questions?.map(
+          (q) => ({
+
+            test_question_id:
+              q.id,
+
+
+            mark:
+              Number(mark),
+
+          })
+
+        ) ?? [];
+
+
+
+
+      if (!questions.length) {
+
+        throw new Error(
+          "Questions missing"
+        );
+
+      }
+
+
+
+
+      return instructorTestsApi.markStudent(
+
+        id,
+
+        studentId,
+
+        questions
+
+      );
+
     },
-    onError: (err: any) => toast.error(err?.response?.data?.message ?? "فشل حفظ الدرجة"),
+
+
+
+
+
+    onSuccess: () => {
+
+
+      const studentId =
+        entries[selectedIdx]
+          .student
+          .id;
+
+
+
+      setSavedMarks(
+        (prev) => ({
+
+          ...prev,
+
+          [studentId]:
+            Number(mark),
+
+        })
+      );
+
+
+
+      toast.success(
+        "تم حفظ الدرجة بنجاح ✓"
+      );
+
+
+
+      setMark("");
+
+
+
+      queryClient.invalidateQueries({
+
+        queryKey: [
+          "exam-grading",
+          id
+        ]
+
+      });
+
+
+    },
+
+
+
+
+    onError: (error: any) => {
+
+
+      toast.error(
+
+        error?.message ??
+        "فشل حفظ الدرجة"
+
+      );
+
+
+    },
+
+
   });
 
-  const headerContent = (
-    <div className="flex items-center gap-2 text-sm min-w-0">
-      <Link to="/teacher/exams" className="text-muted-foreground hover:text-foreground transition-colors">الاختبارات</Link>
-      <ChevronLeft className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-      <Link to={`/teacher/exams/${id}/results`} className="text-muted-foreground hover:text-foreground transition-colors">النتائج</Link>
-      <ChevronLeft className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-      <span className="font-semibold text-foreground">تصحيح</span>
-    </div>
-  );
 
-  const headerActions = (
-    <Button variant="outline" size="sm" asChild>
-      <Link to={`/teacher/exams/${id}/results`}>عرض النتائج</Link>
-    </Button>
-  );
 
-  if (isLoading) return (
-    <TeacherPageLayout headerContent={headerContent} headerActions={headerActions}>
-      <div className="flex-1 flex items-center justify-center"><Loader2 className="animate-spin w-8 h-8 text-primary" /></div>
-    </TeacherPageLayout>
-  );
 
-  if (isError) return (
-    <TeacherPageLayout headerContent={headerContent} headerActions={headerActions}>
-      <div className="flex-1 flex flex-col items-center justify-center gap-4 p-8 text-center">
-        <AlertCircle className="w-10 h-10 text-destructive" />
-        <p className="text-destructive font-semibold">فشل تحميل البيانات</p>
-        <Button variant="outline" onClick={() => refetch()}>إعادة المحاولة</Button>
+  if (isLoading)
+
+    return (
+
+      <Loader2
+        className="
+        animate-spin
+        w-8
+        h-8
+        "
+      />
+
+    );
+
+
+
+
+  if (isError)
+
+    return (
+
+      <Button
+        onClick={() => refetch()}
+      >
+
+        إعادة المحاولة
+
+      </Button>
+
+    );
+
+
+
+
+  if (!entries.length)
+
+    return (
+
+      <div>
+        لا توجد إجابات
       </div>
-    </TeacherPageLayout>
-  );
 
-  if (!entries.length) return (
-    <TeacherPageLayout headerContent={headerContent} headerActions={headerActions}>
-      <div className="flex-1 flex flex-col items-center justify-center gap-4 p-8 text-center" dir="rtl">
-        <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center">
-          <CheckCircle2 className="w-8 h-8 text-emerald-600" />
+    );
+
+
+
+  const current =
+    entries[selectedIdx];
+
+
+
+  const displayMark =
+    savedMarks[current.student.id]
+    ??
+    current.student_mark;
+      return (
+
+    <TeacherPageLayout>
+
+
+      <div
+        className="p-6 space-y-6"
+        dir="rtl"
+      >
+
+
+
+        {/* Students navigation */}
+
+        <div className="flex items-center gap-3">
+
+
+          <Button
+
+            variant="outline"
+
+            disabled={
+              selectedIdx === 0
+            }
+
+            onClick={() => {
+
+              setSelectedIdx(
+                (p) => Math.max(0, p - 1)
+              );
+
+              setMark("");
+
+            }}
+
+          >
+
+            <ChevronRight className="w-4 h-4" />
+
+            السابق
+
+          </Button>
+
+
+
+
+          <span className="text-sm">
+
+            {selectedIdx + 1}
+            /
+            {entries.length}
+
+          </span>
+
+
+
+
+          <Button
+
+            variant="outline"
+
+            disabled={
+              selectedIdx === entries.length - 1
+            }
+
+
+            onClick={() => {
+
+              setSelectedIdx(
+                (p) =>
+                  Math.min(
+                    entries.length - 1,
+                    p + 1
+                  )
+              );
+
+              setMark("");
+
+            }}
+
+          >
+
+            التالي
+
+            <ChevronLeft className="w-4 h-4" />
+
+          </Button>
+
+
         </div>
-        <h2 className="text-xl font-semibold">لا توجد إجابات للتصحيح</h2>
-        <Button asChild><Link to={`/teacher/exams/${id}/results`}>عرض النتائج</Link></Button>
-      </div>
-    </TeacherPageLayout>
-  );
 
-  const current  = entries[selectedIdx];
-  const fullMark = current.full_mark ?? 0;
-  const isDone   = savedMarks[current.student.id] !== undefined || (current.student_mark !== null && current.student_mark !== undefined);
-  const displayMark = savedMarks[current.student.id] ?? current.student_mark;
 
-  return (
-    <TeacherPageLayout headerContent={headerContent} headerActions={headerActions}>
-      <div className="flex-1 overflow-auto bg-muted/40 p-4 sm:p-6" dir="rtl">
-        <div className="mx-auto max-w-7xl flex flex-col gap-6">
 
-          {/* Student selector */}
-          <div className="rounded-xl border bg-card shadow-sm p-4">
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-sm font-semibold flex items-center gap-2 text-foreground">
-                <ClipboardList className="w-4 h-4 text-primary" />
-                الطلاب المُسلِّمون ({entries.length})
-              </p>
-              <div className="flex items-center gap-1.5">
-                <Button variant="outline" size="icon-sm" disabled={selectedIdx === 0}
-                  onClick={() => { setSelectedIdx((p) => Math.max(0, p - 1)); setMark(""); }}>
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
-                <span className="text-xs text-muted-foreground w-14 text-center">{selectedIdx + 1} / {entries.length}</span>
-                <Button variant="outline" size="icon-sm" disabled={selectedIdx === entries.length - 1}
-                  onClick={() => { setSelectedIdx((p) => Math.min(entries.length - 1, p + 1)); setMark(""); }}>
-                  <ChevronLeft className="w-4 h-4" />
-                </Button>
+
+
+        <div className="grid lg:grid-cols-3 gap-6">
+
+
+
+          {/* Questions */}
+
+          <div className="lg:col-span-2 space-y-4">
+
+
+            <div className="rounded-xl border bg-card p-5">
+
+
+              <div className="flex items-center gap-3 mb-4">
+
+
+                <User className="w-5 h-5 text-primary" />
+
+
+                <div>
+
+                  <p className="font-semibold">
+
+                    {current.student.name}
+
+                  </p>
+
+
+                  <p className="text-sm text-muted-foreground">
+
+                    المحاولة #
+                    {current.student_attempt}
+
+                  </p>
+
+
+                </div>
+
+
               </div>
+
+
+
+
+
+              {
+                current.questions?.length
+
+                  ?
+
+                  current.questions.map(
+                    (q, index) => (
+
+                      <QuestionCard
+
+                        key={q.id}
+
+                        q={q}
+
+                        index={index}
+
+                      />
+
+                    )
+
+                  )
+
+
+                  :
+
+                  (
+
+                    <div className="
+                      text-center
+                      py-10
+                      text-muted-foreground
+                    ">
+
+                      لا توجد تفاصيل الإجابات
+
+                    </div>
+
+                  )
+
+              }
+
+
             </div>
-            <div className="flex flex-wrap gap-2">
-              {entries.map((e, i) => {
-                const graded = savedMarks[e.student.id] !== undefined || (e.student_mark !== null && e.student_mark !== undefined);
-                return (
-                  <button key={e.student.id} onClick={() => { setSelectedIdx(i); setMark(""); }}
-                    className={cn("flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all",
-                      i === selectedIdx ? "border-primary bg-primary/5 text-primary"
-                        : graded ? "border-emerald-300 bg-emerald-50 text-emerald-700"
-                        : "border-border bg-background text-foreground hover:border-primary/50"
-                    )}>
-                    <User className="w-3 h-3" />
-                    {e.student.name}
-                    {graded && <CheckCircle2 className="w-3 h-3 text-emerald-500" />}
-                  </button>
-                );
-              })}
-            </div>
+
+
           </div>
 
-          {/* Content */}
-          <div className="grid lg:grid-cols-3 gap-6 items-start">
 
-            {/* Questions */}
-            <div className="lg:col-span-2 space-y-4">
-              <AnimatePresence mode="wait">
-                <motion.div key={current.student.id} initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }} className="space-y-4">
 
-                  {/* Student info */}
-                  <div className="rounded-xl border bg-card shadow-sm px-5 py-4 flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                      <User className="w-5 h-5 text-primary" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-foreground">{current.student.name}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        المحاولة #{current.student_attempt}
-                        {current.submitted_at && <> · {new Date(current.submitted_at).toLocaleString("ar-EG")}</>}
-                      </p>
-                    </div>
-                    {displayMark !== null && displayMark !== undefined && (
-                      <Badge variant="secondary" className="shrink-0 text-sm px-3 py-1">{displayMark} / {fullMark}</Badge>
-                    )}
-                  </div>
 
-                  {/* Questions list */}
-                  {Array.isArray(current.questions) && current.questions.length > 0
-                    ? current.questions.map((q: SubmittedQuestion, i: number) => <QuestionCard key={q.id ?? i} q={q} index={i} />)
-                    : (
-                      <div className="rounded-xl border bg-card p-10 text-center">
-                        <BookOpen className="w-10 h-10 mx-auto mb-3 text-muted-foreground/30" />
-                        <p className="font-medium text-muted-foreground">لا تتوفر تفاصيل الإجابات</p>
-                        <p className="text-sm text-muted-foreground/60 mt-1">يمكنك إدخال الدرجة من لوحة التقييم</p>
-                      </div>
-                    )
-                  }
 
-                </motion.div>
-              </AnimatePresence>
-            </div>
+          {/* Grade */}
 
-            {/* Grading panel */}
-            <div className="lg:col-span-1">
-              <div className="rounded-xl border bg-card shadow-sm p-5 sticky top-[4.5rem]">
-                <h2 className="font-semibold text-foreground mb-5 flex items-center gap-2">
-                  <PenLine className="w-4 h-4 text-primary" />التقييم
+          <div>
+
+
+            <div className="
+              rounded-xl
+              border
+              bg-card
+              p-5
+              sticky
+              top-5
+            ">
+
+
+              <div className="
+                flex
+                items-center
+                gap-2
+                mb-5
+              ">
+
+                <PenLine
+                  className="w-5 h-5 text-primary"
+                />
+
+                <h2 className="font-semibold">
+
+                  التقييم
+
                 </h2>
 
-                <div className="mb-4 flex items-center gap-3 p-3 bg-muted/40 rounded-lg border">
-                  <User className="w-4 h-4 text-muted-foreground shrink-0" />
-                  <div>
-                    <p className="text-xs text-muted-foreground">الطالب</p>
-                    <p className="text-sm font-semibold text-foreground">{current.student.name}</p>
-                  </div>
-                </div>
 
-                {fullMark > 0 && (
-                  <div className="mb-4 flex justify-between items-center p-3 bg-muted/40 rounded-lg border text-sm">
-                    <span className="text-muted-foreground">الدرجة الكاملة</span>
-                    <span className="font-bold text-foreground">{fullMark}</span>
-                  </div>
-                )}
-
-                {isDone && (
-                  <div className="mb-4 flex justify-between items-center p-3 bg-emerald-50 rounded-lg border border-emerald-200 text-sm">
-                    <span className="text-emerald-600">الدرجة المسجلة</span>
-                    <span className="font-bold text-emerald-700">{displayMark}</span>
-                  </div>
-                )}
-
-                <label className="block text-sm font-medium text-foreground mb-1.5">{isDone ? "تعديل الدرجة" : "أدخل الدرجة"}</label>
-                <input
-                  type="number" min={0} max={fullMark || undefined}
-                  value={mark} onChange={(e) => setMark(e.target.value)}
-                  placeholder={fullMark ? `0 – ${fullMark}` : "الدرجة"}
-                  className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-center text-xl font-bold focus:outline-none focus:ring-2 focus:ring-ring mb-1"
-                />
-                {mark !== "" && fullMark > 0 && (Number(mark) < 0 || Number(mark) > fullMark) && (
-                  <p className="text-xs text-destructive mb-2">يجب أن تكون الدرجة بين 0 و {fullMark}</p>
-                )}
-
-                <div className="mt-4 flex flex-col gap-2">
-                  <Button onClick={() => saveMark()} className="w-full"
-                    disabled={saving || mark === "" || (fullMark > 0 && (Number(mark) < 0 || Number(mark) > fullMark))}>
-                    {saving && <Loader2 className="w-4 h-4 animate-spin me-1" />}
-                    حفظ الدرجة
-                  </Button>
-                  {selectedIdx < entries.length - 1 && (
-                    <Button variant="outline" className="w-full" onClick={() => { setSelectedIdx((p) => p + 1); setMark(""); }}>
-                      الطالب التالي ←
-                    </Button>
-                  )}
-                </div>
               </div>
+
+
+
+
+
+              {
+                displayMark !== null &&
+                displayMark !== undefined &&
+
+                (
+
+                  <Badge className="mb-4">
+
+                    الدرجة الحالية:
+                    {" "}
+                    {displayMark}
+
+                  </Badge>
+
+                )
+
+              }
+
+
+
+
+
+              <input
+
+                type="number"
+
+                value={mark}
+
+                onChange={(e)=>
+                  setMark(e.target.value)
+                }
+
+
+                className="
+                  w-full
+                  rounded-lg
+                  border
+                  p-3
+                  text-center
+                  text-xl
+                  font-bold
+                "
+
+
+                placeholder="أدخل الدرجة"
+
+              />
+
+
+
+
+
+              <Button
+
+                className="w-full mt-4"
+
+
+                disabled={
+                  saving ||
+                  !mark
+                }
+
+
+                onClick={() =>
+                  saveMark()
+                }
+
+              >
+
+
+                {
+                  saving &&
+
+                  <Loader2
+                    className="
+                      w-4 h-4
+                      animate-spin
+                      me-2
+                    "
+                  />
+
+                }
+
+
+                حفظ الدرجة
+
+
+              </Button>
+
+
+
             </div>
 
+
           </div>
+
+
+
         </div>
+
+
+
       </div>
+
+
     </TeacherPageLayout>
+
   );
+
+
 }
