@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Plus, Pencil, Trash2, Video, Radio } from "lucide-react";
+import { Plus, Pencil, Trash2, Video, Radio, Eye } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "@/shared/components/ui/button";
@@ -15,8 +16,9 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { CoursesEmptyState } from "./courses-empty-error";
 import { AddLectureModal } from "./add-lecture-modal";
+import { LectureShowModal } from "./lecture-show-modal";
 import { useCourseContentStore } from "../model/course-content-store";
-import { deleteLecture } from "../api";
+import { deleteLecture, type LectureItem } from "../api";
 
 export function LecturesTab() {
   const { t } = useTranslation("teacherCourses");
@@ -26,6 +28,14 @@ export function LecturesTab() {
   const isLoading         = useCourseContentStore((s) => s.isLoadingLectures);
   const openLectureModal  = useCourseContentStore((s) => s.openLectureModal);
   const courseId          = useCourseContentStore((s) => s.courseId);
+
+  const [selectedLecture, setSelectedLecture] = useState<LectureItem | null>(null);
+  const [isShowModalOpen, setIsShowModalOpen] = useState(false);
+
+  const handleShowLecture = (lecture: LectureItem) => {
+    setSelectedLecture(lecture);
+    setIsShowModalOpen(true);
+  };
 
   const { mutate: remove, isPending: isDeleting } = useMutation({
     mutationFn: (id: number) => deleteLecture(id),
@@ -73,7 +83,7 @@ export function LecturesTab() {
                   <TableCell><Skeleton className="h-4 w-[60px]" /></TableCell>
                   <TableCell><Skeleton className="h-4 w-[80px]" /></TableCell>
                   <TableCell><Skeleton className="h-5 w-[60px] rounded-full" /></TableCell>
-                  <TableCell className="text-end"><Skeleton className="h-8 w-[60px] inline-block" /></TableCell>
+                  <TableCell className="text-end"><Skeleton className="h-8 w-[80px] inline-block" /></TableCell>
                 </TableRow>
               ))
             ) : lectures.length === 0 ? (
@@ -107,10 +117,19 @@ export function LecturesTab() {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-end">
-                    <div className="flex items-center justify-end gap-2">
+                    <div className="flex items-center justify-end gap-1 sm:gap-2">
                       <Button
                         variant="ghost"
                         size="icon"
+                        title={t("lectures.show", "Show Lecture")}
+                        onClick={() => handleShowLecture(lecture)}
+                      >
+                        <Eye className="size-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        title={t("lectures.editTitle", "Edit Lecture")}
                         onClick={() => openLectureModal(lecture)}
                       >
                         <Pencil className="size-4" />
@@ -118,6 +137,7 @@ export function LecturesTab() {
                       <Button
                         variant="ghost"
                         size="icon"
+                        title={t("actions.delete", "Delete")}
                         className="text-destructive hover:text-destructive"
                         disabled={isDeleting}
                         onClick={() => remove(lecture.id)}
@@ -134,6 +154,13 @@ export function LecturesTab() {
       </div>
 
       <AddLectureModal />
+
+      <LectureShowModal
+        lecture={selectedLecture}
+        open={isShowModalOpen}
+        onClose={() => setIsShowModalOpen(false)}
+        onEdit={(lec) => openLectureModal(lec)}
+      />
     </div>
   );
 }

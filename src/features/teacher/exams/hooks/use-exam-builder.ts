@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
@@ -27,6 +28,9 @@ const emptyDefaults: ExamBuilderFormData = {
 };
 
 export function useExamBuilder(examId?: string) {
+  const [searchParams] = useSearchParams();
+  const queryCourseId = searchParams.get("courseId") ?? searchParams.get("course") ?? "";
+
   const { mutate: saveExam, isPending: isSaving } = useSaveExam(examId);
 
   // ── Fetch existing exam when editing ──
@@ -39,7 +43,7 @@ export function useExamBuilder(examId?: string) {
 
   // ── Build default values ──
   // For edit: use fetched data once available (avoids empty flash)
-  // For create: use empty defaults immediately
+  // For create: use empty defaults immediately (with queryCourseId if present)
   const resolvedDefaults: ExamBuilderFormData =
     examId && examData
       ? {
@@ -52,7 +56,10 @@ export function useExamBuilder(examId?: string) {
           questions:       examData.questions ?? [],
           settings:        examData.settings ?? emptyDefaults.settings,
         }
-      : emptyDefaults;
+      : {
+          ...emptyDefaults,
+          courseId: queryCourseId || "",
+        };
 
   const form = useForm<ExamBuilderFormData>({
     resolver:      zodResolver(examBuilderSchema),

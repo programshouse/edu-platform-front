@@ -15,8 +15,13 @@ export interface Exam {
 export interface Assignment {
   id: string;
   title: string;
+  title_en?: string;
+  title_ar?: string;
+  description?: string;
   dueDate: string;
   submissionsCount: number;
+  totalGrade?: number;
+  courseId?: string;
 }
 
 interface CourseContentState {
@@ -45,6 +50,12 @@ interface CourseContentState {
   setLoadingLectures: (v: boolean) => void;
   setExams: (exams: Exam[]) => void;
   setAssignments: (assignments: Assignment[]) => void;
+  setLoadingExams: (v: boolean) => void;
+  setLoadingAssignments: (v: boolean) => void;
+
+  addAssignment: (assignment: Assignment) => void;
+  updateAssignment: (id: string, assignment: Partial<Assignment>) => void;
+  deleteAssignment: (id: string) => void;
 
   openLectureModal: (lecture?: LectureItem) => void;
   closeLectureModal: () => void;
@@ -74,6 +85,23 @@ export const useCourseContentStore = create<CourseContentState>((set) => ({
   setLoadingLectures: (v) => set({ isLoadingLectures: v }),
   setExams: (exams) => set({ exams }),
   setAssignments: (assignments) => set({ assignments }),
+  setLoadingExams: (v) => set({ isLoadingExams: v }),
+  setLoadingAssignments: (v) => set({ isLoadingAssignments: v }),
+
+  addAssignment: (assignment) =>
+    set((state) => ({ assignments: [assignment, ...state.assignments] })),
+
+  updateAssignment: (id, updated) =>
+    set((state) => ({
+      assignments: state.assignments.map((item) =>
+        item.id === id ? { ...item, ...updated } : item
+      ),
+    })),
+
+  deleteAssignment: (id) =>
+    set((state) => ({
+      assignments: state.assignments.filter((item) => item.id !== id),
+    })),
 
   openLectureModal: (lecture) => set({ isAddLectureModalOpen: true, editingLecture: lecture ?? null }),
   closeLectureModal: () => set({ isAddLectureModalOpen: false, editingLecture: null }),
