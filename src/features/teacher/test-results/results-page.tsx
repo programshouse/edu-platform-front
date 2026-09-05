@@ -47,13 +47,43 @@ function getName(s: StudentResult["student"]): string {
 
 // Normalise pending-test shape → StudentResult
 function normaliseResult(r: any): StudentResult {
+  const s = (typeof r.student === "object" && r.student !== null)
+    ? r.student
+    : (typeof r.user === "object" && r.user !== null)
+      ? r.user
+      : {};
+
+  const studentId =
+    s.id ??
+    s.student_id ??
+    s.user_id ??
+    r.student_id ??
+    r.user_id ??
+    (typeof r.student === "number" ? r.student : null) ??
+    r.id ??
+    0;
+
+  let studentName = "";
+  if (typeof s === "object" && s !== null) {
+    studentName = s.name ?? s.full_name ?? (s.first_name ? `${s.first_name} ${s.last_name ?? ""}`.trim() : "") ?? s.student_name ?? "";
+  }
+  if (!studentName) {
+    studentName = r.student_name ?? r.user_name ?? r.name ?? (typeof r.student === "string" ? r.student : "") ?? `طالب #${studentId || 1}`;
+  }
+
+  const fullMark = Number(r.full_mark ?? r.test?.full_mark ?? 0);
+  const studentMark = r.student_mark != null ? Number(r.student_mark) : r.mark != null ? Number(r.mark) : null;
+
   return {
-    student:         r.student ?? { id: r.student_id ?? 0, name: r.student_name ?? "—" },
-    student_mark:    r.student_mark ?? r.mark ?? null,
-    full_mark:       r.full_mark ?? r.test?.full_mark ?? 0,
-    result:          r.result ?? null,
-    student_attempt: r.student_attempt ?? 1,
-    submitted_at:    r.submitted_at ?? null,
+    student: {
+      id: Number(studentId),
+      name: String(studentName),
+    },
+    student_mark: studentMark,
+    full_mark: fullMark,
+    result: r.result ?? (studentMark !== null && fullMark > 0 ? (studentMark >= fullMark * 0.5 ? "passed" : "failed") : null),
+    student_attempt: Number(r.student_attempt ?? r.attempt ?? 1),
+    submitted_at: r.submitted_at ?? r.created_at ?? null,
   };
 }
 
@@ -99,19 +129,19 @@ export default function InstructorTestResultsPage() {
     </div>
   );
 
-  const headerActions = pending > 0 ? (
+  const headerActions = (
     <Button size="sm" asChild>
       <Link to={`/teacher/tests/${id}/correction`}>
         <ClipboardEdit className="w-4 h-4 me-1.5" />
-        تصحيح ({pending} معلق)
+        تصحيح الإجابات
       </Link>
     </Button>
-  ) : undefined;
+  );
 
 
   // ── Loading / Error ───────────────────────────────────────
   if (isLoading) return (
-    <TeacherPageLayout headerContent={headerContent}>
+    <TeacherPageLayout headerContent={headerContent} headerActions={headerActions}>
       <div className="flex-1 flex items-center justify-center">
         <Loader2 className="animate-spin w-8 h-8 text-primary" />
       </div>
@@ -119,7 +149,7 @@ export default function InstructorTestResultsPage() {
   );
 
   if (isError) return (
-    <TeacherPageLayout headerContent={headerContent}>
+    <TeacherPageLayout headerContent={headerContent} headerActions={headerActions}>
       <div className="flex-1 flex flex-col items-center justify-center gap-4 p-8 text-center">
         <AlertCircle className="w-10 h-10 text-destructive" />
         <p className="text-destructive font-semibold">فشل تحميل النتائج</p>
@@ -129,62 +159,73 @@ export default function InstructorTestResultsPage() {
   );
 
 
-  // ── Main ─────────────────────────────────────────────────
+  // ── Render ────────────────────────────────────────────────
   return (
     <TeacherPageLayout headerContent={headerContent} headerActions={headerActions}>
       <div className="flex-1 overflow-auto bg-muted/40 p-4 sm:p-6" dir="rtl">
         <div className="mx-auto max-w-7xl flex flex-col gap-6">
 
-
-          {/* ── Stat cards ── */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* ── Summary Stats ── */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {[
-              { label: "إجمالي الطلاب", value: total,   icon: Users,        cls: "bg-blue-50   text-blue-600"   },
-              { label: "ناجح",           value: passed,  icon: CheckCircle2, cls: "bg-emerald-50 text-emerald-600" },
-              { label: "راسب",           value: failed,  icon: XCircle,      cls: "bg-red-50    text-red-500"    },
-              { label: "متوسط الدرجات", value: avgMark, icon: BarChart3,    cls: "bg-violet-50  text-violet-600" },
+              { label: "إجمالي المُسلِّمين", value: total,   icon: Users,        cls: "text-foreground" },
+              { label: "الناجحون",           value: passed,  icon: CheckCircle2, cls: "text-emerald-600" },
+              { label: "الراسبون",           value: failed,  icon: XCircle,      cls: "text-red-500" },
+              { label: "متوسط الدرجات",      value: avgMark, icon: BarChart3,    cls: "text-primary" },
             ].map(({ label, value, icon: Icon, cls }, i) => (
               <motion.div
-                key={label}
-                initial={{ opacity: 0, y: 10 }}
+                key={`stat-card-${i}`}
+                initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
-                className="rounded-xl border bg-card shadow-sm p-5 flex items-center gap-4"
+                className="rounded-xl border bg-card p-4 shadow-xs"
               >
-                <div className={cn("w-11 h-11 rounded-xl flex items-center justify-center shrink-0", cls)}>
-                  <Icon className="w-5 h-5" />
+                <div className="flex items-center justify-between text-muted-foreground mb-2">
+                  <span className="text-xs font-medium">{label}</span>
+                  <Icon className="w-4 h-4" />
                 </div>
-                <div>
-                  <p className="text-2xl font-bold text-foreground">{value}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{label}</p>
-                </div>
+                <p className={cn("text-2xl font-bold", cls)}>{value}</p>
               </motion.div>
             ))}
           </div>
 
 
-          {/* ── Table ── */}
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            className="rounded-xl border bg-card shadow-sm overflow-hidden"
-          >
-
-            {results.length === 0 ? (
-
-              <div className="flex flex-col items-center justify-center py-20 text-center">
-                <Users className="w-12 h-12 text-muted-foreground/20 mb-3" />
-                <p className="font-medium text-muted-foreground">لا توجد نتائج بعد</p>
-                <p className="text-sm text-muted-foreground/60 mt-1">لم يُسلّم أي طالب هذا الاختبار</p>
+          {/* ── Pending banner if any ── */}
+          {pending > 0 && (
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
+                  <Clock className="w-4 h-4 text-amber-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-amber-900">
+                    يوجد {pending} إجابة تنتظر التصحيح اليدوي
+                  </p>
+                  <p className="text-xs text-amber-700 mt-0.5">
+                    قم بتصحيح الأسئلة المقالية لتحديث درجات الطلاب
+                  </p>
+                </div>
               </div>
+              <Button size="sm" asChild className="shrink-0">
+                <Link to={`/teacher/tests/${id}/correction`}>ابدأ التصحيح ←</Link>
+              </Button>
+            </div>
+          )}
 
-            ) : (
 
+          {/* ── Results Table ── */}
+          {total === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 bg-card rounded-xl border text-center">
+              <Users className="w-12 h-12 text-muted-foreground/30 mb-3" />
+              <p className="font-semibold text-foreground">لا توجد نتائج بعد</p>
+              <p className="text-sm text-muted-foreground mt-1">لم يُسلّم أي طالب هذا الاختبار حتى الآن</p>
+            </div>
+          ) : (
+            <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-12">#</TableHead>
+                    <TableHead>#</TableHead>
                     <TableHead>الطالب</TableHead>
                     <TableHead className="text-center">الدرجة</TableHead>
                     <TableHead className="text-center">النسبة</TableHead>
@@ -201,7 +242,7 @@ export default function InstructorTestResultsPage() {
                       ? Math.round(((r.student_mark ?? 0) / r.full_mark) * 100)
                       : 0;
                     return (
-                      <TableRow key={i}>
+                      <TableRow key={`student-result-${(r.student as any)?.id ?? i}-${i}`}>
 
                         <TableCell className="text-muted-foreground text-xs">{i + 1}</TableCell>
 

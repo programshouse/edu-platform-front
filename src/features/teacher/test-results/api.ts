@@ -60,68 +60,78 @@ export const instructorTestsApi = {
 
   // GET /tests/{id}/get-student-test-results
   getStudentResults: async (id: string | number) => {
-    const { data } = await axiosInstance.get(`/tests/${id}/get-student-test-results`);
-    return data?.data ?? [];
+    try {
+      const { data } = await axiosInstance.get(`/tests/${id}/get-student-test-results`);
+      if (Array.isArray(data?.data)) return data.data;
+      if (Array.isArray(data)) return data;
+      return [];
+    } catch {
+      return [];
+    }
   },
 
   // GET /get-pending-tests
   getPending: async () => {
-    const { data } = await axiosInstance.get("/get-pending-tests");
-    return data?.data ?? [];
+    try {
+      const { data } = await axiosInstance.get("/get-pending-tests");
+      if (Array.isArray(data?.data)) return data.data;
+      if (Array.isArray(data)) return data;
+      return [];
+    } catch {
+      return [];
+    }
   },
 
   // Filter pending tests by test id
   getPendingForTest: async (testId: string | number) => {
-    const { data } = await axiosInstance.get("/get-pending-tests");
-    const list = data?.data ?? [];
-    return list.filter((item: any) => String(item.test?.id) === String(testId));
+    try {
+      const { data } = await axiosInstance.get("/get-pending-tests");
+      const list = Array.isArray(data?.data) ? data.data : Array.isArray(data) ? data : [];
+      return list.filter((item: any) =>
+        String(item.test?.id ?? item.test_id ?? "") === String(testId)
+      );
+    } catch {
+      return [];
+    }
   },
 
   /**
    * POST /students/{student_id}/tests/{test_id}/mark
    * Supports both questions array and single mark value
    */
-  markStudent: async (
-    testId: string | number,
-    studentId: string | number,
-    markOrQuestions: MarkQuestionPayload[] | number | string
-  ) => {
-    if (!studentId) {
-      throw new Error("Student ID is required");
+ markStudent: async (
+  test_id: string | number,
+  student_id: string | number,
+  mark: number | string
+) => {
+
+  if (
+    !student_id ||
+    String(student_id) === "undefined" ||
+    String(student_id) === "0"
+  ) {
+    throw new Error("student_id is required");
+  }
+
+  if (
+    mark === undefined ||
+    mark === null ||
+    mark === ""
+  ) {
+    throw new Error("mark is required");
+  }
+
+
+  const { data } = await axiosInstance.post(
+    `/students/${student_id}/tests/${test_id}/mark`,
+    {
+      mark: Number(mark),
     }
+  );
 
-    if (Array.isArray(markOrQuestions)) {
-      if (markOrQuestions.length === 0) {
-        throw new Error("Questions are required");
-      }
 
-      const payload = {
-        questions: markOrQuestions.map((q) => ({
-          test_question_id: Number(q.test_question_id),
-          mark: Number(q.mark),
-        })),
-      };
-
-      const { data } = await axiosInstance.post(
-        `/students/${studentId}/tests/${testId}/mark`,
-        payload
-      );
-      return data;
-    } else {
-      const formData = new FormData();
-      formData.append("mark", String(markOrQuestions));
-      const { data } = await axiosInstance.post(
-        `/students/${studentId}/tests/${testId}/mark`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-      return data;
-    }
-  },
+  return data;
+},
 
   // GET /instructor/latest-subscribed-students
   getLatestSubscribedStudents: async () => {

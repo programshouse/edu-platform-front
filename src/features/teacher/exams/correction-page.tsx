@@ -1,22 +1,22 @@
 import { useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useParams } from "react-router-dom";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
+
 import { toast } from "sonner";
-import { motion, AnimatePresence } from "framer-motion";
 
 import {
-  CheckCircle2,
   ChevronLeft,
   ChevronRight,
-  ClipboardList,
   Loader2,
   User,
-  AlertCircle,
   PenLine,
-  BookOpen,
 } from "lucide-react";
 
-import { cn } from "@/shared/lib/utils";
+
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 
@@ -28,6 +28,8 @@ import { instructorTestsApi } from "@/features/teacher/test-results/api";
 
 
 
+
+
 interface AnswerOption {
 
   id: number;
@@ -36,7 +38,11 @@ interface AnswerOption {
 
   option_ar: string;
 
+  is_correct?: number | boolean;
+
 }
+
+
 
 
 
@@ -62,6 +68,8 @@ interface SubmittedQuestion {
 
 
 
+
+
 interface StudentEntry {
 
   student: {
@@ -81,30 +89,121 @@ interface StudentEntry {
 
   student_attempt: number;
 
-  submitted_at?: string;
+  submitted_at?: string | null;
 
 
   questions?: SubmittedQuestion[];
 
 }
-function normalise(r: any): StudentEntry {
+
+
+
+
+
+
+function normalise(
+  r: any
+): StudentEntry {
+
+
+  const studentObject =
+
+    typeof r.student === "object" &&
+    r.student !== null
+
+      ? r.student
+
+      : typeof r.user === "object" &&
+        r.user !== null
+
+      ? r.user
+
+      : {};
+
+
+
+
+
+  const studentId =
+
+    studentObject.id ??
+
+    studentObject.student_id ??
+
+    studentObject.user_id ??
+
+    r.student_id ??
+
+    r.user_id ??
+
+    0;
+
+
+
+
+
+  const studentName =
+
+    studentObject.name ??
+
+    studentObject.full_name ??
+
+    r.student_name ??
+
+    r.user_name ??
+
+    "—";
+
+
+
+
+
+  const questions =
+
+    Array.isArray(r.questions)
+
+      ? r.questions
+
+      : Array.isArray(r.test_questions)
+
+      ? r.test_questions
+
+      : [];
+
+
+
+
+
+const uniqueQuestions =
+
+  questions.map(
+    (q:any,index:number)=>({
+
+      ...q,
+
+      id:
+        q.id ??
+        index + 1,
+
+    })
+
+  ) as SubmittedQuestion[];
+
+
+
+
 
   return {
 
+
     student: {
 
-      id:
-        r.student?.id ??
-        r.student_id ??
-        0,
+      id: Number(studentId),
 
-
-      name:
-        r.student?.name ??
-        r.student_name ??
-        "—",
+      name: String(studentName),
 
     },
+
 
 
     student_mark:
@@ -117,8 +216,11 @@ function normalise(r: any): StudentEntry {
 
     full_mark:
 
-      r.full_mark ??
-      0,
+      Number(
+        r.full_mark ??
+        r.test?.full_mark ??
+        0
+      ),
 
 
 
@@ -131,35 +233,29 @@ function normalise(r: any): StudentEntry {
 
     student_attempt:
 
-      r.student_attempt ??
-      1,
+      Number(
+        r.student_attempt ??
+        r.attempt ??
+        1
+      ),
 
 
 
     submitted_at:
 
       r.submitted_at ??
+      r.created_at ??
       null,
 
 
 
     questions:
 
-      Array.isArray(r.questions)
+      uniqueQuestions,
 
-        ? r.questions
-
-        : [],
 
   };
-
-}
-
-
-
-
-
-function QuestionCard({
+  function QuestionCard({
 
   q,
 
@@ -179,7 +275,18 @@ function QuestionCard({
     <div className="rounded-xl border bg-card overflow-hidden">
 
 
-      <div className="bg-muted/40 border-b px-5 py-3.5 flex items-start justify-between gap-4">
+      <div
+        className="
+          bg-muted/40
+          border-b
+          px-5
+          py-3.5
+          flex
+          items-start
+          justify-between
+          gap-4
+        "
+      >
 
 
         <div className="flex items-start gap-3">
@@ -187,17 +294,17 @@ function QuestionCard({
 
           <span
             className="
-            shrink-0
-            w-6
-            h-6
-            rounded-full
-            bg-primary/10
-            text-primary
-            text-xs
-            font-bold
-            flex
-            items-center
-            justify-center
+              shrink-0
+              w-6
+              h-6
+              rounded-full
+              bg-primary/10
+              text-primary
+              text-xs
+              font-bold
+              flex
+              items-center
+              justify-center
             "
           >
 
@@ -209,12 +316,16 @@ function QuestionCard({
 
           <p className="font-medium text-sm leading-relaxed">
 
-            {q.question_ar || q.question_en}
+            {
+              q.question_ar ||
+              q.question_en
+            }
 
           </p>
 
 
         </div>
+
 
 
 
@@ -231,41 +342,47 @@ function QuestionCard({
 
 
 
+
       <div className="px-5 py-4">
 
 
         {
+
           q.type === "essay"
 
-            ?
+          ?
 
-            <div className="
+          <div
+            className="
               bg-muted/30
               rounded-lg
               p-4
-              text-sm
               border
-            ">
+              text-sm
+            "
+          >
 
-              {
-                q.student_answer_text ||
-                "لا توجد إجابة"
-              }
+            {
+              q.student_answer_text ||
+              "لا توجد إجابة"
+            }
 
 
-            </div>
+          </div>
 
 
-            :
 
-            <div className="text-sm text-muted-foreground">
+          :
 
-              {
-                q.student_answer_text ||
-                "تم اختيار الإجابة"
-              }
 
-            </div>
+          <div className="text-sm text-muted-foreground">
+
+            {
+              q.student_answer_text ||
+              "تم اختيار الإجابة"
+            }
+
+          </div>
 
         }
 
@@ -279,48 +396,69 @@ function QuestionCard({
   );
 
 }
+
+
+
+
+
+
+
 export function ExamCorrectionPage() {
 
 
   const { id = "" } = useParams();
 
 
-  const queryClient = useQueryClient();
+
+  const queryClient =
+    useQueryClient();
 
 
 
-  const [selectedIdx, setSelectedIdx] = useState(0);
+
+  const [selectedIdx,setSelectedIdx] =
+    useState(0);
 
 
-  const [mark, setMark] = useState("");
+
+  const [mark,setMark] =
+    useState("");
 
 
-  const [savedMarks, setSavedMarks] =
-    useState<Record<number, number>>({});
+
+  const [savedMarks,setSavedMarks] =
+    useState<Record<number,number>>({});
 
 
 
 
   const {
+
     data: raw = [],
+
     isLoading,
+
     isError,
+
     refetch,
 
   } = useQuery({
 
-    queryKey: [
+
+    queryKey:[
+
       "exam-grading",
+
       id
+
     ],
 
 
-    queryFn: () =>
-      fetchExamResults(id),
+    queryFn:()=>fetchExamResults(id),
 
 
-    enabled:
-      !!id,
+    enabled:!!id,
+
 
   });
 
@@ -328,300 +466,400 @@ export function ExamCorrectionPage() {
 
 
   const entries: StudentEntry[] =
+
     (raw as any[])
+
       .map(normalise);
+      const {
+  mutate: saveMark,
+  isPending: saving,
+
+} = useMutation({
+
+
+  mutationFn: () => {
+
+
+    const current =
+      entries[selectedIdx];
 
 
 
-
-
-  const {
-    mutate: saveMark,
-    isPending: saving,
-
-  } = useMutation({
+    const student_id =
+      current.student.id;
 
 
 
-    mutationFn: () => {
+    if (
+      !student_id ||
+      String(student_id) === "0"
+    ) {
 
-
-      const current =
-        entries[selectedIdx];
-
-
-
-      const studentId =
-        current.student.id;
-
-
-
-      if (!studentId) {
-
-        throw new Error(
-          "Student ID missing"
-        );
-
-      }
-
-
-
-
-      const questions =
-
-        current.questions?.map(
-          (q) => ({
-
-            test_question_id:
-              q.id,
-
-
-            mark:
-              Number(mark),
-
-          })
-
-        ) ?? [];
-
-
-
-
-      if (!questions.length) {
-
-        throw new Error(
-          "Questions missing"
-        );
-
-      }
-
-
-
-
-      return instructorTestsApi.markStudent(
-
-        id,
-
-        studentId,
-
-        questions
-
+      throw new Error(
+        "تعذر تحديد معرف الطالب"
       );
 
-    },
+    }
+
+
+
+    return instructorTestsApi.markStudent(
+
+      id,
+
+      student_id,
+
+      mark
+
+    );
+
+
+  },
+
+
+
+  onSuccess: () => {
+
+
+    const student_id =
+      entries[selectedIdx]
+        .student
+        .id;
+
+
+
+    setSavedMarks(
+
+      (prev)=>({
+
+        ...prev,
+
+        [student_id]:
+          Number(mark),
+
+      })
+
+    );
+
+
+
+    toast.success(
+      "تم حفظ الدرجة بنجاح ✓"
+    );
+
+
+
+    setMark("");
+
+
+
+    queryClient.invalidateQueries({
+
+      queryKey:[
+
+        "exam-grading",
+
+        id
+
+      ]
+
+    });
+
+
+  },
+
+
+
+  onError:(error:any)=>{
+
+
+    toast.error(
+
+      error?.message ??
+
+      "فشل حفظ الدرجة"
+
+    );
+
+
+  },
+
+
+});
 
 
 
 
 
-    onSuccess: () => {
+if (isLoading) {
 
+  return (
 
-      const studentId =
-        entries[selectedIdx]
-          .student
-          .id;
-
-
-
-      setSavedMarks(
-        (prev) => ({
-
-          ...prev,
-
-          [studentId]:
-            Number(mark),
-
-        })
-      );
-
-
-
-      toast.success(
-        "تم حفظ الدرجة بنجاح ✓"
-      );
-
-
-
-      setMark("");
-
-
-
-      queryClient.invalidateQueries({
-
-        queryKey: [
-          "exam-grading",
-          id
-        ]
-
-      });
-
-
-    },
-
-
-
-
-    onError: (error: any) => {
-
-
-      toast.error(
-
-        error?.message ??
-        "فشل حفظ الدرجة"
-
-      );
-
-
-    },
-
-
-  });
-
-
-
-
-  if (isLoading)
-
-    return (
-
-      <Loader2
-        className="
+    <Loader2
+      className="
         animate-spin
         w-8
         h-8
-        "
-      />
+      "
+    />
 
-    );
+  );
 
-
-
-
-  if (isError)
-
-    return (
-
-      <Button
-        onClick={() => refetch()}
-      >
-
-        إعادة المحاولة
-
-      </Button>
-
-    );
+}
 
 
 
 
-  if (!entries.length)
+if (isError) {
 
-    return (
+  return (
 
-      <div>
-        لا توجد إجابات
+    <Button
+      onClick={()=>refetch()}
+    >
+
+      إعادة المحاولة
+
+    </Button>
+
+  );
+
+}
+
+
+
+
+if (!entries.length) {
+
+  return (
+
+    <div>
+
+      لا توجد إجابات
+
+    </div>
+
+  );
+
+}
+
+
+
+
+const current =
+  entries[selectedIdx];
+
+
+
+
+const displayMark =
+
+  savedMarks[current.student.id]
+
+  ??
+
+  current.student_mark;
+return (
+
+  <TeacherPageLayout>
+
+
+    <div
+      className="p-6 space-y-6"
+      dir="rtl"
+    >
+
+
+      {/* Navigation */}
+
+      <div className="flex items-center gap-3">
+
+
+        <Button
+
+          variant="outline"
+
+          disabled={
+            selectedIdx === 0
+          }
+
+          onClick={() => {
+
+            setSelectedIdx(
+              (p)=>
+                Math.max(
+                  0,
+                  p - 1
+                )
+            );
+
+            setMark("");
+
+          }}
+
+        >
+
+          السابق
+
+        </Button>
+
+
+
+
+        <span className="text-sm">
+
+          {selectedIdx + 1}
+          /
+          {entries.length}
+
+        </span>
+
+
+
+
+
+        <Button
+
+          variant="outline"
+
+          disabled={
+            selectedIdx === entries.length - 1
+          }
+
+          onClick={() => {
+
+            setSelectedIdx(
+
+              (p)=>
+
+                Math.min(
+
+                  entries.length - 1,
+
+                  p + 1
+
+                )
+
+            );
+
+
+            setMark("");
+
+          }}
+
+        >
+
+          التالي
+
+        </Button>
+
+
       </div>
 
-    );
 
 
 
-  const current =
-    entries[selectedIdx];
+
+
+      <div className="grid lg:grid-cols-3 gap-6">
 
 
 
-  const displayMark =
-    savedMarks[current.student.id]
-    ??
-    current.student_mark;
-      return (
+        {/* Questions */}
 
-    <TeacherPageLayout>
+        <div className="lg:col-span-2">
 
 
-      <div
-        className="p-6 space-y-6"
-        dir="rtl"
-      >
+          <div className="rounded-xl border bg-card p-5 space-y-4">
+
+
+            <div className="flex items-center gap-3">
+
+
+              <User
+                className="
+                  w-5
+                  h-5
+                  text-primary
+                "
+              />
+
+
+              <div>
+
+                <p className="font-semibold">
+
+                  {current.student.name}
+
+                </p>
+
+
+                <p className="text-sm text-muted-foreground">
+
+                  المحاولة #
+                  {current.student_attempt}
+
+                </p>
+
+
+              </div>
+
+
+            </div>
 
 
 
-        {/* Students navigation */}
-
-        <div className="flex items-center gap-3">
 
 
-          <Button
+            {
+              current.questions &&
+              current.questions.length > 0
 
-            variant="outline"
+              ?
 
-            disabled={
-              selectedIdx === 0
+              current.questions.map(
+                (q,index)=>(
+
+                  <QuestionCard
+
+                    key={
+                      `question-${index}-${q.id}`
+                    }
+
+                    q={q}
+
+                    index={index}
+
+                  />
+
+                )
+
+              )
+
+
+              :
+
+              (
+
+                <div
+                  className="
+                    text-center
+                    py-10
+                    text-muted-foreground
+                  "
+                >
+
+                  لا توجد تفاصيل الإجابات
+
+                </div>
+
+              )
+
             }
 
-            onClick={() => {
-
-              setSelectedIdx(
-                (p) => Math.max(0, p - 1)
-              );
-
-              setMark("");
-
-            }}
-
-          >
-
-            <ChevronRight className="w-4 h-4" />
-
-            السابق
-
-          </Button>
 
 
-
-
-          <span className="text-sm">
-
-            {selectedIdx + 1}
-            /
-            {entries.length}
-
-          </span>
-
-
-
-
-          <Button
-
-            variant="outline"
-
-            disabled={
-              selectedIdx === entries.length - 1
-            }
-
-
-            onClick={() => {
-
-              setSelectedIdx(
-                (p) =>
-                  Math.min(
-                    entries.length - 1,
-                    p + 1
-                  )
-              );
-
-              setMark("");
-
-            }}
-
-          >
-
-            التالي
-
-            <ChevronLeft className="w-4 h-4" />
-
-          </Button>
+          </div>
 
 
         </div>
@@ -630,236 +868,144 @@ export function ExamCorrectionPage() {
 
 
 
-        <div className="grid lg:grid-cols-3 gap-6">
+
+        {/* Mark */}
+
+        <div>
 
 
-
-          {/* Questions */}
-
-          <div className="lg:col-span-2 space-y-4">
-
-
-            <div className="rounded-xl border bg-card p-5">
-
-
-              <div className="flex items-center gap-3 mb-4">
-
-
-                <User className="w-5 h-5 text-primary" />
-
-
-                <div>
-
-                  <p className="font-semibold">
-
-                    {current.student.name}
-
-                  </p>
-
-
-                  <p className="text-sm text-muted-foreground">
-
-                    المحاولة #
-                    {current.student_attempt}
-
-                  </p>
-
-
-                </div>
-
-
-              </div>
-
-
-
-
-
-              {
-                current.questions?.length
-
-                  ?
-
-                  current.questions.map(
-                    (q, index) => (
-
-                      <QuestionCard
-
-                        key={q.id}
-
-                        q={q}
-
-                        index={index}
-
-                      />
-
-                    )
-
-                  )
-
-
-                  :
-
-                  (
-
-                    <div className="
-                      text-center
-                      py-10
-                      text-muted-foreground
-                    ">
-
-                      لا توجد تفاصيل الإجابات
-
-                    </div>
-
-                  )
-
-              }
-
-
-            </div>
-
-
-          </div>
-
-
-
-
-
-          {/* Grade */}
-
-          <div>
-
-
-            <div className="
+          <div
+            className="
               rounded-xl
               border
               bg-card
               p-5
               sticky
               top-5
-            ">
-
-
-              <div className="
-                flex
-                items-center
-                gap-2
-                mb-5
-              ">
-
-                <PenLine
-                  className="w-5 h-5 text-primary"
-                />
-
-                <h2 className="font-semibold">
-
-                  التقييم
-
-                </h2>
-
-
-              </div>
+            "
+          >
 
 
 
+            <div className="flex items-center gap-2 mb-5">
 
 
-              {
-                displayMark !== null &&
-                displayMark !== undefined &&
-
-                (
-
-                  <Badge className="mb-4">
-
-                    الدرجة الحالية:
-                    {" "}
-                    {displayMark}
-
-                  </Badge>
-
-                )
-
-              }
-
-
-
-
-
-              <input
-
-                type="number"
-
-                value={mark}
-
-                onChange={(e)=>
-                  setMark(e.target.value)
-                }
-
-
+              <PenLine
                 className="
-                  w-full
-                  rounded-lg
-                  border
-                  p-3
-                  text-center
-                  text-xl
-                  font-bold
+                  w-5
+                  h-5
+                  text-primary
                 "
-
-
-                placeholder="أدخل الدرجة"
-
               />
 
 
+              <h2 className="font-semibold">
 
+                التقييم
 
-
-              <Button
-
-                className="w-full mt-4"
-
-
-                disabled={
-                  saving ||
-                  !mark
-                }
-
-
-                onClick={() =>
-                  saveMark()
-                }
-
-              >
-
-
-                {
-                  saving &&
-
-                  <Loader2
-                    className="
-                      w-4 h-4
-                      animate-spin
-                      me-2
-                    "
-                  />
-
-                }
-
-
-                حفظ الدرجة
-
-
-              </Button>
-
+              </h2>
 
 
             </div>
 
 
-          </div>
 
+
+
+            {
+              displayMark !== null &&
+              displayMark !== undefined &&
+
+              (
+
+                <Badge className="mb-4">
+
+                  الدرجة الحالية:
+                  {" "}
+                  {displayMark}
+
+                </Badge>
+
+              )
+
+            }
+
+
+
+
+
+            <input
+
+              type="number"
+
+              value={mark}
+
+              onChange={(e)=>
+                setMark(
+                  e.target.value
+                )
+              }
+
+
+              className="
+                w-full
+                rounded-lg
+                border
+                p-3
+                text-center
+                text-xl
+                font-bold
+              "
+
+
+              placeholder="أدخل الدرجة"
+
+            />
+
+
+
+
+
+            <Button
+
+              className="w-full mt-4"
+
+
+              disabled={
+                saving ||
+                !mark
+              }
+
+
+              onClick={()=>
+                saveMark()
+              }
+
+            >
+
+              {
+                saving &&
+
+                <Loader2
+                  className="
+                    w-4
+                    h-4
+                    animate-spin
+                    me-2
+                  "
+                />
+
+              }
+
+
+              حفظ الدرجة
+
+
+            </Button>
+
+
+
+          </div>
 
 
         </div>
@@ -869,9 +1015,10 @@ export function ExamCorrectionPage() {
       </div>
 
 
-    </TeacherPageLayout>
 
-  );
+    </div>
 
 
-}
+  </TeacherPageLayout>
+
+);

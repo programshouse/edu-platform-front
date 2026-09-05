@@ -55,15 +55,81 @@ interface StudentEntry {
 // ─── Normalise API response ───────────────────────────────
 
 function normalise(r: any, testId: string): StudentEntry {
+  const s = (typeof r.student === "object" && r.student !== null)
+    ? r.student
+    : (typeof r.user === "object" && r.user !== null)
+      ? r.user
+      : {};
+
+  const studentId =
+    s.id ??
+    s.student_id ??
+    s.user_id ??
+    r.student_id ??
+    r.user_id ??
+    (typeof r.student === "number" ? r.student : null) ??
+    (typeof r.student === "string" && !isNaN(Number(r.student)) ? Number(r.student) : null) ??
+    r.id ??
+    0;
+
+  let studentName = "";
+  if (typeof s === "object" && s !== null) {
+    studentName = s.name ?? s.full_name ?? (s.first_name ? `${s.first_name} ${s.last_name ?? ""}`.trim() : "") ?? s.student_name ?? "";
+  }
+  if (!studentName) {
+    studentName = r.student_name ?? r.user_name ?? r.name ?? (typeof r.student === "string" ? r.student : "") ?? `طالب #${studentId || 1}`;
+  }
+
+  const testObj = (typeof r.test === "object" && r.test !== null) ? r.test : {};
+  const actualTestId =
+    testObj.id ??
+    r.test_id ??
+    Number(testId) ??
+    0;
+
+  const testTitle =
+    testObj.title ??
+    testObj.title_ar ??
+    testObj.title_en ??
+    r.test_title ??
+    r.title ??
+    "";
+
+  const fullMark =
+    Number(
+      r.full_mark ??
+      testObj.full_mark ??
+      r.test_full_mark ??
+      0
+    );
+
+  const studentMark =
+    r.student_mark != null
+      ? Number(r.student_mark)
+      : r.mark != null
+        ? Number(r.mark)
+        : null;
+
   return {
-    student:         r.student        ?? { id: r.student_id ?? 0, name: r.student_name ?? String(r.student ?? "—") },
-    test:            r.test           ?? { id: Number(testId), title: "", full_mark: r.full_mark ?? 0 },
-    student_mark:    r.student_mark   ?? r.mark  ?? null,
-    full_mark:       r.full_mark      ?? r.test?.full_mark ?? 0,
-    result:          r.result         ?? null,
-    student_attempt: r.student_attempt ?? 1,
-    submitted_at:    r.submitted_at   ?? null,
-    questions:       Array.isArray(r.questions) ? r.questions : [],
+    student: {
+      id: Number(studentId),
+      name: String(studentName),
+    },
+    test: {
+      id: Number(actualTestId),
+      title: String(testTitle),
+      full_mark: fullMark,
+    },
+    student_mark: studentMark,
+    full_mark: fullMark,
+    result: r.result ?? (studentMark !== null && fullMark > 0 ? (studentMark >= fullMark * 0.5 ? "passed" : "failed") : null),
+    student_attempt: Number(r.student_attempt ?? r.attempt ?? 1),
+    submitted_at: r.submitted_at ?? r.created_at ?? null,
+    questions: Array.isArray(r.questions)
+      ? r.questions
+      : Array.isArray(r.test_questions)
+        ? r.test_questions
+        : [],
   };
 }
 
@@ -101,11 +167,11 @@ function QuestionCard({ q, index }: { q: SubmittedQuestion; index: number }) {
 
         ) : Array.isArray(q.options) && q.options.length > 0 ? (
           <div className="space-y-2">
-            {q.options.map((opt) => {
+            {q.options.map((opt, optIndex) => {
               const chosen = opt.id === q.student_answer_option_id;
               return (
                 <div
-                  key={opt.id}
+                  key={opt.id ? `opt-${opt.id}-${optIndex}` : `opt-idx-${optIndex}`}
                   className={cn(
                     "flex items-center gap-3 px-4 py-2.5 rounded-lg border text-sm transition-colors",
                     chosen
@@ -166,16 +232,29 @@ export default function InstructorCorrectionPage() {
 
   // ── Mark mutation ────────────────────────────────────────
   const { mutate: saveMark, isPending: saving } = useMutation({
-    mutationFn: () => instructorTestsApi.markStudent(id, entries[selectedIdx].student.id, mark),
+    mutationFn: () => {
+      const currentEntry = entries[selectedIdx];
+      const studentId = currentEntry?.student?.id;
+      if (!studentId || String(studentId) === "0") {
+        throw new Error("تعذر تحديد معرف الطالب");
+      }
+      return instructorTestsApi.markStudent(id, studentId, mark);
+    },
     onSuccess: () => {
-      setSavedMarks((p) => ({ ...p, [entries[selectedIdx].student.id]: Number(mark) }));
+      const currentStudentId = entries[selectedIdx]?.student?.id;
+      if (currentStudentId) {
+        setSavedMarks((p) => ({ ...p, [currentStudentId]: Number(mark) }));
+      }
       toast.success("تم حفظ الدرجة بنجاح ✓");
       setMark("");
       queryClient.invalidateQueries({ queryKey: ["correction-data",          id] });
       queryClient.invalidateQueries({ queryKey: ["instructor-test-results",  id] });
       if (selectedIdx < entries.length - 1) setSelectedIdx((p) => p + 1);
     },
-    onError: (err: any) => toast.error(err?.response?.data?.message ?? "فشل حفظ الدرجة"),
+    onError: (err: any) => {
+      const msg = err?.response?.data?.message || err?.message || "فشل حفظ الدرجة";
+      toast.error(msg);
+    },
   });
 
 
@@ -280,7 +359,7 @@ export default function InstructorCorrectionPage() {
                             || (e.student_mark !== null && e.student_mark !== undefined);
                 return (
                   <button
-                    key={e.student.id}
+                    key={`student-tab-${e.student.id ?? "st"}-${e.student_attempt ?? 1}-${i}`}
                     onClick={() => { setSelectedIdx(i); setMark(""); }}
                     className={cn(
                       "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all",
@@ -309,7 +388,7 @@ export default function InstructorCorrectionPage() {
             <div className="lg:col-span-2 space-y-4">
               <AnimatePresence mode="wait">
                 <motion.div
-                  key={current.student.id}
+                  key={`student-content-${current.student.id ?? "st"}-${current.student_attempt ?? 1}-${selectedIdx}`}
                   initial={{ opacity: 0, x: 16 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -16 }}
@@ -340,7 +419,7 @@ export default function InstructorCorrectionPage() {
                   {/* Questions */}
                   {Array.isArray(current.questions) && current.questions.length > 0
                     ? current.questions.map((q: SubmittedQuestion, i: number) => (
-                        <QuestionCard key={q.id ?? i} q={q} index={i} />
+                        <QuestionCard key={q.id ? `q-${q.id}-${i}` : `q-idx-${i}`} q={q} index={i} />
                       ))
                     : (
                       <div className="rounded-xl border bg-card p-10 text-center">
